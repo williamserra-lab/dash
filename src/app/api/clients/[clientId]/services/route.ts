@@ -52,9 +52,15 @@ export async function POST(
     const name = String(body.name || "").trim();
     const description =
       typeof body.description === "string" ? body.description : undefined;
-    const durationMinutes = body.durationMinutes
-      ? Number(body.durationMinutes)
-      : undefined;
+    const durationMinutesRaw = (body as any).durationMinutes;
+    const durationMinutes = Number(durationMinutesRaw);
+    const hasDuration = durationMinutesRaw !== undefined && durationMinutesRaw !== null && String(durationMinutesRaw).trim() !== "";
+    if (!hasDuration || !Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+      return NextResponse.json(
+        { error: "Duração (durationMinutes) é obrigatória e deve ser um número maior que zero." },
+        { status: 400 }
+      );
+    }
     const basePrice =
       typeof body.basePrice === "number" ? body.basePrice : undefined;
 
