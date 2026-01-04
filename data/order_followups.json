@@ -1,0 +1,82 @@
+{
+  "ord_migfieo3_3s3zv0": {
+    "clientId": "catia_foods",
+    "events": [
+      {
+        "type": "abandoned",
+        "orderId": "ord_migfieo3_3s3zv0",
+        "clientId": "catia_foods",
+        "at": "2025-12-07T21:09:37.379Z"
+      },
+      {
+        "type": "followup",
+        "orderId": "ord_migfieo3_3s3zv0",
+        "clientId": "catia_foods",
+        "attempt": 3,
+        "messageType": "softclose",
+        "at": "2025-12-07T21:09:37.379Z"
+      }
+    ]
+  },
+  "ord_5d44cl_12hpab": {
+    "clientId": "catia_foods",
+    "events": [
+      {
+        "type": "abandoned",
+        "orderId": "ord_5d44cl_12hpab",
+        "clientId": "catia_foods",
+        "at": "2025-12-07T21:09:37.379Z"
+      },
+      {
+        "type": "followup",
+        "orderId": "ord_5d44cl_12hpab",
+        "clientId": "catia_foods",
+        "attempt": 3,
+        "messageType": "softclose",
+        "at": "2025-12-07T21:09:37.379Z"
+      }
+    ]
+  },
+  "ord_teste_001": {
+    "clientId": "catia_foods",
+    "events": [
+      {
+        "type": "abandoned",
+        "orderId": "ord_teste_001",
+        "clientId": "catia_foods",
+        "vertical": "delivery",
+        "at": "2025-12-09T00:15:30.446Z"
+      },
+      {
+        "type": "followup",
+        "orderId": "ord_teste_001",
+        "clientId": "catia_foods",
+        "vertical": "delivery",
+        "attempt": 3,
+        "messageType": "softclose",
+        "at": "2025-12-09T00:15:30.446Z"
+      }
+    ]
+  },
+  "ord_teste_002": {
+    "clientId": "catia_foods",
+    "events": [
+      {
+        "type": "abandoned",
+        "orderId": "ord_teste_002",
+        "clientId": "catia_foods",
+        "vertical": "delivery",
+        "at": "2025-12-09T00:15:30.446Z"
+      },
+      {
+        "type": "followup",
+        "orderId": "ord_teste_002",
+        "clientId": "catia_foods",
+        "vertical": "delivery",
+        "attempt": 3,
+        "messageType": "softclose",
+        "at": "2025-12-09T00:15:30.446Z"
+      }
+    ]
+  }
+}

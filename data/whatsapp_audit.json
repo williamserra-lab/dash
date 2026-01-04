@@ -1,0 +1,51 @@
+[
+  {
+    "id": "wa_audit_kz3riay8mjauph4s",
+    "at": "2025-12-18T02:58:33.340Z",
+    "clientId": "catia_foods",
+    "action": "campaign_send",
+    "meta": {
+      "campaignId": "cmp_blda86p5_bts7n3",
+      "totalTargets": 0,
+      "cappedTargets": 0,
+      "eligible": 0,
+      "enqueued": 0,
+      "skippedDueToDailyLimit": 0,
+      "daily": {
+        "date": "2025-12-17",
+        "limit": 200,
+        "usedAfter": 0
+      }
+    }
+  },
+  {
+    "id": "wa_audit_ramysy23mjausoju",
+    "at": "2025-12-18T03:01:02.922Z",
+    "clientId": "catia_foods",
+    "action": "campaign_send",
+    "meta": {
+      "campaignId": "cmp_047vf0ux_cipp54",
+      "totalTargets": 1,
+      "cappedTargets": 1,
+      "eligible": 1,
+      "enqueued": 1,
+      "skippedDueToDailyLimit": 0,
+      "daily": {
+        "date": "2025-12-18",
+        "limit": 200,
+        "usedAfter": 1
+      }
+    }
+  },
+  {
+    "id": "wa_audit_f0sbvdfwmjawe9yo",
+    "at": "2025-12-18T03:45:50.064Z",
+    "clientId": "catia_foods",
+    "action": "group_campaign_send_requested",
+    "meta": {
+      "campaignId": "gcamp_5qwc5v8v_ubr5hr",
+      "enqueued": 1,
+      "groupCount": 1
+    }
+  }
+]

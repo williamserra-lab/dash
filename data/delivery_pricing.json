@@ -1,0 +1,34 @@
+{
+  "catia_foods": {
+    "clientId": "catia_foods",
+    "mode": "by_neighborhood",
+    "fixedFeeCents": null,
+    "rules": [
+      {
+        "neighborhood": "Centro de Bangu",
+        "neighborhoodKey": "centro de bangu",
+        "feeCents": 100
+      },
+      {
+        "neighborhood": "Jardim Bangu",
+        "neighborhoodKey": "jardim bangu",
+        "feeCents": 200
+      },
+      {
+        "neighborhood": "Realeng",
+        "neighborhoodKey": "realeng",
+        "feeCents": 400
+      },
+      {
+        "neighborhood": "Conjunto da Marinha",
+        "neighborhoodKey": "conjunto da marinha",
+        "feeCents": 300
+      }
+    ],
+    "updatedAt": "2025-12-07T18:50:19.464Z"
+  },
+  "Galeria_do_Gordo": {
+    "mode": "by_neighborhood",
+    "byNeighborhood": []
+  }
+}

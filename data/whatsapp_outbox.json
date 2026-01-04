@@ -1,0 +1,125 @@
+[
+  {
+    "id": "wa_media_cbwjav_gb0ov5",
+    "type": "media",
+    "clientId": "catia_foods",
+    "to": "5511999999999",
+    "contactId": "ct_mig9pq6f_kem8zr",
+    "mediaId": "media_catia_cardapio_pdf",
+    "mediaUrl": "https://exemplo.com/catia/cardapio.pdf",
+    "label": "Cardápio almoço",
+    "category": "menu",
+    "caption": "Segue o nosso cardápio atualizado.",
+    "context": {
+      "meta": {
+        "intent": "pedir_cardapio"
+      }
+    },
+    "createdAt": "2025-11-30T17:02:18.844Z",
+    "status": "sent",
+    "sentAt": "2025-12-09T01:40:29.310Z",
+    "dryRun": true
+  },
+  {
+    "id": "out_0z9mcntqcmy_nz38ktji0p",
+    "createdAt": "2025-12-07T21:09:37.379Z",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "orderId": "ord_migfieo3_3s3zv0",
+    "messageType": "softclose",
+    "message": "Vou encerrar por agora, mas quando quiser é só chamar.",
+    "status": "sent",
+    "sentAt": "2025-12-09T01:40:29.310Z",
+    "dryRun": true
+  },
+  {
+    "id": "out_m67s0hh0g_34audp1rkt3",
+    "createdAt": "2025-12-07T21:09:37.379Z",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "orderId": "ord_5d44cl_12hpab",
+    "messageType": "softclose",
+    "message": "Vou encerrar por agora, mas quando quiser é só chamar.",
+    "status": "sent",
+    "sentAt": "2025-12-09T01:40:29.310Z",
+    "dryRun": true
+  },
+  {
+    "id": "out_2f9ady4lepm_53stw4nami",
+    "createdAt": "2025-12-09T00:15:30.446Z",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "kind": "message",
+    "idempotencyKey": "catia_foods:ord_teste_001:softclose",
+    "orderId": "ord_teste_001",
+    "messageType": "softclose",
+    "message": "Vou encerrar por agora, mas quando quiser é só chamar.",
+    "status": "sent",
+    "type": "followup_message",
+    "sentAt": "2025-12-09T01:40:29.310Z",
+    "dryRun": true
+  },
+  {
+    "id": "out_xz3f6pugp1r_yxdylf5pcu",
+    "createdAt": "2025-12-09T00:15:30.446Z",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "kind": "message",
+    "idempotencyKey": "catia_foods:ord_teste_002:softclose",
+    "orderId": "ord_teste_002",
+    "messageType": "softclose",
+    "message": "Vou encerrar por agora, mas quando quiser é só chamar.",
+    "status": "sent",
+    "type": "followup_message",
+    "sentAt": "2025-12-09T01:40:29.310Z",
+    "dryRun": true
+  },
+  {
+    "id": "out_2cbd736274394588",
+    "createdAt": "2025-12-18T03:01:02.593Z",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "status": "failed",
+    "notBefore": "2025-12-18T12:00:32.000Z",
+    "kind": "message",
+    "idempotencyKey": "cmp:cmp_047vf0ux_cipp54:contact:ct_migblqx0_d8sqsc",
+    "to": "5511888888888",
+    "orderId": null,
+    "contactId": "ct_migblqx0_d8sqsc",
+    "context": {
+      "kind": "campaign",
+      "campaignId": "cmp_047vf0ux_cipp54",
+      "contactId": "ct_migblqx0_d8sqsc",
+      "contactIdentifier": "5511888888888",
+      "idempotencyKey": "cmp:cmp_047vf0ux_cipp54:contact:ct_migblqx0_d8sqsc"
+    },
+    "type": "text",
+    "messageType": null,
+    "message": "teste de função",
+    "failedAt": "2025-12-18T22:10:24.893Z",
+    "error": "OUTBOX_DRY_RUN=false mas nenhum transport de envio está configurado."
+  },
+  {
+    "id": "out_6b95e8b038e14de5",
+    "createdAt": "2025-12-18T03:45:49.613Z",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "status": "failed",
+    "notBefore": "2025-12-18T03:48:41.599Z",
+    "kind": "message",
+    "idempotencyKey": null,
+    "to": "120363404855043456@g.us",
+    "orderId": null,
+    "contactId": null,
+    "context": {
+      "kind": "group_campaign",
+      "campaignId": "gcamp_5qwc5v8v_ubr5hr",
+      "groupId": "120363404855043456@g.us"
+    },
+    "type": "text",
+    "messageType": "assistant",
+    "message": "Mensagem para os grupos",
+    "failedAt": "2025-12-18T22:10:24.893Z",
+    "error": "OUTBOX_DRY_RUN=false mas nenhum transport de envio está configurado."
+  }
+]

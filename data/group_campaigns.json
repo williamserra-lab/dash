@@ -1,0 +1,17 @@
+[
+  {
+    "id": "gcamp_5qwc5v8v_ubr5hr",
+    "clientId": "catia_foods",
+    "name": "Teste Campanha Grupo",
+    "message": "Mensagem para os grupos",
+    "status": "disparada",
+    "paceProfile": "safe",
+    "groupIds": [
+      "120363404855043456@g.us"
+    ],
+    "createdAt": "2025-12-18T03:40:27.141Z",
+    "updatedAt": "2025-12-18T03:45:49.952Z",
+    "lastSimulatedAt": null,
+    "lastSentAt": "2025-12-18T03:45:49.952Z"
+  }
+]

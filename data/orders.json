@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ord_teste_001",
+    "clientId": "catia_foods",
+    "contactId": "ct_teste_1",
+    "identifier": "",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "",
+        "name": "PF do dia",
+        "quantity": 0,
+        "unitPriceCents": null
+      }
+    ],
+    "totalAmountCents": null,
+    "totalAmount": 3500,
+    "delivery": null,
+    "paymentTiming": null,
+    "payment": null,
+    "lastMessage": "",
+    "status": "abandonado",
+    "conversationStep": null,
+    "createdAt": "2025-12-07T22:30:00.000Z",
+    "updatedAt": "2025-12-08T07:48:57.261Z",
+    "abandonedAt": "2025-12-09T00:15:30.446Z"
+  },
+  {
+    "id": "ord_teste_002",
+    "clientId": "catia_foods",
+    "contactId": "ct_teste_2",
+    "identifier": "",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "",
+        "name": "1x marmita frango",
+        "quantity": 0,
+        "unitPriceCents": null
+      }
+    ],
+    "totalAmountCents": null,
+    "totalAmount": 5000,
+    "delivery": null,
+    "paymentTiming": null,
+    "payment": null,
+    "lastMessage": "",
+    "status": "abandonado",
+    "conversationStep": null,
+    "createdAt": "2025-12-07T22:31:00.000Z",
+    "updatedAt": "2025-12-07T22:31:00.000Z",
+    "abandonedAt": "2025-12-09T00:15:30.446Z"
+  }
+]

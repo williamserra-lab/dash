@@ -1,0 +1,74 @@
+[
+  {
+    "id": "send_migbnx39_8krfxu",
+    "campaignId": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "enviado",
+    "createdAt": "2025-11-26T18:12:22.725Z"
+  },
+  {
+    "id": "send_p9z26d8f_iukn69",
+    "campaignId": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "simulado",
+    "createdAt": "2025-11-27T19:34:50.528Z"
+  },
+  {
+    "id": "send_of05s8u1_xzvdql",
+    "campaignId": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "simulado",
+    "createdAt": "2025-11-27T19:34:54.297Z"
+  },
+  {
+    "id": "send_iaeakkkd_3923zo",
+    "campaignId": "cmp_3q2sncbz_w43oye",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "simulado",
+    "createdAt": "2025-11-27T19:34:56.334Z"
+  },
+  {
+    "id": "send_ic9dyvfj_opc00c",
+    "campaignId": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "simulado",
+    "createdAt": "2025-11-27T19:35:00.055Z"
+  },
+  {
+    "id": "send_2hw9g83m_0hu985",
+    "campaignId": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "simulado",
+    "createdAt": "2025-11-27T19:35:00.723Z"
+  },
+  {
+    "id": "send_366a3g52_m5mdm2",
+    "campaignId": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "simulado",
+    "createdAt": "2025-11-27T19:35:01.162Z"
+  },
+  {
+    "id": "send_e6h2cupm_w0dp4r",
+    "campaignId": "cmp_047vf0ux_cipp54",
+    "clientId": "catia_foods",
+    "contactId": "ct_migblqx0_d8sqsc",
+    "identifier": "5511888888888",
+    "status": "erro",
+    "createdAt": "2025-12-18T22:10:24.897Z"
+  }
+]

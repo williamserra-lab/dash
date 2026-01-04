@@ -1,0 +1,2762 @@
+[
+  {
+    "id": "grp_xsgjnegv_569u4q",
+    "clientId": "catia_foods",
+    "groupId": "120363022642071588@g.us",
+    "name": "🚛 Motoristas Pralog Profarma 🚚",
+    "status": "active",
+    "authorizedForCampaigns": true,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_70cph0lk_vzeofh",
+    "clientId": "catia_foods",
+    "groupId": "5521964849757-1618539257@g.us",
+    "name": "1 - COMERCIANTES VK",
+    "status": "active",
+    "authorizedForCampaigns": true,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_5xgxqwe6_thw4kg",
+    "clientId": "catia_foods",
+    "groupId": "120363368601034207@g.us",
+    "name": "4 - COMERCIANTES REALENGO",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_kuqc27os_hg20gg",
+    "clientId": "catia_foods",
+    "groupId": "5521992071553-1564778071@g.us",
+    "name": "Favelas em Guerras",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_9j8qxdrl_auukrm",
+    "clientId": "catia_foods",
+    "groupId": "120363412200102831@g.us",
+    "name": "5 - COMERCIANTES CAMPO GRANDE",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ubwiuvc7_1t5jly",
+    "clientId": "catia_foods",
+    "groupId": "120363244147012894@g.us",
+    "name": "EU TENHO PRA VENDER,QUEM QUER COMPRAR? 👍✍️",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pmzdevp7_t15t4x",
+    "clientId": "catia_foods",
+    "groupId": "120363261553552225@g.us",
+    "name": "DIVULGUE AQUI RJ21 ✍️🔛",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2u3fiskp_wnx7zc",
+    "clientId": "catia_foods",
+    "groupId": "5521973002420-1554808418@g.us",
+    "name": "CR-V CLUB RJ 🇧🇷🇯🇵",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ss0tt53q_iilic1",
+    "clientId": "catia_foods",
+    "groupId": "120363399055386680@g.us",
+    "name": "Comércio taquaral 2.0 vendas",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_v4dljysx_5wpo28",
+    "clientId": "catia_foods",
+    "groupId": "120363276145647961@g.us",
+    "name": "VENDAS ONLINE RJ",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_mebu6vlj_lnz7xt",
+    "clientId": "catia_foods",
+    "groupId": "120363207068868653@g.us",
+    "name": "🚀🚀VENDAS RJ🚀🚀",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_x5mgfh0g_nr7zo6",
+    "clientId": "catia_foods",
+    "groupId": "120363404855043456@g.us",
+    "name": "Nextia Sistema",
+    "status": "active",
+    "authorizedForCampaigns": true,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_4tzmnohm_fdqilh",
+    "clientId": "catia_foods",
+    "groupId": "120363399089163707@g.us",
+    "name": "NOTÍCIAS RJ E REGIÃO 21 22 24",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_kxrb6yqb_9hig2o",
+    "clientId": "catia_foods",
+    "groupId": "120363391470182351@g.us",
+    "name": "🔵🟣VENDAS SANTÍSSIMO🔵🟣",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_xkc9h8ma_x1ke2h",
+    "clientId": "catia_foods",
+    "groupId": "120363355439946134@g.us",
+    "name": "CÃES DE RAÇA RJ (GRUPO 3)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_dzmvqibd_znofi6",
+    "clientId": "catia_foods",
+    "groupId": "5521967549370-1498526341@g.us",
+    "name": "JARDIM BANGU SHOPPING🎥",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_mr9g7von_4i4nne",
+    "clientId": "catia_foods",
+    "groupId": "120363048800615699@g.us",
+    "name": "ContraFatos | Canal 508",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_z81bu641_ykka0b",
+    "clientId": "catia_foods",
+    "groupId": "120363280686823130@g.us",
+    "name": "Passagem Secreta ✈️ [GRÁTIS] #213",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_48ffpzwn_1fwulw",
+    "clientId": "catia_foods",
+    "groupId": "120363249680022641@g.us",
+    "name": "Run as Cloud - AWS ASSOCIATE",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0u3qnvzp_9e8id2",
+    "clientId": "catia_foods",
+    "groupId": "120363325541097071@g.us",
+    "name": "☝🏼VENDAS ZONA OESTE:PROIBIDO IPTV",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8yi59i1w_g38bub",
+    "clientId": "catia_foods",
+    "groupId": "120363314000500342@g.us",
+    "name": "EMPREGO EM RIBEIRÃO PRETO/SP E REGIÃO",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_clouzc3n_afg4nu",
+    "clientId": "catia_foods",
+    "groupId": "5521983072352-1558963482@g.us",
+    "name": "Vendas Jardim Progresso",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_67hl4i2m_6tngfh",
+    "clientId": "catia_foods",
+    "groupId": "120363228205615675@g.us",
+    "name": "☝🏼VENDAS V.K./BANGU/J.BANGU",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_mw5avoep_s49y9a",
+    "clientId": "catia_foods",
+    "groupId": "5521983072352-1579291131@g.us",
+    "name": "Vendas do JP2",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_qzjges9s_syxa5i",
+    "clientId": "catia_foods",
+    "groupId": "120363213970634701@g.us",
+    "name": "Defesa Cibernética",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wkc23brd_7o5tme",
+    "clientId": "catia_foods",
+    "groupId": "120363387657651331@g.us",
+    "name": "🔵🟣VENDAS MÉIER 🔵🟣",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_c7gt81rs_1q6fxr",
+    "clientId": "catia_foods",
+    "groupId": "120363402804796702@g.us",
+    "name": "MERCADO NACIONAL DE VENDAS | BR +55 DDD's",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_sarx7ebx_kiec25",
+    "clientId": "catia_foods",
+    "groupId": "120363290750000720@g.us",
+    "name": "Comunidade de Dev | Vagas",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8uiggfjl_w7554p",
+    "clientId": "catia_foods",
+    "groupId": "120363305059843326@g.us",
+    "name": "Comunidade de Cibersegurança",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_n3evm6tw_m6xvbo",
+    "clientId": "catia_foods",
+    "groupId": "120363321308093228@g.us",
+    "name": "Geral de Cibersegurança",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_kgohdzka_eqs1uo",
+    "clientId": "catia_foods",
+    "groupId": "120363144231790177@g.us",
+    "name": "Geral de IA",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ozc41mtb_y3w7bi",
+    "clientId": "catia_foods",
+    "groupId": "120363331561280262@g.us",
+    "name": "Comunidade de IA & Dados",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_hky39b6e_1baffp",
+    "clientId": "catia_foods",
+    "groupId": "120363296746711688@g.us",
+    "name": "꧁𓊈𒆜🅸🅽🅵🅾🆁🅼🅰ÇÕ🅴🆂 🆁🅸🅾𒆜𓊉꧂",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_x04m98iz_0mousk",
+    "clientId": "catia_foods",
+    "groupId": "120363419686708887@g.us",
+    "name": "HOSPITAL VETERINÁRIO CAXIAS, IRAJÁ, MANGUEIRA,CCZ SANTA CRUZ E POSTO PRAÇA DA GUILHERME",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yhnntqjp_etagxv",
+    "clientId": "catia_foods",
+    "groupId": "120363038800531331@g.us",
+    "name": "UERJ 2026: eu quero!",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_cy4yu8b7_q0f6oi",
+    "clientId": "catia_foods",
+    "groupId": "120363418837655916@g.us",
+    "name": "CyberShield | Faculdade IMPACTA",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_4aqp7aa9_h807pk",
+    "clientId": "catia_foods",
+    "groupId": "120363030878409205@g.us",
+    "name": "ZONA SUL INTERATIVO",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_tv8lv90y_82pm7u",
+    "clientId": "catia_foods",
+    "groupId": "120363179485990770@g.us",
+    "name": "Carcara cartão/ifood oficial",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_nfythu2a_4xkkqf",
+    "clientId": "catia_foods",
+    "groupId": "120363048117267646@g.us",
+    "name": "carcara ifood/cc #32",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_3ss03mde_8lpgr1",
+    "clientId": "catia_foods",
+    "groupId": "553298262059-1618784346@g.us",
+    "name": "PAPO DE FAVELA OFICIAL",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_9jpi7pwx_zxfamt",
+    "clientId": "catia_foods",
+    "groupId": "5521991074893-1556652592@g.us",
+    "name": "- NEW BOSS -",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zs3uo0ry_rssphz",
+    "clientId": "catia_foods",
+    "groupId": "120363404342888083@g.us",
+    "name": "CAOS NO RJ (18)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_4e35qytq_zvriw4",
+    "clientId": "catia_foods",
+    "groupId": "120363383188110220@g.us",
+    "name": "Cursos & Divulgações & Eventos",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zth0itsk_r0y2o9",
+    "clientId": "catia_foods",
+    "groupId": "120363322589705986@g.us",
+    "name": "Vagas de Cibersegurança",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_r4ybpurz_xrm1f8",
+    "clientId": "catia_foods",
+    "groupId": "120363045735753858@g.us",
+    "name": "🅐🅒🅗🅐🅓🅘🅝🅗🅞🅢 🅓🅐 🅝🅔🅣 💻📱🖥️📦🛍️",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_6jz1kgnr_16o3jq",
+    "clientId": "catia_foods",
+    "groupId": "120363364543839215@g.us",
+    "name": "VENDAS E ROLOS BRASIL",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ueho5rer_7hn2s6",
+    "clientId": "catia_foods",
+    "groupId": "5521991765199-1516999322@g.us",
+    "name": "VAGAS RJ & REGIÃO - 0️⃣3️⃣",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_86rwin6e_98197i",
+    "clientId": "catia_foods",
+    "groupId": "5521998561310-1519572128@g.us",
+    "name": "AMJP",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_a0xc3ilf_k6ftl3",
+    "clientId": "catia_foods",
+    "groupId": "120363304912398569@g.us",
+    "name": "☁ Mentoria AWS 2025",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ya9w8nno_6hnn81",
+    "clientId": "catia_foods",
+    "groupId": "120363038031901622@g.us",
+    "name": "Vagas de Empregos - Videira Casa Grande",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0h8rqvdk_4txpd8",
+    "clientId": "catia_foods",
+    "groupId": "120363253963176295@g.us",
+    "name": "Vagas TI - SI Impacta",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2xk05yne_1ipqun",
+    "clientId": "catia_foods",
+    "groupId": "120363086933264269@g.us",
+    "name": "CR-V CLUB RJ EMERGÊNCIAS",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ncpsbk1q_e7v0g3",
+    "clientId": "catia_foods",
+    "groupId": "120363100647748770@g.us",
+    "name": "Aposentadoria/ inss/ benefícios & previdência",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2b955w51_bn9w7c",
+    "clientId": "catia_foods",
+    "groupId": "120363182426659598@g.us",
+    "name": "NOVEMBRO: Reunião Geral - 16/11/25",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_716gdbxo_vfeos0",
+    "clientId": "catia_foods",
+    "groupId": "120363265512462387@g.us",
+    "name": "Vagas de Emprego 1.0",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_9p7ehfpw_c8k55o",
+    "clientId": "catia_foods",
+    "groupId": "120363272137307057@g.us",
+    "name": "Cloud | Infra | DevOps | FinOps",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_kt8eh0cp_plknhp",
+    "clientId": "catia_foods",
+    "groupId": "120363333674341782@g.us",
+    "name": "🌐 FIQON | COMUNIDADE GERAL",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_eoh59jvl_hspmfv",
+    "clientId": "catia_foods",
+    "groupId": "5521983120547-1584656142@g.us",
+    "name": "Mães de Debutantes RJ#1🎉🥰",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_gu90mtc7_fe6iyc",
+    "clientId": "catia_foods",
+    "groupId": "5521998165164-1634363432@g.us",
+    "name": "8️⃣ CAMPO GRANDE AO VIVO 🚓",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_62vyiocu_6rdz1c",
+    "clientId": "catia_foods",
+    "groupId": "5521983123275-1494729733@g.us",
+    "name": "Joga P/ Rolo Jd.Progresso",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wcvudufp_1wl2zs",
+    "clientId": "catia_foods",
+    "groupId": "120363298084612795@g.us",
+    "name": "Ninja No System",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zlkgx2l7_lcqsv7",
+    "clientId": "catia_foods",
+    "groupId": "120363221804184028@g.us",
+    "name": "Motoristas LIBFARMA",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_3how2odl_srojs0",
+    "clientId": "catia_foods",
+    "groupId": "120363418623524208@g.us",
+    "name": "GRUPO-1 CODY👨‍💻🧑‍💻👩‍💻🧑‍💻👨‍💻",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_x5em4d6c_kk8vj4",
+    "clientId": "catia_foods",
+    "groupId": "120363422853036051@g.us",
+    "name": "DPCN 14",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_lh6a8jfp_humxdk",
+    "clientId": "catia_foods",
+    "groupId": "120363047080885340@g.us",
+    "name": "Entregas Profarma",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_st3jitmg_4a4f8f",
+    "clientId": "catia_foods",
+    "groupId": "5521964563575-1596738026@g.us",
+    "name": "Brasil do Bem",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_z2j6adx7_xehwsb",
+    "clientId": "catia_foods",
+    "groupId": "120363389978009975@g.us",
+    "name": "Imersão Privacy By Design  2025 #1",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_so11krw7_4pvapy",
+    "clientId": "catia_foods",
+    "groupId": "120363302957187022@g.us",
+    "name": "Eu mesmo",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_dz5fpr4f_bl2ngn",
+    "clientId": "catia_foods",
+    "groupId": "558197370979-1590346525@g.us",
+    "name": "Promo Casa e Tecnologia💡#B",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2orundpq_afsac0",
+    "clientId": "catia_foods",
+    "groupId": "559181503647-1620076388@g.us",
+    "name": "0ff3ns!v3 S3cur!ty ®",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_p7h6sapo_uys9el",
+    "clientId": "catia_foods",
+    "groupId": "120363292394088087@g.us",
+    "name": "#2 Guia de TI 🦉| Membros",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pe85nhku_9viry3",
+    "clientId": "catia_foods",
+    "groupId": "120363378722810518@g.us",
+    "name": "☝🏼GRP. SOMENTE DE LINKS DE WATSZAP☝🏼",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_sl0f77xu_k945ia",
+    "clientId": "catia_foods",
+    "groupId": "120363026047310177@g.us",
+    "name": "Vagas de empregos - RJ 👩🏽‍💼👨🏻‍💼",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_trzam2v8_gihytv",
+    "clientId": "catia_foods",
+    "groupId": "120363039348511043@g.us",
+    "name": "BOLSAS ICL/EDUCAFRO 2025",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_f0xec6po_11tvua",
+    "clientId": "catia_foods",
+    "groupId": "120363417612491122@g.us",
+    "name": "#n8n-pt",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_9e6y6dqg_sg45mz",
+    "clientId": "catia_foods",
+    "groupId": "120363420097033489@g.us",
+    "name": "TIEXAMES | IA Compliance - 15 a 19 Dezembro",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yzylddha_4qr2k7",
+    "clientId": "catia_foods",
+    "groupId": "120363294925377353@g.us",
+    "name": "VAGAS DE EMPREGO DIGIJOBS",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yyols373_yzvfti",
+    "clientId": "catia_foods",
+    "groupId": "120363301243687091@g.us",
+    "name": "Dev Java | Kotlin",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8l3flvpg_bor9nf",
+    "clientId": "catia_foods",
+    "groupId": "120363403083613366@g.us",
+    "name": "Empregabilidade - C1 2024",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_5788mjmq_rf57n3",
+    "clientId": "catia_foods",
+    "groupId": "553184087474-1478384531@g.us",
+    "name": "🚙 Honda CRV BR Oficial®🇧🇷🇯🇵",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_o03b2l3r_xwsobe",
+    "clientId": "catia_foods",
+    "groupId": "120363170924927457@g.us",
+    "name": "Starti Community",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wqpo8mf3_fwiabl",
+    "clientId": "catia_foods",
+    "groupId": "120363262294336138@g.us",
+    "name": "#off-topic",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_05rwrtnv_bdanot",
+    "clientId": "catia_foods",
+    "groupId": "120363027928474412@g.us",
+    "name": "@pretxdecybersec 💜",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8vhvgs8o_x82dup",
+    "clientId": "catia_foods",
+    "groupId": "120363375482690821@g.us",
+    "name": "#power-automate",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0xx9yd19_wm68m3",
+    "clientId": "catia_foods",
+    "groupId": "120363376087125142@g.us",
+    "name": "#uipath",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_r5xyf1pd_r5c7uw",
+    "clientId": "catia_foods",
+    "groupId": "5521983120547-1599701531@g.us",
+    "name": "Noivas Maravilhosas!💕",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_n2859yxp_ncnvdc",
+    "clientId": "catia_foods",
+    "groupId": "120363136929358654@g.us",
+    "name": "Vagas RJ - grupo exclusivo para candidatos",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_vzqpuj6v_tbqbyu",
+    "clientId": "catia_foods",
+    "groupId": "120363229826349516@g.us",
+    "name": "Networking Profissional - COMUNIDADE GÊNESIS",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0kidwnz1_b527uc",
+    "clientId": "catia_foods",
+    "groupId": "120363027475766970@g.us",
+    "name": "Artur❤️Gisely em Portugal",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_7mttaolg_xm004u",
+    "clientId": "catia_foods",
+    "groupId": "120363393367564476@g.us",
+    "name": "Emana do Povo - Vagas de emprego RJ",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_sv8cnqsi_pew7kn",
+    "clientId": "catia_foods",
+    "groupId": "120363403588962469@g.us",
+    "name": "Novidades DIO #52",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_oxz0nibu_3e1ie0",
+    "clientId": "catia_foods",
+    "groupId": "120363418255027544@g.us",
+    "name": "Investidor Mestre - Pré Inscrição 2025",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_kgxg7g06_q7ftee",
+    "clientId": "catia_foods",
+    "groupId": "5511964576061-1629373856@g.us",
+    "name": "EmpregosItupevaJundiai9",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_808cnnyd_dxu9v4",
+    "clientId": "catia_foods",
+    "groupId": "120363287039466974@g.us",
+    "name": "HH - Homens de Honra - Verbo CG",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_okxvdwrz_db6r6e",
+    "clientId": "catia_foods",
+    "groupId": "120363291175461276@g.us",
+    "name": "FEBRABAN Cyber Academy",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_fd0w4xdc_kva4rd",
+    "clientId": "catia_foods",
+    "groupId": "120363404026232836@g.us",
+    "name": "VAGAS TECNOLOGIA XIII",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_lczody1k_pdp3cl",
+    "clientId": "catia_foods",
+    "groupId": "120363404234414366@g.us",
+    "name": "Para não dizer que não falei...",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_vr7q1ilr_aoyrh3",
+    "clientId": "catia_foods",
+    "groupId": "120363400610866675@g.us",
+    "name": "CHINA: Bolsas 100%? - Em  negociações EDUCAFRO Brasil",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_taot0fja_l4tyv0",
+    "clientId": "catia_foods",
+    "groupId": "120363346398983526@g.us",
+    "name": "EDN - IA - TURMA 02",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_01zukjlr_n1jcr2",
+    "clientId": "catia_foods",
+    "groupId": "5521983120547-1591215563@g.us",
+    "name": "Mães de debutante #2",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0orh2j0l_33hdq7",
+    "clientId": "catia_foods",
+    "groupId": "120363291015763430@g.us",
+    "name": "Ciber Blue Team",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_w4nwzyyy_wd7gyw",
+    "clientId": "catia_foods",
+    "groupId": "120363347407783829@g.us",
+    "name": "TI Verbo Campo Grande - Operacional",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_31eluvoo_hmtyfx",
+    "clientId": "catia_foods",
+    "groupId": "120363289309674106@g.us",
+    "name": "Ciência e Análise de Dados",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ijwmdcg9_czjsr0",
+    "clientId": "catia_foods",
+    "groupId": "5521997789965-1483447690@g.us",
+    "name": "SÓ DESGRAÇA !!💀💀💀",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ufbjwrpe_m2x8qa",
+    "clientId": "catia_foods",
+    "groupId": "120363237776549098@g.us",
+    "name": "Cursos e Certificações - SI Impacta",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ktuw63ci_de03rw",
+    "clientId": "catia_foods",
+    "groupId": "120363243523765286@g.us",
+    "name": "RM Eletro 🖥️ Comunidade de Ofertas",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_c5iq4ko3_56zfxj",
+    "clientId": "catia_foods",
+    "groupId": "120363271551826019@g.us",
+    "name": "Vagas de TI | Dicas de CV/Linkedin",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_p999unw4_s2ncbc",
+    "clientId": "catia_foods",
+    "groupId": "120363290300818638@g.us",
+    "name": "Cisco Academy CCNA",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_xkbacwl3_ucyegp",
+    "clientId": "catia_foods",
+    "groupId": "120363146075145573@g.us",
+    "name": "Arbitrariedade e Irregularidades Pralog",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_vxdkl5bh_jxbv0m",
+    "clientId": "catia_foods",
+    "groupId": "120363420839099914@g.us",
+    "name": "#10 Emprega | Feiras Virtuais de Empregabilidade",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wbsha3dk_fgspqy",
+    "clientId": "catia_foods",
+    "groupId": "120363290733787030@g.us",
+    "name": "Ciber DevSecOps | Dev",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_avrpd1jy_o0qiyy",
+    "clientId": "catia_foods",
+    "groupId": "120363302440693388@g.us",
+    "name": "Hackers do Bem - Residência",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ion3tkkd_6cmwmp",
+    "clientId": "catia_foods",
+    "groupId": "120363305956714214@g.us",
+    "name": "Fortinet FortiGate Firewall",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_diecwyte_rsatqh",
+    "clientId": "catia_foods",
+    "groupId": "120363297570554770@g.us",
+    "name": "Hackers do BeM - 2ª Onda",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_fpsr5dy9_m3rcho",
+    "clientId": "catia_foods",
+    "groupId": "120363342535404135@g.us",
+    "name": "Graduação em TI: PASSAGEM DE AVIÃO, MORADIA E ALIMENTAÇÃO! Vamos?",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1wlxyerp_jp8fob",
+    "clientId": "catia_foods",
+    "groupId": "120363416735234509@g.us",
+    "name": "C3/25 DPCN 12 - EDN",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_3s8s5grm_me7z40",
+    "clientId": "catia_foods",
+    "groupId": "120363422181088735@g.us",
+    "name": "Z-PRO BLACK",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_37w2f1rc_n76qdu",
+    "clientId": "catia_foods",
+    "groupId": "120363322700001649@g.us",
+    "name": "Vagas Remotas 100% | Home Office | Jornada de 4 dias",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_xkmsrabf_8hlhk8",
+    "clientId": "catia_foods",
+    "groupId": "5511961733341-1598447124@g.us",
+    "name": "Mais 30 vagas TI EVERIS",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yz8rdx87_kgq64u",
+    "clientId": "catia_foods",
+    "groupId": "120363143931513193@g.us",
+    "name": "Run as Cloud - #01 - AWS Certified Cloud Practitioner",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wlmfzfv8_lfqkx4",
+    "clientId": "catia_foods",
+    "groupId": "120363312722261574@g.us",
+    "name": "EDUCAFRO: Simulado Nacional EDUCAFRO Brasil (220 bolsas no valor de R$ 400,00)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_q8dmo7th_lz129a",
+    "clientId": "catia_foods",
+    "groupId": "120363326236748219@g.us",
+    "name": "Curso de ChatBot",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_empjks1s_uy36i8",
+    "clientId": "catia_foods",
+    "groupId": "5511966893832-1623948268@g.us",
+    "name": "Educafro Vagas TI",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8m4i43nc_xtida1",
+    "clientId": "catia_foods",
+    "groupId": "120363245514077831@g.us",
+    "name": "Bolsas Nobres prepar 2024 - EDUCAFRO Brasil",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_n88g3ijh_ohtoc7",
+    "clientId": "catia_foods",
+    "groupId": "5511991155085-1604077518@g.us",
+    "name": "Alura 2 - Geral",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_bjcuizcy_sxhl2y",
+    "clientId": "catia_foods",
+    "groupId": "120363418287421818@g.us",
+    "name": "HCIA-DATACOM-ISPN-09/2025",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2iyf1muj_2o0lox",
+    "clientId": "catia_foods",
+    "groupId": "120363401405348656@g.us",
+    "name": "AVISOS TETRA EDUCAÇÃO #4",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_dhtlpcv2_0s5e6v",
+    "clientId": "catia_foods",
+    "groupId": "120363301102004812@g.us",
+    "name": "Dev Python",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0dimbh1t_iddqat",
+    "clientId": "catia_foods",
+    "groupId": "120363300852268323@g.us",
+    "name": "Dev JavaScript (JS) | HTML & CSS",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_teipmj2e_712v9l",
+    "clientId": "catia_foods",
+    "groupId": "120363297091264844@g.us",
+    "name": "Dev PHP | WordPress | WooCommerce",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pc2qj6tf_jga8ik",
+    "clientId": "catia_foods",
+    "groupId": "120363374616250755@g.us",
+    "name": "Hiperautomação",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_g1zwqin9_p5fbm6",
+    "clientId": "catia_foods",
+    "groupId": "120363047370794639@g.us",
+    "name": "Rota 652",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zipb8mr5_1k0c0g",
+    "clientId": "catia_foods",
+    "groupId": "120363415139063650@g.us",
+    "name": "FiqOn",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_cytz3fcn_lioarn",
+    "clientId": "catia_foods",
+    "groupId": "120363415721102985@g.us",
+    "name": "💬 Feedback e Sugestões",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_l0n7gauk_pllv4u",
+    "clientId": "catia_foods",
+    "groupId": "120363044103121277@g.us",
+    "name": "Eu mesmo1",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ibp3gaer_2zmzju",
+    "clientId": "catia_foods",
+    "groupId": "120363404001645117@g.us",
+    "name": "Assaí Atacadista Bangu Av Brasil",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_h7o9ei6g_no0mnr",
+    "clientId": "catia_foods",
+    "groupId": "5521983123275-1470417160@g.us",
+    "name": "Transfer Laser Sublimação",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_x3i0xhop_izt41z",
+    "clientId": "catia_foods",
+    "groupId": "120363419310039484@g.us",
+    "name": "#make",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_qg7ceeih_hury45",
+    "clientId": "catia_foods",
+    "groupId": "120363020328752033@g.us",
+    "name": "019 Grupo VIP | Trainning Education",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pcy00ky4_7lwpdo",
+    "clientId": "catia_foods",
+    "groupId": "120363274829941089@g.us",
+    "name": "Cripto (Bitcoin) Blockchain NFT Web3",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_z6xba0qp_bvn7xm",
+    "clientId": "catia_foods",
+    "groupId": "120363377913756964@g.us",
+    "name": "Equipe pé no chão 🧪🍀",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_7wo7aj9d_7rgp2j",
+    "clientId": "catia_foods",
+    "groupId": "120363316260782931@g.us",
+    "name": "Afirmativo Pessoas Pretas ou Pardas",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0d7530xp_y8q3z4",
+    "clientId": "catia_foods",
+    "groupId": "120363173280976827@g.us",
+    "name": "Pré-vestibular EDUCAFRO- Bolsa Dinamica (Insper2023.2",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_r61lv4a4_ngwwef",
+    "clientId": "catia_foods",
+    "groupId": "5521981954176-1549290994@g.us",
+    "name": "Lisos e Pers.deFábrica RJ",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_omjzm1ft_b3uef1",
+    "clientId": "catia_foods",
+    "groupId": "120363322038825975@g.us",
+    "name": "Semana do Reparo em Inversores Solares #30",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_gdx7a3ds_4aacjk",
+    "clientId": "catia_foods",
+    "groupId": "120363301056402700@g.us",
+    "name": "Hardware",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_g2ko5adx_4ol9mf",
+    "clientId": "catia_foods",
+    "groupId": "120363420651854989@g.us",
+    "name": "#110 Imersão Dev Agentes de IA - Alura + Google Gemini | Leia a descrição",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8pcu8pe9_l9ss8u",
+    "clientId": "catia_foods",
+    "groupId": "120363319644089420@g.us",
+    "name": "0ff3ns!v3 S3cur!ty Community - 01",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8yjyrcsh_7mggyh",
+    "clientId": "catia_foods",
+    "groupId": "120363088341668836@g.us",
+    "name": "Promos Brasil 📦💡🎧📚🏠🇧🇷#B",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wsaqlj2b_t0579s",
+    "clientId": "catia_foods",
+    "groupId": "120363206697832906@g.us",
+    "name": "Hackers Do Bem",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_v1emuwjd_usksay",
+    "clientId": "catia_foods",
+    "groupId": "120363175049954194@g.us",
+    "name": "Vagas Cloud AWS Azure GCP DevOps",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_5twjpa8y_y7xsil",
+    "clientId": "catia_foods",
+    "groupId": "120363288926741853@g.us",
+    "name": "Cisco CCNA1 - Academy",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_m3uxvn4r_h8882a",
+    "clientId": "catia_foods",
+    "groupId": "120363256781998139@g.us",
+    "name": "SOC Brazil - Discussão sobre carreira",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_lm6aq648_kjr8jp",
+    "clientId": "catia_foods",
+    "groupId": "120363399968844151@g.us",
+    "name": "Escola AWS - De Graça para SEMPRE !",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_paqwmjs7_2zhkcm",
+    "clientId": "catia_foods",
+    "groupId": "120363400731985406@g.us",
+    "name": "#3 Recepção 🔵- iBold Turma de Agosto",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_i5n8xlet_fryhl8",
+    "clientId": "catia_foods",
+    "groupId": "120363370157130820@g.us",
+    "name": "Cursos de Ti",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_fcr5sp2f_yfxucv",
+    "clientId": "catia_foods",
+    "groupId": "120363405487120091@g.us",
+    "name": "AWS SAA EDN - Remix",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_il1wyelw_2va0ee",
+    "clientId": "catia_foods",
+    "groupId": "120363273470465823@g.us",
+    "name": "CISCO CCNA1 - COMUNIDADE",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_lwxd43ix_q392ml",
+    "clientId": "catia_foods",
+    "groupId": "120363323102466129@g.us",
+    "name": "GenAI-15 N Seg-Qua 19h às 23h P5-24",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_sbikjixw_vt5j44",
+    "clientId": "catia_foods",
+    "groupId": "120363172185130778@g.us",
+    "name": "Fac Impacta - Bons Estudos",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_rs02ji8k_pau20r",
+    "clientId": "catia_foods",
+    "groupId": "120363419828728092@g.us",
+    "name": "ICL",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_qy109ign_zj62ti",
+    "clientId": "catia_foods",
+    "groupId": "120363299777599946@g.us",
+    "name": "Jornada Impulsionando sua Carreira - Grupo 3",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_57nmyhuf_tf27sf",
+    "clientId": "catia_foods",
+    "groupId": "120363223386623730@g.us",
+    "name": "Jornada Impulsionando sua Carreira - Grupo 2",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_uggjiarc_3t322x",
+    "clientId": "catia_foods",
+    "groupId": "120363045868079833@g.us",
+    "name": "Jornada Impulsionando sua Carreira - Grupo 1",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_nvm0xyvi_keplni",
+    "clientId": "catia_foods",
+    "groupId": "120363420272807424@g.us",
+    "name": "T-Academy - AMS & SAP",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0u4p3sec_p34g17",
+    "clientId": "catia_foods",
+    "groupId": "120363369066395876@g.us",
+    "name": "D-3- Clube de Investimento Quantitativo de Elite Graves",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_awnutm5u_85evkb",
+    "clientId": "catia_foods",
+    "groupId": "120363400464728165@g.us",
+    "name": "Inteligência artificial e Ciência de Dados",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_x662ovw9_ybx1z2",
+    "clientId": "catia_foods",
+    "groupId": "120363299921095815@g.us",
+    "name": "Networking EdN - Jornada Impulsionando sua Carreira",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_hb7w9xr0_ca2zqv",
+    "clientId": "catia_foods",
+    "groupId": "120363390315195111@g.us",
+    "name": "🇨🇳 DeepSeek Qwen",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ab71mgm1_feyi32",
+    "clientId": "catia_foods",
+    "groupId": "120363020437317414@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_0e8c3rrd_byha8z",
+    "clientId": "catia_foods",
+    "groupId": "120363021446610030@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_hkvl3kst_gdn1cv",
+    "clientId": "catia_foods",
+    "groupId": "120363022583441000@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_lhah9kp5_d74ejl",
+    "clientId": "catia_foods",
+    "groupId": "120363022912048410@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_e9yj9q5j_jkq02i",
+    "clientId": "catia_foods",
+    "groupId": "120363029621256559@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_e2d9r3zs_g2vi94",
+    "clientId": "catia_foods",
+    "groupId": "120363039165531869@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_p6f4xmxn_bzdmcy",
+    "clientId": "catia_foods",
+    "groupId": "120363040097791711@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_dr9pfb0r_lurn5k",
+    "clientId": "catia_foods",
+    "groupId": "120363041074260174@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8ufnd68n_i4gn1s",
+    "clientId": "catia_foods",
+    "groupId": "120363041212277188@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yb9e9fet_0sql98",
+    "clientId": "catia_foods",
+    "groupId": "120363042686208453@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_6xiatomh_m409p1",
+    "clientId": "catia_foods",
+    "groupId": "120363044755310762@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_bb2z3wkz_bvsae2",
+    "clientId": "catia_foods",
+    "groupId": "120363046267509269@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ev0jgqe8_397n6r",
+    "clientId": "catia_foods",
+    "groupId": "120363047874687351@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8711tphd_stj8nt",
+    "clientId": "catia_foods",
+    "groupId": "120363048139105671@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_aep8f1o8_af9j17",
+    "clientId": "catia_foods",
+    "groupId": "120363087124688020@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8cznrdmm_3irtu5",
+    "clientId": "catia_foods",
+    "groupId": "120363107695678039@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yatf7c5r_1znu3a",
+    "clientId": "catia_foods",
+    "groupId": "120363119557012074@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_qsnkw73d_d5zp7c",
+    "clientId": "catia_foods",
+    "groupId": "120363131512074857@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1z8gge9n_2h7cag",
+    "clientId": "catia_foods",
+    "groupId": "120363147427647859@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zsudam6d_cfzn9i",
+    "clientId": "catia_foods",
+    "groupId": "120363150251829067@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_l3vdmusu_ac89jg",
+    "clientId": "catia_foods",
+    "groupId": "120363151408136168@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_nhgswzsm_hbfb8j",
+    "clientId": "catia_foods",
+    "groupId": "120363151529696522@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1yhmi0ve_53fycf",
+    "clientId": "catia_foods",
+    "groupId": "120363151756040848@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1qilri6j_b6nnbu",
+    "clientId": "catia_foods",
+    "groupId": "120363152287113784@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_tjxd6n3e_7i8vq4",
+    "clientId": "catia_foods",
+    "groupId": "120363157814544955@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_gz8joqph_0zl4td",
+    "clientId": "catia_foods",
+    "groupId": "120363157981719858@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_duu2q0f5_0x0tvj",
+    "clientId": "catia_foods",
+    "groupId": "120363158088090331@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ir4cfa66_g5cxli",
+    "clientId": "catia_foods",
+    "groupId": "120363165927525231@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_l1m98v62_0v8wty",
+    "clientId": "catia_foods",
+    "groupId": "120363168148392760@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_82wglsyn_vi22lp",
+    "clientId": "catia_foods",
+    "groupId": "120363176527300195@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_y438k8t3_63ohmw",
+    "clientId": "catia_foods",
+    "groupId": "120363178013384181@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_d66iy7k7_qcnfh3",
+    "clientId": "catia_foods",
+    "groupId": "120363187387750221@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zs6a0xox_j7cyzv",
+    "clientId": "catia_foods",
+    "groupId": "120363194032654651@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zsw9repx_713b4x",
+    "clientId": "catia_foods",
+    "groupId": "120363194195259000@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_g7yl1x03_4okbav",
+    "clientId": "catia_foods",
+    "groupId": "120363198515071861@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_icithjmt_k3w67t",
+    "clientId": "catia_foods",
+    "groupId": "120363198580132941@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_f000d4q3_9d47nm",
+    "clientId": "catia_foods",
+    "groupId": "120363198996317543@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_dcf46u05_4wiy7k",
+    "clientId": "catia_foods",
+    "groupId": "120363201879121461@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_07730al5_ywf1zf",
+    "clientId": "catia_foods",
+    "groupId": "120363204601061101@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_x95h9i6z_6v1244",
+    "clientId": "catia_foods",
+    "groupId": "120363205328973407@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yhtx0p8c_kvny21",
+    "clientId": "catia_foods",
+    "groupId": "120363205402111321@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_751aozfd_v06qy8",
+    "clientId": "catia_foods",
+    "groupId": "120363208396266979@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_toqawehp_qqjqiq",
+    "clientId": "catia_foods",
+    "groupId": "120363209927294401@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_j2z6vpqv_dcivuh",
+    "clientId": "catia_foods",
+    "groupId": "120363217972630253@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_p5juvy27_1d6mxr",
+    "clientId": "catia_foods",
+    "groupId": "120363222261263291@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_8t7l15uz_4ozkgs",
+    "clientId": "catia_foods",
+    "groupId": "120363223926961532@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pm9ojt9l_rujz2q",
+    "clientId": "catia_foods",
+    "groupId": "120363224531641729@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_djly3w68_qblb4g",
+    "clientId": "catia_foods",
+    "groupId": "120363225263334422@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_jiol5yzn_xtwcdl",
+    "clientId": "catia_foods",
+    "groupId": "120363229902665931@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_3f0malns_toz3k1",
+    "clientId": "catia_foods",
+    "groupId": "120363231219050438@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_5rf6ort2_wswx9j",
+    "clientId": "catia_foods",
+    "groupId": "120363231275372503@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_mb2n39cz_mtvfiy",
+    "clientId": "catia_foods",
+    "groupId": "120363232666806333@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2tpnk7t6_2xbnmv",
+    "clientId": "catia_foods",
+    "groupId": "120363233174556530@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_32i4a9br_8ucmh5",
+    "clientId": "catia_foods",
+    "groupId": "120363236485192076@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_t09rnsln_ps7ys2",
+    "clientId": "catia_foods",
+    "groupId": "120363239364919877@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_zvm5g42a_h9v2dr",
+    "clientId": "catia_foods",
+    "groupId": "120363241815727089@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_5s0lmgky_qzbhf6",
+    "clientId": "catia_foods",
+    "groupId": "120363242450660423@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pftya0y0_vj1fbn",
+    "clientId": "catia_foods",
+    "groupId": "120363245558488510@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_a3eaqolr_99j9ke",
+    "clientId": "catia_foods",
+    "groupId": "120363248379409597@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_mygb2hoe_ujrpd6",
+    "clientId": "catia_foods",
+    "groupId": "120363253045407552@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_42ebu6oi_cnz33o",
+    "clientId": "catia_foods",
+    "groupId": "120363262441570633@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_rfyi4pkm_tnfaqw",
+    "clientId": "catia_foods",
+    "groupId": "120363262452485125@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_tr7yi9si_2wr20z",
+    "clientId": "catia_foods",
+    "groupId": "120363265482764238@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_01ssdwyv_1vi64f",
+    "clientId": "catia_foods",
+    "groupId": "120363272379647247@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_auifp15e_g0rhtg",
+    "clientId": "catia_foods",
+    "groupId": "120363272857894272@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_3clpc7t2_83mezt",
+    "clientId": "catia_foods",
+    "groupId": "120363273594424928@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_t6btsi3h_4n1wj7",
+    "clientId": "catia_foods",
+    "groupId": "120363274617194209@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_sqclfxiv_qd5gio",
+    "clientId": "catia_foods",
+    "groupId": "120363274884035285@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ebu0xngx_c7bm1o",
+    "clientId": "catia_foods",
+    "groupId": "120363275779324711@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_ekc1g0yx_wb12v2",
+    "clientId": "catia_foods",
+    "groupId": "120363277582487693@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_v98n17av_16j0c1",
+    "clientId": "catia_foods",
+    "groupId": "120363279265919421@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_owc4v9pp_lclq2x",
+    "clientId": "catia_foods",
+    "groupId": "120363279651766333@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_tranyquc_xkgi63",
+    "clientId": "catia_foods",
+    "groupId": "120363288199683870@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1xtqr2qs_fihpy9",
+    "clientId": "catia_foods",
+    "groupId": "120363290830731180@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_d6iuv5oq_yrt9ku",
+    "clientId": "catia_foods",
+    "groupId": "120363291768404755@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_i1cmkyve_ole4yz",
+    "clientId": "catia_foods",
+    "groupId": "120363296570817306@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_i9m44zgz_4jksbg",
+    "clientId": "catia_foods",
+    "groupId": "120363298230916816@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_280k0yf4_a1qotk",
+    "clientId": "catia_foods",
+    "groupId": "120363299865677395@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_v0qe6ybu_0m3507",
+    "clientId": "catia_foods",
+    "groupId": "120363302541307178@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_inpnsxin_ur7kmg",
+    "clientId": "catia_foods",
+    "groupId": "120363316243558925@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_u7m0xs1d_8163ie",
+    "clientId": "catia_foods",
+    "groupId": "120363316273778003@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_cba76x6e_u8ylg1",
+    "clientId": "catia_foods",
+    "groupId": "120363317264630490@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_r2fa5bzp_oeoi7r",
+    "clientId": "catia_foods",
+    "groupId": "120363317433372872@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_mgooi36k_a6itl6",
+    "clientId": "catia_foods",
+    "groupId": "120363317883743055@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_e1fxhc0i_7e2x74",
+    "clientId": "catia_foods",
+    "groupId": "120363321775398834@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_2qjt5ub5_1tp3sy",
+    "clientId": "catia_foods",
+    "groupId": "120363327294646916@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_4tnd772s_lobcu7",
+    "clientId": "catia_foods",
+    "groupId": "120363331553777896@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_wron1plp_8az733",
+    "clientId": "catia_foods",
+    "groupId": "120363334831686159@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_pkjohzc8_5ke58x",
+    "clientId": "catia_foods",
+    "groupId": "120363343288751221@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_fv7xzpcp_k9t2jn",
+    "clientId": "catia_foods",
+    "groupId": "120363343506186327@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_fz0oa6lb_9cd2ct",
+    "clientId": "catia_foods",
+    "groupId": "120363343755268145@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_cs0gzbjg_u9rnc1",
+    "clientId": "catia_foods",
+    "groupId": "120363360861245674@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_54th0rvf_37opvb",
+    "clientId": "catia_foods",
+    "groupId": "120363361780953931@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1gi6v0yx_txajcg",
+    "clientId": "catia_foods",
+    "groupId": "120363374356763192@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_3443kfm8_d7dzjd",
+    "clientId": "catia_foods",
+    "groupId": "120363401839385830@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_b79wnaq1_vg6bw9",
+    "clientId": "catia_foods",
+    "groupId": "120363402130999277@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_annj3vbx_ratnqt",
+    "clientId": "catia_foods",
+    "groupId": "120363403833984292@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_7ir08ny1_lo097w",
+    "clientId": "catia_foods",
+    "groupId": "120363412843499297@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_oonfkn55_mvm2z2",
+    "clientId": "catia_foods",
+    "groupId": "120363417299918579@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_fyotelgj_7nghgh",
+    "clientId": "catia_foods",
+    "groupId": "120363418913680172@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_gnq4ikp6_nxtrcg",
+    "clientId": "catia_foods",
+    "groupId": "120363419011877436@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_yv1zc95s_7cjdv8",
+    "clientId": "catia_foods",
+    "groupId": "120363422689807670@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_y3tkdlx0_c2uz6p",
+    "clientId": "catia_foods",
+    "groupId": "5521964413900-1418151850@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_u0a154uh_a4kw7c",
+    "clientId": "catia_foods",
+    "groupId": "5521964455913-1635384046@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_o69xcw60_dtei80",
+    "clientId": "catia_foods",
+    "groupId": "5521983120547-1612287501@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_1jhb7v16_sfssq4",
+    "clientId": "catia_foods",
+    "groupId": "5521993168258-1604600793@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  },
+  {
+    "id": "grp_hqk2jetg_f2adbj",
+    "clientId": "catia_foods",
+    "groupId": "5521999580120-1527897684@g.us",
+    "name": "(sem nome)",
+    "status": "active",
+    "authorizedForCampaigns": false,
+    "createdAt": "2025-12-18T03:36:12.922Z",
+    "updatedAt": "2025-12-18T03:36:12.922Z"
+  }
+]

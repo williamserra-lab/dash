@@ -1,0 +1,22 @@
+[
+  {
+    "id": "svc_uz3o5toz_7kw0xq",
+    "clientId": "catia_foods",
+    "name": "Apologia ao crime",
+    "durationMinutes": 30,
+    "basePrice": null,
+    "active": true,
+    "createdAt": "2025-11-27T20:30:51.384Z",
+    "updatedAt": "2025-11-27T20:30:51.384Z"
+  },
+  {
+    "id": "svc_58vq7pwf_04vam0",
+    "clientId": "catia_foods",
+    "name": "Atualização de software",
+    "durationMinutes": 100,
+    "basePrice": null,
+    "active": true,
+    "createdAt": "2025-11-27T20:38:51.271Z",
+    "updatedAt": "2025-11-27T20:38:51.271Z"
+  }
+]

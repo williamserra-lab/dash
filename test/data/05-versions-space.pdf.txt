@@ -1,0 +1,91 @@
+
+
+HOSPEDE
+PROJETOS 
+FULLSTACK 
+DE GRAÇA
+Todos os links na legenda
+Parte 2
+
+Cloudflare
+ Suporte nativo: JavaScript / TypeScript / Rust
++ WebAssembly (qualquer linguagem
+compilável)
+Pages: sites estáticos
+Workers: funções serverless 100k
+execuções/dia
+ R2: 10 GB storage
+ Grátis para sempre
+Não exige cartão no plano grátis
+
+Oracle Cloud
+Suporte nativo: Python, Go, Java, Node.js,
+Ruby, .NET (C#).
+  Qualquer linguagem via Docker / container
+  2 VMs, 2 bancos Autonomous Database, 
+10 GB storage
+ Sempre grátis
+Exige cartão de crédito ou débito para criar a conta.
+ Não cobra nada sem você exceder limites, mas precisa
+do cartão para verificação de identidade.
+
+IBM Cloud
+Suporte nativo: Node.js, Python, Java, Ruby,
+Go, PHP, Swift.
+ Qualquer linguagem via Docker / OpenWhisk
+ Kubernetes, bancos de dados NoSQL e
+Watson AI grátis
+ Grátis sempre (enquanto estiver no plano
+Lite)
+Exige cartão somente pra verificação.
+
+Google Cloud
+Suporte nativo: Node.js, Python, Go, Java
+(Ruby, PHP em preview)
+ Qualquer linguagem via Cloud Run /
+containers
+ $300 em créditos (12 meses) + recursos
+Always Free (VM f1-micro, Firestore, Storage)
+ Se não exceder o limite gratuito ele
+permanece gratuito sempre
+Exige cartão somente pra verificação.
+Cobra somente se ultrapassra os limites de uso
+
+AWS
+Suporte nativo: Node.js, Python, Java, Go, C#,
+Ruby, PowerShell
+ Linguagens exóticas via containers / custom
+runtimes
+ 12 meses gratuitos + recursos Always Free
+(Lambda, S3, DynamoDB...)
+Parte grátis por 12 meses
+
+Microsoft Azure
+ Suporte nativo: C#/.NET, Java, Node.js,
+Python, TypeScript, PowerShell
+ Qualquer linguagem via containers / App
+Service / VMs
+ 12 meses gratuitos + $200 crédito inicial +
+serviços Always Free
+ Parte grátis por 12 meses
+
+Nesta postagem existem serviços em que
+você pode utlizar gratuitamente por tempo
+ilimitado ou limitado com limite de uso
+(armazenamento , RAM e etc )
+Para projetos muito grandes ou exigem
+mais recursos, considere migrar para
+planos pagos ou outros tipos de serviço de
+hospedagem paga.
+Porém os serviços aqui listados te dão um
+poder real.
+AVISO
+Alguns serviços exigem verificação com
+metodo de pagamento e extornam a
+“compra” (só pra verificar sua identidade
+mesmo)
+
+Você conhece algum
+destes serviços do post ?
+Conhece outros serviços úteis?
+Compartilhe nos coments

@@ -1,0 +1,83 @@
+[
+  {
+    "id": "cmp_migawad9_o9t42g",
+    "clientId": "catia_foods",
+    "channel": "whatsapp",
+    "name": "Promo almoço",
+    "messageTemplate": "Hoje temos PF a R$ 25, responda 1 se quiser pedir.",
+    "createdAt": "2025-11-26T17:50:53.565Z",
+    "status": "simulada",
+    "target": {
+      "vipOnly": false,
+      "excludeOptOut": true,
+      "excludeBlocked": true
+    },
+    "simulation": {
+      "totalContacts": 2,
+      "eligibleContacts": 1,
+      "vipContacts": 0,
+      "lastSimulatedAt": "2025-11-27T19:35:01.162Z"
+    },
+    "updatedAt": "2025-11-27T19:35:01.162Z"
+  },
+  {
+    "id": "cmp_3q2sncbz_w43oye",
+    "clientId": "catia_foods",
+    "name": "tudo com 10% de desconto",
+    "message": "fçsjkfklhjhdklgjf fsfjkdkjugdfg",
+    "channel": "whatsapp",
+    "status": "simulada",
+    "target": {
+      "vipOnly": false,
+      "excludeOptOut": true,
+      "excludeBlocked": true
+    },
+    "media": [],
+    "createdAt": "2025-11-27T19:31:55.476Z",
+    "updatedAt": "2025-11-27T19:34:56.334Z",
+    "simulation": {
+      "totalContacts": 2,
+      "eligibleContacts": 1,
+      "vipContacts": 0,
+      "lastSimulatedAt": "2025-11-27T19:34:56.334Z"
+    }
+  },
+  {
+    "id": "cmp_blda86p5_bts7n3",
+    "clientId": "catia_foods",
+    "name": "teste 01",
+    "message": "teste de campanha",
+    "channel": "whatsapp",
+    "status": "disparada",
+    "target": {
+      "vipOnly": true,
+      "excludeOptOut": true,
+      "excludeBlocked": true
+    },
+    "media": [],
+    "createdAt": "2025-11-30T12:09:00.062Z",
+    "updatedAt": "2025-12-18T02:58:33.246Z",
+    "simulation": {
+      "totalContacts": 2,
+      "eligibleContacts": 0,
+      "vipContacts": 0,
+      "lastSimulatedAt": "2025-11-30T12:09:09.697Z"
+    }
+  },
+  {
+    "id": "cmp_047vf0ux_cipp54",
+    "clientId": "catia_foods",
+    "name": "teste de função",
+    "message": "teste de função",
+    "channel": "whatsapp",
+    "status": "disparada",
+    "target": {
+      "vipOnly": false,
+      "excludeOptOut": true,
+      "excludeBlocked": true
+    },
+    "media": [],
+    "createdAt": "2025-12-18T03:00:57.481Z",
+    "updatedAt": "2025-12-18T03:01:02.857Z"
+  }
+]

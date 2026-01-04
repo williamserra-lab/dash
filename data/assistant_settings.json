@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "items": {},
+  "catia_foods": {
+    "clientId": "catia_foods",
+    "promptRules": "diga ok",
+    "personality": "profissional",
+    "verbosity": "equilibrado",
+    "temperature": 0.2,
+    "provider": "ollama",
+    "updatedAt": "2025-12-04T14:48:43.569Z"
+  }
+}

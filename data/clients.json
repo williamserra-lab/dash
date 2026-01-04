@@ -1,0 +1,91 @@
+[
+  {
+    "id": "catia_foods",
+    "name": "Cátia Foods",
+    "status": "active",
+    "createdAt": "2025-12-03T18:51:39.509Z",
+    "updatedAt": "2025-12-04T00:08:36.089Z",
+    "segment": "restaurante",
+    "whatsappNumbers": [
+      {
+        "id": "wpp_catia_principal",
+        "phoneNumber": "5511999990000",
+        "label": "Atendimento principal",
+        "isDefault": true
+      }
+    ],
+    "billing": {},
+    "access": {},
+    "plan": {}
+  },
+  {
+    "id": "galadryel",
+    "name": "Galadryel Soluções em TI",
+    "status": "active",
+    "createdAt": "2025-12-03T19:15:37.638Z",
+    "updatedAt": "2025-12-03T19:20:16.446Z",
+    "whatsappNumbers": [
+      {
+        "id": "default",
+        "phoneNumber": "5521981616154",
+        "label": "Número principal",
+        "isDefault": true
+      }
+    ],
+    "billing": {},
+    "access": {},
+    "plan": {}
+  },
+  {
+    "id": "loja_teste",
+    "name": "Loja Teste",
+    "status": "active",
+    "createdAt": "2025-12-03T18:51:39.509Z",
+    "updatedAt": "2025-12-03T18:51:39.509Z",
+    "segment": "varejo",
+    "whatsappNumbers": [
+      {
+        "id": "wpp_loja_teste",
+        "phoneNumber": "5511888880000",
+        "label": "Número principal",
+        "isDefault": true
+      }
+    ],
+    "billing": {},
+    "access": {},
+    "plan": {}
+  },
+  {
+    "id": "Galeria_do_Gordo",
+    "name": "Galeria do Gordo",
+    "status": "active",
+    "createdAt": "2025-12-07T19:10:55.726Z",
+    "updatedAt": "2025-12-07T19:10:55.726Z",
+    "whatsappNumbers": [
+      {
+        "id": "default",
+        "phoneNumber": "5516988468977",
+        "label": "Principal",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "id": "nextia",
+    "name": "NextIA",
+    "status": "active",
+    "createdAt": "2025-12-30T00:00:00.000Z",
+    "updatedAt": "2025-12-30T00:00:00.000Z",
+    "whatsappNumbers": [
+      {
+        "id": "wa-1",
+        "phoneNumber": "5521971287464",
+        "label": "Principal",
+        "isDefault": true
+      }
+    ],
+    "billing": {},
+    "access": {},
+    "plan": {}
+  }
+]
