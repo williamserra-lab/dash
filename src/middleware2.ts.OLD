@@ -1,0 +1,60 @@
+import { NextRequest, NextResponse } from "next/server";
+
+function unauthorized(realm: string) {
+  return new NextResponse("Unauthorized", {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": `Basic realm="${realm}", charset="UTF-8"`,
+    },
+  });
+}
+
+function timingSafeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let ok = 0;
+  for (let i = 0; i < a.length; i++) ok |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return ok === 0;
+}
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  const isAdminPage = pathname === "/clientes" || pathname.startsWith("/clientes/");
+  const isAdminApi = pathname.startsWith("/api/admin/");
+  const isClientsIndexApi = pathname === "/api/clients";
+
+  const mustAuth = isAdminPage || isAdminApi || isClientsIndexApi;
+  if (!mustAuth) return NextResponse.next();
+
+  const realm = process.env.NEXTIA_ADMIN_REALM || "Nextia Admin";
+  const user = process.env.NEXTIA_ADMIN_USER || "";
+  const pass = process.env.NEXTIA_ADMIN_PASS || "";
+
+  // FAIL-CLOSED: se não configurou, bloqueia.
+  if (!user || !pass) return unauthorized(realm);
+
+  const header = req.headers.get("authorization") || "";
+  if (!header.toLowerCase().startsWith("basic ")) return unauthorized(realm);
+
+  const base64 = header.slice(6).trim();
+  let decoded = "";
+  try {
+    decoded = atob(base64);
+  } catch {
+    return unauthorized(realm);
+  }
+
+  const sep = decoded.indexOf(":");
+  const u = sep >= 0 ? decoded.slice(0, sep) : decoded;
+  const p = sep >= 0 ? decoded.slice(sep + 1) : "";
+
+  if (!timingSafeEqual(u, user) || !timingSafeEqual(p, pass)) {
+    return unauthorized(realm);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/clientes/:path*", "/api/admin/:path*", "/api/clients"],
+};
