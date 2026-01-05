@@ -10,11 +10,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
 
   const clientId = typeof sp.clientId === "string" ? sp.clientId : "";
   const instance = typeof sp.instance === "string" ? sp.instance : "NextIA";
+  const attendantId = typeof sp.attendantId === "string" ? sp.attendantId : "";
 
   return (
     <div style={{ padding: 16 }}>
-      <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Chat do lojista</h1>
-      <ChatConsole clientId={clientId} instance={instance} />
+      <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Atendimento (multi-atendentes)</h1>
+      <ChatConsole clientId={clientId} instance={instance} attendantId={attendantId} />
     </div>
   );
 }

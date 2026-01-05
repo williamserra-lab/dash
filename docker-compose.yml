@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: nextia
+      POSTGRES_PASSWORD: nextia
+      POSTGRES_DB: nextia
+    ports:
+      - "5432:5432"
+    volumes:
+      - nextia_pg:/var/lib/postgresql/data
+
+  nextia:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: bash -lc "npm install && npm run build && npm run start"
+    environment:
+      NEXTIA_DB_URL: postgres://nextia:nextia@postgres:5432/nextia
+      EVOLUTION_BASE_URL: ${EVOLUTION_BASE_URL}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+      EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-NextIA}
+      OUTBOX_SEND_IMMEDIATE: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+volumes:
+  nextia_pg:

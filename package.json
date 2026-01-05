@@ -1,0 +1,36 @@
+{
+  "name": "nextia",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint",
+    "outbox:run": "npx tsx scripts/runWhatsappOutbox.ts",
+    "outbox:run:watch": "tsx scripts/runWhatsappOutbox.ts --watch"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.11.0",
+    "next": "^16.0.7",
+    "openai": "^6.9.1",
+    "pdf-parse": "^1.1.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "baseline-browser-mapping": "^2.9.2",
+    "eslint": "^9",
+    "eslint-config-next": "^16.0.7",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "tsx": "^4.21.0"
+  }
+}

@@ -11,7 +11,8 @@ import { recordCampaignSendStatus } from "./campaigns";
 import { recordGroupCampaignSendStatus } from "./groupCampaigns";
 import { markRunItemResult } from "./campaignRunItems";
 import { markGroupRunItemResult } from "./groupCampaignRunItems";
-import { getEvolutionConfig } from "./evolutionConfig";
+import { getEvolutionConfig, type EvolutionConfig } from "./evolutionConfig";
+import { getWhatsappInstanceByName } from "./whatsappInstances";
 import { evolutionSendText } from "./evolutionApi";
 import { appendStoredMessage } from "./nextiaMessageStore";
 
@@ -60,7 +61,7 @@ export async function runWhatsappOutbox(opts?: OutboxRunOptions) {
 
   const results: { id: string; status: string; reason?: string }[] = [];
 
-  const cfg = getEvolutionConfig();
+  const envCfg = getEvolutionConfig();
   // Guardrails anti-ban (cadence). Only applied to real sends (not dry-run).
   const maxPerMinute = intFromEnv("NEXTIA_OUTBOX_MAX_PER_MINUTE", 20);
   const jitterMs = intFromEnv("NEXTIA_OUTBOX_JITTER_MS", 500);
@@ -155,16 +156,6 @@ export async function runWhatsappOutbox(opts?: OutboxRunOptions) {
       continue;
     }
 
-    // No provider config
-    if (!cfg) {
-      failed += 1;
-      await updateOutboxStatusById(id, "failed", {
-        provider: { error: "Missing EVOLUTION_* env vars (provider not configured)" },
-      });
-      results.push({ id, status: "failed", reason: "provider not configured" });
-      continue;
-    }
-
     try {
       const toDigits = digitsOnly(to);
       if (!toDigits) throw new Error("invalid destination");
@@ -180,7 +171,27 @@ export async function runWhatsappOutbox(opts?: OutboxRunOptions) {
         if (delay > 0) await sleepMs(delay);
       }
 
-      const res = await evolutionSendText(cfg, { number: toDigits, text: message });
+      // Provider selection (multi-números): usa instância por client quando cadastrada; fallback para EVOLUTION_*.
+      let cfgForSend: EvolutionConfig | null = envCfg;
+      const ctxInst = String((it as any)?.context?.instance || "").trim();
+      if (ctxInst) {
+        try {
+          const rec = await getWhatsappInstanceByName(String((it as any).clientId || ""), ctxInst);
+          if (rec && rec.active) {
+            cfgForSend = { baseUrl: rec.baseUrl, instance: rec.instanceName, apiKey: rec.apiKey };
+          }
+        } catch {
+          // best-effort
+        }
+      }
+      if (!cfgForSend) {
+        failed += 1;
+        await updateOutboxStatusById(id, "failed", { provider: { error: "Provider not configured (missing EVOLUTION_* and no whatsapp instance)" } });
+        results.push({ id, status: "failed", reason: "provider not configured" });
+        continue;
+      }
+
+      const res = await evolutionSendText(cfgForSend, { number: toDigits, text: message });
 
       await updateOutboxStatusById(id, "sent", { provider: { evolution: res } });
       consecutiveFailures = 0;
@@ -198,7 +209,7 @@ export async function runWhatsappOutbox(opts?: OutboxRunOptions) {
       if (keyId) {
         await appendStoredMessage({
           clientId: String((it as any).clientId || ""),
-          instance: String(process.env.EVOLUTION_INSTANCE || cfg.instance || ""),
+          instance: String(process.env.EVOLUTION_INSTANCE || cfgForSend?.instance || ""),
           remoteJid,
           keyId,
           fromMe: true,

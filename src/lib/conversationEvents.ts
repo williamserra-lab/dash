@@ -16,6 +16,7 @@ export type ConversationEventType =
   | "handoff_created"
   | "handoff_accepted"
   | "handoff_resolved"
+  | "human_message_sent"
   | "error";
 
 export type ReasonCode =

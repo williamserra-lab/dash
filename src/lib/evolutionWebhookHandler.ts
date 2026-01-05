@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { appendStoredMessage } from "@/lib/nextiaMessageStore";
 import { getEvolutionTenantClientId } from "@/lib/evolutionConfig";
+import { findClientIdByInstanceName } from "@/lib/whatsappInstances";
 import { backfillConversationFromEvolution } from "@/lib/evolutionBackfill";
 import { getClientById } from "@/lib/clientsRegistry";
 import { handleWhatsappInboundFlow } from "@/lib/whatsappInboundFlow";
@@ -14,6 +15,22 @@ import { logAnalyticsEvent } from "@/lib/analytics";
 
 function getSecret(req: NextRequest): string | null {
   return req.nextUrl.searchParams.get("secret");
+}
+
+function extractInstanceName(payload: any): string | null {
+  const raw = payload?.raw ?? payload;
+  const candidates = [
+    payload?.instance,
+    payload?.data?.instance,
+    raw?.instance,
+    raw?.data?.instance,
+    raw?.event?.instance,
+    raw?.data?.event?.instance,
+  ];
+  for (const c of candidates) {
+    if (typeof c === "string" && c.trim()) return c.trim();
+  }
+  return null;
 }
 
 function safeString(v: any): string {
@@ -179,27 +196,43 @@ export async function handleEvolutionWebhook(req: NextRequest, forcedEvent?: str
     }
   }
 
-  // 2) tenant
+
+  // 2) payload (precisa vir antes da inferência de tenant por instância)
+  let payload: any;
+  try {
+    payload = await req.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid json" }, { status: 400 });
+  }
+
+  // 3) tenant
   // Prefer explicit env (single-tenant this host), fallback to helper (multi-tenant legacy)
-  const clientId = safeString(process.env.EVOLUTION_TENANT_CLIENT_ID) || safeString(getEvolutionTenantClientId());
+  const clientIdEnv = safeString(process.env.EVOLUTION_TENANT_CLIENT_ID) || safeString(getEvolutionTenantClientId());
+  let clientId = clientIdEnv;
+
+  // Multi-números: tenta inferir clientId pela instância do webhook quando EVOLUTION_TENANT_CLIENT_ID não está setado.
+  if (!clientId) {
+    const inst = extractInstanceName(payload);
+    if (inst) {
+      try {
+        const inferred = await findClientIdByInstanceName(inst);
+        if (inferred) clientId = inferred;
+      } catch {
+        // best-effort
+      }
+    }
+  }
+
   if (!clientId) {
     return NextResponse.json(
-      { ok: false, error: "EVOLUTION_TENANT_CLIENT_ID missing (required for multi-tenant)." },
-      { status: 500 }
+      { error: "EVOLUTION_TENANT_CLIENT_ID não configurado e não foi possível inferir clientId pela instância." },
+      { status: 400 }
     );
   }
 
   const client = await getClientById(clientId);
   if (!client) {
     return NextResponse.json({ ok: false, error: "Cliente não encontrado." }, { status: 404 });
-  }
-
-  // 3) payload
-  let payload: any;
-  try {
-    payload = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "invalid json" }, { status: 400 });
   }
 
   const instance = safeString(payload?.instance || process.env.EVOLUTION_INSTANCE || "Evolution");

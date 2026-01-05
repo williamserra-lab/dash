@@ -15,14 +15,12 @@ export async function GET(_req: NextRequest, context: RouteContext): Promise<Nex
     }
 
     const preorder = await getPreorderById(clientId, preorderId);
-    if (!preorder) {
-      return NextResponse.json({ error: "Pré-pedido não encontrado." }, { status: 404 });
-    }
+    if (!preorder) return NextResponse.json({ error: "Pré-pedido não encontrado." }, { status: 404 });
 
     return NextResponse.json({ preorder }, { status: 200 });
   } catch (error) {
-    console.error("Erro ao ler pré-pedido:", error);
-    return NextResponse.json({ error: "Erro interno ao ler pré-pedido." }, { status: 500 });
+    console.error("Erro ao buscar pré-pedido:", error);
+    return NextResponse.json({ error: "Erro interno ao buscar pré-pedido." }, { status: 500 });
   }
 }
 
@@ -34,20 +32,18 @@ export async function PUT(req: NextRequest, context: RouteContext): Promise<Next
     }
 
     const body = await readJsonObject(req);
-    const updated = await updatePreorder(clientId, preorderId, {
+
+    const preorder = await updatePreorder(clientId, preorderId, {
       items: (body as any).items,
       delivery: (body as any).delivery,
       payment: (body as any).payment,
-      status: (body as any).status,
+      expiresAt: (body as any).expiresAt,
       actor: (body as any).actor,
-      note: typeof (body as any).note === "string" ? (body as any).note : null,
+      note: (body as any).note ?? null,
     });
 
-    if (!updated) {
-      return NextResponse.json({ error: "Pré-pedido não encontrado." }, { status: 404 });
-    }
-
-    return NextResponse.json({ preorder: updated }, { status: 200 });
+    if (!preorder) return NextResponse.json({ error: "Pré-pedido não encontrado." }, { status: 404 });
+    return NextResponse.json({ preorder }, { status: 200 });
   } catch (error) {
     console.error("Erro ao atualizar pré-pedido:", error);
     return NextResponse.json({ error: "Erro interno ao atualizar pré-pedido." }, { status: 500 });
