@@ -42,6 +42,7 @@ export async function POST(
       clientId,
       contactId: null,
       identifier: null,
+      correlationId: `campaign:${campaign.id}`,
       payload: {
         campaignId: campaign.id,
         clientId,

@@ -22,6 +22,7 @@ export type AnalyticsEvent = {
   clientId: string;
   contactId?: string | null;
   identifier?: string | null;
+  correlationId?: string | null;
   payload?: Record<string, unknown>;
   createdAt: string;
 };

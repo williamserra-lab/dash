@@ -142,6 +142,7 @@ export async function POST(
       clientId,
       contactId: null,
       identifier: null,
+      correlationId: `campaign:${updated.id}`,
       payload: {
         campaignId: updated.id,
         clientId,
