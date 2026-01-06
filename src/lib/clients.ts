@@ -78,6 +78,9 @@ export type ClientProfile = {
   site?: string;
   urlCardapio?: string;
 
+  // Config operacional: expiração padrão de pré-pedidos (em horas)
+  preorderExpiresHours?: number;
+
   observacoesOperacionais?: string;
 };
 
@@ -114,10 +117,29 @@ function normalizePhone(phone?: unknown): string | undefined {
   return d || undefined;
 }
 
+
+function normalizePreorderExpiresHours(v: unknown): number | undefined {
+  if (v === null || v === undefined) return undefined;
+  const n =
+    typeof v === "number"
+      ? v
+      : typeof v === "string"
+        ? Number(v.trim())
+        : NaN;
+  if (!Number.isFinite(n)) return undefined;
+  const i = Math.trunc(n);
+  if (i <= 0) return undefined;
+  // guard-rails: 1h..30d
+  if (i > 24 * 30) return 24 * 30;
+  return i;
+}
 function validateProfile(profile: ClientProfile | undefined): ClientProfile | undefined {
   if (!profile) return undefined;
 
   const next: ClientProfile = { ...profile };
+
+  // Expiração padrão de pré-pedidos (horas)
+  next.preorderExpiresHours = normalizePreorderExpiresHours((profile as any).preorderExpiresHours);
 
   // Email normalization
   next.emailPrincipal = normalizeEmail(next.emailPrincipal);

@@ -315,3 +315,65 @@ export async function getClientDailyMetrics(
     a.date > b.date ? 1 : a.date < b.date ? -1 : 0
   );
 }
+export type CorrelationSummary = {
+  correlationId: string;
+  clientId?: string | null;
+  lastAt: string;
+  eventCount: number;
+  typesSample: string[];
+};
+
+export async function listRecentCorrelations(opts: {
+  clientId?: string | null;
+  limit?: number;
+}): Promise<CorrelationSummary[]> {
+  const limit = Math.min(200, Math.max(1, Number(opts.limit ?? 50)));
+  const all = await readAllEvents();
+  const rows = new Map<string, CorrelationSummary>();
+
+  for (const e of all) {
+    if (!e.correlationId) continue;
+    if (opts.clientId && e.clientId !== opts.clientId) continue;
+
+    const key = `${e.clientId}::${e.correlationId}`;
+    const existing = rows.get(key);
+    const ts = e.createdAt;
+    const t = String(e.type || "event");
+    if (!existing) {
+      rows.set(key, {
+        correlationId: e.correlationId,
+        clientId: e.clientId,
+        lastAt: ts,
+        eventCount: 1,
+        typesSample: [t],
+      });
+    } else {
+      existing.eventCount += 1;
+      if (ts > existing.lastAt) existing.lastAt = ts;
+      if (existing.typesSample.length < 5 && !existing.typesSample.includes(t)) {
+        existing.typesSample.push(t);
+      }
+    }
+  }
+
+  const arr = Array.from(rows.values());
+  arr.sort((a, b) => (a.lastAt < b.lastAt ? 1 : a.lastAt > b.lastAt ? -1 : 0));
+  return arr.slice(0, limit);
+}
+
+export async function listEventsByCorrelationId(opts: {
+  clientId?: string | null;
+  correlationId: string;
+  limit?: number;
+}): Promise<AnalyticsEvent[]> {
+  const limit = Math.min(500, Math.max(1, Number(opts.limit ?? 200)));
+  const all = await readAllEvents();
+  const filtered = all.filter((e) => {
+    if (!e.correlationId) return false;
+    if (e.correlationId !== opts.correlationId) return false;
+    if (opts.clientId && e.clientId !== opts.clientId) return false;
+    return true;
+  });
+  filtered.sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0));
+  return filtered.slice(0, limit);
+}
