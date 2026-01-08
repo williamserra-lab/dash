@@ -25,6 +25,8 @@ export type ClientBilling = {
   provider?: "asaas" | "manual";
   customerId?: string;
   subscriptionId?: string;
+  // quando true, tokens gerados por ações de admin (ex.: resumos) são faturados no tenant
+  chargeAdminTokensToTenant?: boolean;
 };
 
 export type ClientAccess = {

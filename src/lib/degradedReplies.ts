@@ -16,20 +16,27 @@ function orderChecklist(includeItems: boolean): string {
 }
 
 /**
- * Deterministic fallback used in inbound atendimento.
- * - technical: generic instability, keep questions minimal
- * - budget: explicit economic mode (plan limit reached)
+ * Deterministic reply used when we can still help, but must reduce cost/complexity.
+ * This must not call any LLM.
  */
 export function buildInboundDegradedReply(reason: InboundDegradeReason): string {
   if (reason === "budget") {
     return (
-      "No momento estou em modo econômico (limite do plano atingido).\n\n" +
+      "No momento estou em modo econômico (limite do plano está quase acabando).\n\n" +
       orderChecklist(true)
     );
   }
 
+  return "Estou com instabilidade técnica agora.\n\n" + orderChecklist(false);
+}
+
+/**
+ * Deterministic reply used when the budget is exhausted (hard stop).
+ * This must be deterministic (no LLM).
+ */
+export function buildInboundBlockedReply(): string {
   return (
-    "Estou com instabilidade técnica agora.\n\n" +
-    orderChecklist(false)
+    "Limite do plano atingido. O assistente automático foi pausado.\n\n" +
+    "Por favor, aguarde um atendente humano para continuar o atendimento."
   );
 }

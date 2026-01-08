@@ -17,6 +17,28 @@ export type LlmBudgetPolicy = {
   overLimitMode: LlmOverLimitMode;
 };
 
+
+export type LlmUsageContext =
+  | "inbound"
+  | "admin_chat_summary"
+  | "admin_file_summary"
+  | "admin_llm_test"
+  | "unknown";
+
+export type LlmUsageContextTotals = {
+  totalTokens: number;
+  promptTokens: number;
+  completionTokens: number;
+};
+
+export type LlmUsageContextMonth = {
+  clientId: string;
+  monthKey: string; // YYYY-MM
+  totals: LlmUsageContextTotals;
+  byContext: Record<string, LlmUsageContextTotals>;
+  lastUpdatedAt: string;
+};
+
 export class LlmBudgetExceededError extends Error {
   code = "llm_budget_exceeded" as const;
   clientId: string;
@@ -57,6 +79,7 @@ export type LlmBudgetStore = Record<string, Partial<LlmBudgetPolicy>>; // overri
 
 const USAGE_FILE = getDataPath("llm_usage.json");
 const BUDGET_FILE = getDataPath("llm_budgets.json");
+const CONTEXT_USAGE_FILE = getDataPath("llm_usage_context.json");
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -233,6 +256,95 @@ async function addUsageDb(
   };
 }
 
+
+async function getUsageContextMonthJson(clientId: string, monthKey: string): Promise<LlmUsageContextMonth> {
+  const store =
+    (await readJsonValue<Record<string, LlmUsageContextMonth>>(CONTEXT_USAGE_FILE)) || {};
+  const key = `${clientId}__${monthKey}`;
+  const existing = store[key];
+  if (existing) return existing;
+
+  const empty: LlmUsageContextMonth = {
+    clientId,
+    monthKey,
+    totals: { totalTokens: 0, promptTokens: 0, completionTokens: 0 },
+    byContext: {},
+    lastUpdatedAt: new Date().toISOString(),
+  };
+  return empty;
+}
+
+async function putUsageContextMonthJson(month: LlmUsageContextMonth): Promise<void> {
+  const store =
+    (await readJsonValue<Record<string, LlmUsageContextMonth>>(CONTEXT_USAGE_FILE)) || {};
+  const key = `${month.clientId}__${month.monthKey}`;
+  store[key] = month;
+  await writeJsonValue(CONTEXT_USAGE_FILE, store);
+}
+
+async function getUsageContextMonthDb(clientId: string, monthKey: string): Promise<LlmUsageContextMonth | null> {
+  const res = await dbQuery(
+    `SELECT client_id, month_key, context, total_tokens, prompt_tokens, completion_tokens, last_updated_at
+     FROM nextia_llm_usage_context_monthly
+     WHERE client_id = $1 AND month_key = $2;`,
+    [clientId, monthKey]
+  );
+
+  if (!res.rows || res.rows.length === 0) return null;
+
+  const byContext: Record<string, LlmUsageContextTotals> = {};
+  let totals: LlmUsageContextTotals = { totalTokens: 0, promptTokens: 0, completionTokens: 0 };
+  let lastUpdatedAt = new Date(0).toISOString();
+
+  for (const r of res.rows) {
+    const ctx = String(r.context || "unknown");
+    const t = Number(r.total_tokens || 0);
+    const p = Number(r.prompt_tokens || 0);
+    const c = Number(r.completion_tokens || 0);
+    byContext[ctx] = { totalTokens: t, promptTokens: p, completionTokens: c };
+
+    totals.totalTokens += t;
+    totals.promptTokens += p;
+    totals.completionTokens += c;
+
+    const lu = r.last_updated_at ? new Date(r.last_updated_at).toISOString() : "";
+    if (lu && lu > lastUpdatedAt) lastUpdatedAt = lu;
+  }
+
+  return { clientId, monthKey, totals, byContext, lastUpdatedAt };
+}
+
+async function upsertUsageContextMonthDb(args: {
+  clientId: string;
+  monthKey: string;
+  context: string;
+  deltaTotals: LlmUsageContextTotals;
+  provider?: string | null;
+  model?: string | null;
+}): Promise<void> {
+  const { clientId, monthKey, context, deltaTotals } = args;
+  await dbQuery(
+    `INSERT INTO nextia_llm_usage_context_monthly
+      (client_id, month_key, context, total_tokens, prompt_tokens, completion_tokens, last_updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, NOW())
+     ON CONFLICT (client_id, month_key, context)
+     DO UPDATE SET
+       total_tokens = nextia_llm_usage_context_monthly.total_tokens + EXCLUDED.total_tokens,
+       prompt_tokens = nextia_llm_usage_context_monthly.prompt_tokens + EXCLUDED.prompt_tokens,
+       completion_tokens = nextia_llm_usage_context_monthly.completion_tokens + EXCLUDED.completion_tokens,
+       last_updated_at = NOW();`,
+    [clientId, monthKey, context, deltaTotals.totalTokens, deltaTotals.promptTokens, deltaTotals.completionTokens]
+  );
+}
+
+export async function getUsageContextMonth(clientId: string, monthKey: string): Promise<LlmUsageContextMonth> {
+  if (isDbEnabled()) {
+    const row = await getUsageContextMonthDb(clientId, monthKey);
+    if (row) return row;
+  }
+  return getUsageContextMonthJson(clientId, monthKey);
+}
+
 export async function getUsageMonth(
   clientId: string,
   monthKey: string = getMonthKey()
@@ -257,6 +369,37 @@ export async function getUsageMonth(
   };
 }
 
+
+async function addUsageContext(clientId: string, monthKey: string, context: string, deltaTotals: LlmUsageContextTotals): Promise<void> {
+  const ctx = (context || "unknown").trim() || "unknown";
+
+  if (isDbEnabled()) {
+    await upsertUsageContextMonthDb({
+      clientId,
+      monthKey,
+      context: ctx,
+      deltaTotals,
+    });
+    return;
+  }
+
+  const month = await getUsageContextMonthJson(clientId, monthKey);
+  const cur = month.byContext[ctx] || { totalTokens: 0, promptTokens: 0, completionTokens: 0 };
+  const next = {
+    totalTokens: cur.totalTokens + deltaTotals.totalTokens,
+    promptTokens: cur.promptTokens + deltaTotals.promptTokens,
+    completionTokens: cur.completionTokens + deltaTotals.completionTokens,
+  };
+  month.byContext[ctx] = next;
+  month.totals = {
+    totalTokens: month.totals.totalTokens + deltaTotals.totalTokens,
+    promptTokens: month.totals.promptTokens + deltaTotals.promptTokens,
+    completionTokens: month.totals.completionTokens + deltaTotals.completionTokens,
+  };
+  month.lastUpdatedAt = new Date().toISOString();
+  await putUsageContextMonthJson(month);
+}
+
 export async function addUsage(
   clientId: string,
   delta: {
@@ -266,7 +409,8 @@ export async function addUsage(
     provider?: string | null;
     model?: string | null;
     monthKey?: string;
-  }
+  },
+  opts?: { context?: LlmUsageContext; actorType?: "admin" | "tenant_user" | "system"; actorId?: string }
 ): Promise<LlmUsageMonth> {
   const monthKey = delta.monthKey || getMonthKey();
 
@@ -275,8 +419,12 @@ export async function addUsage(
   const tRaw = delta.totalTokens != null ? Math.floor(Number(delta.totalTokens)) : p + c;
   const t = Math.max(0, tRaw);
 
+  const context = (opts?.context || "unknown") as string;
+
+  // 1) Atualiza o agregado mensal principal (compatível com legado).
+  let result: LlmUsageMonth;
   if (isDbEnabled()) {
-    return await addUsageDb(clientId, {
+    result = await addUsageDb(clientId, {
       monthKey,
       promptTokens: p,
       completionTokens: c,
@@ -284,35 +432,49 @@ export async function addUsage(
       provider: delta.provider ?? null,
       model: delta.model ?? null,
     });
+  } else {
+    const store = await readJsonValue<LlmUsageStore>(USAGE_FILE, {});
+    const byClient = store[clientId] || {};
+    const existing = byClient[monthKey] || {
+      monthKey,
+      totalTokens: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      lastUpdatedAt: nowIso(),
+      provider: null,
+      model: null,
+    };
+
+    const updated: LlmUsageMonth = {
+      ...existing,
+      promptTokens: existing.promptTokens + p,
+      completionTokens: existing.completionTokens + c,
+      totalTokens: existing.totalTokens + t,
+      lastUpdatedAt: nowIso(),
+      provider: delta.provider ?? existing.provider ?? null,
+      model: delta.model ?? existing.model ?? null,
+    };
+
+    byClient[monthKey] = updated;
+    store[clientId] = byClient;
+    await writeJsonValue(USAGE_FILE, store);
+    result = updated;
   }
 
-  const store = await readJsonValue<LlmUsageStore>(USAGE_FILE, {});
-  const byClient = store[clientId] || {};
-  const existing = byClient[monthKey] || {
-    monthKey,
-    totalTokens: 0,
-    promptTokens: 0,
-    completionTokens: 0,
-    lastUpdatedAt: nowIso(),
-    provider: null,
-    model: null,
-  };
+  // 2) Atualiza o agregado por contexto (best-effort; não deve quebrar fluxo).
+  try {
+    await addUsageContext(clientId, monthKey, context, {
+      totalTokens: t,
+      promptTokens: p,
+      completionTokens: c,
+    });
+  } catch {
+    // ignore
+  }
 
-  const updated: LlmUsageMonth = {
-    ...existing,
-    promptTokens: existing.promptTokens + p,
-    completionTokens: existing.completionTokens + c,
-    totalTokens: existing.totalTokens + t,
-    lastUpdatedAt: nowIso(),
-    provider: delta.provider ?? existing.provider ?? null,
-    model: delta.model ?? existing.model ?? null,
-  };
-
-  byClient[monthKey] = updated;
-  store[clientId] = byClient;
-  await writeJsonValue(USAGE_FILE, store);
-  return updated;
+  return result;
 }
+
 
 export async function getBudgetSnapshot(clientId: string): Promise<{
   monthKey: string;

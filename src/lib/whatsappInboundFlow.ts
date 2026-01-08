@@ -13,7 +13,7 @@ import { enqueueWhatsappText } from "@/lib/whatsappOutboxStore";
 import { resolveLlmDecision } from "@/lib/llmPolicy";
 import { addUsage } from "@/lib/llmBudget";
 import { sendWhatsappTextViaEvolution } from "@/lib/evolutionTransport";
-import { buildInboundDegradedReply } from "@/lib/degradedReplies";
+import { buildInboundDegradedReply, buildInboundBlockedReply } from "@/lib/degradedReplies";
 import { logTelemetry, nowIso } from "@/lib/telemetry";
 import { decideInboundDeterministic, persistDeterministicState } from "@/lib/conversationStateMachine";
 import type { ClientRecord } from "@/lib/clientsRegistry";
@@ -233,6 +233,78 @@ export async function handleWhatsappInboundFlow(input: WhatsappInboundFlowInput)
     return { ok: true, mode: "deterministic" };
   }
 
+  // Token cost guardrail: avoid calling LLM for trivial acknowledgements.
+  // IMPORTANT: this runs only after the deterministic state machine declined to handle the message.
+  {
+    const t = String(body || "").trim().toLowerCase();
+    const trivial =
+      t.length > 0 &&
+      t.length <= 12 &&
+      !/\d{3,}/.test(t) &&
+      [
+        "ok",
+        "blz",
+        "beleza",
+        "certo",
+        "show",
+        "top",
+        "vlw",
+        "valeu",
+        "obrigado",
+        "obrigada",
+        "👍",
+        "sim",
+        "nao",
+        "não",
+      ].includes(t);
+
+    if (trivial) {
+      const replyText = "Perfeito. Se quiser, me diga o que você precisa agora.";
+      try {
+        await logAnalyticsEvent({
+          clientId,
+          type: "inbound_trivial_bypassed",
+          createdAt: getNowIso(),
+          payload: { body: t },
+        });
+      } catch {
+        // ignore
+      }
+
+      try {
+        const outboxItem = await enqueueWhatsappText({
+          clientId,
+          to: fromNorm,
+          message: replyText,
+          messageType: "assistant_reply",
+          contactId: contactFinal.id,
+          context: {
+            kind: "assistant_reply",
+            source: input.source || "whatsapp_inbound",
+            conversation: { to: toNorm || null, from: fromNorm },
+            traces: null,
+            trivialBypass: true,
+          },
+        });
+
+        const sendImmediate = String(process.env.OUTBOX_SEND_IMMEDIATE || "true").trim().toLowerCase() !== "false";
+        if (sendImmediate) {
+          await sendWhatsappTextViaEvolution({
+            clientId,
+            instance: instanceEv,
+            to: fromNorm,
+            text: replyText,
+            outboxId: outboxItem.id,
+          });
+        }
+      } catch {
+        // never crash inbound
+      }
+
+      return { ok: true, mode: "llm", reply: replyText, contactId: contactFinal.id, degraded: true };
+    }
+  }
+
   const personality = mapPersonality(assistantSettings.personality);
   const verbosity = mapVerbosity(assistantSettings.verbosity);
   const temperature = typeof assistantSettings.temperature === "number" ? assistantSettings.temperature : 0.2;
@@ -273,21 +345,35 @@ export async function handleWhatsappInboundFlow(input: WhatsappInboundFlowInput)
   let llmReply = "";
   let degraded = false;
   let budgetDegraded = false;
+  let budgetBlocked = false;
 
   // Governança de tokens (por clientId) - decisão centralizada:
-  // - Atendimento (inbound): degrade when over limit (never block inbound).
+  // - Atendimento (inbound): allow <80%, degrade >=80%, block >=100%.
   // - Campanhas: block is handled at dispatch endpoints.
   try {
     const decision = await resolveLlmDecision({ clientId, context: "inbound" });
     budgetDegraded = decision.action === "degrade";
+    budgetBlocked = decision.action === "block";
     logTelemetry({ ts: nowIso(), level: "info", event: "llm_policy_decision", clientId, payload: { context: "inbound", action: decision.action, overLimit: decision.overLimit, monthKey: decision.snapshot?.monthKey ?? null, used: decision.snapshot?.usedTokens ?? null, limit: decision.policy?.monthlyTokenLimit ?? null } });
   } catch (e) {
     // Falha em ler budget/policy não pode derrubar o atendimento.
     budgetDegraded = false;
+    budgetBlocked = false;
   }
 
   try {
-    if (budgetDegraded) {
+    if (budgetBlocked) {
+      degraded = true;
+      llmReply = buildInboundBlockedReply();
+
+      logTelemetry({
+        ts: nowIso(),
+        level: "error",
+        event: "llm_blocked_budget",
+        clientId,
+        payload: { context: "inbound", provider, model: model ?? null },
+      });
+    } else if (budgetDegraded) {
       degraded = true;
       llmReply = buildInboundDegradedReply("budget");
 
@@ -316,9 +402,8 @@ export async function handleWhatsappInboundFlow(input: WhatsappInboundFlowInput)
           promptTokens: out.usage.promptTokens,
           completionTokens: out.usage.completionTokens,
           totalTokens: out.usage.totalTokens,
-        });
-
-        logTelemetry({ ts: nowIso(), level: "info", event: "llm_usage_recorded", clientId, payload: { context: "inbound", provider: out.usage.provider ?? provider, model: out.usage.model ?? model ?? null, promptTokens: out.usage.promptTokens, completionTokens: out.usage.completionTokens, totalTokens: out.usage.totalTokens } });
+        }, { context: "inbound" });
+logTelemetry({ ts: nowIso(), level: "info", event: "llm_usage_recorded", clientId, payload: { context: "inbound", provider: out.usage.provider ?? provider, model: out.usage.model ?? model ?? null, promptTokens: out.usage.promptTokens, completionTokens: out.usage.completionTokens, totalTokens: out.usage.totalTokens } });
       } catch (e) {
         // nunca derrubar inbound por falha em telemetria.
       }

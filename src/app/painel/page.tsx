@@ -1,14 +1,66 @@
 // src/app/painel/page.tsx
 import { getAllClientsSummary, getGlobalSummary } from "@/lib/analytics";
+import { listClients } from "@/lib/clients";
+import { resolveLlmDecision } from "@/lib/llmPolicy";
 
 export const runtime = "nodejs";
 
 export default async function PainelPage() {
   const clientSummaries = await getAllClientsSummary();
-  const global = getGlobalSummary(clientSummaries);
+  const global = await getGlobalSummary();
+
+  const clients = await listClients();
+  const llmWarnings = (
+    await Promise.all(
+      clients.map(async (c) => {
+        try {
+          const d = await resolveLlmDecision({ clientId: c.id, context: "inbound" });
+          if (d.severity === "none") return null;
+          return { clientId: c.id, name: c.name, severity: d.severity, message: d.message, usagePct: d.usagePct };
+        } catch {
+          return null;
+        }
+      })
+    )
+  ).filter(Boolean) as Array<{ clientId: string; name: string; severity: "warn" | "error"; message: string; usagePct: number }>;
+
+
+  const g: any = global as any;
+
+  const totalOrdersCreated =
+    g.totalOrdersCreated ?? g.totalPreordersCreated ?? g.totalOrders ?? 0;
+  const totalOrdersConfirmedByHuman =
+    g.totalOrdersConfirmedByHuman ?? g.totalPreordersConfirmedByHuman ?? 0;
+  const totalOrdersCancelled =
+    g.totalOrdersCancelled ?? g.totalPreordersCancelled ?? 0;
+
+  const totalOutboundText =
+    g.totalOutboundText ?? g.totalWhatsappOutboundText ?? 0;
+  const totalOutboundMedia =
+    g.totalOutboundMedia ?? g.totalWhatsappOutboundMedia ?? 0;
+
 
   return (
     <main className="p-6 space-y-8">
+      {llmWarnings.length > 0 ? (
+        <div
+          data-testid="llm-budget-banner-painel"
+          className="rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-900"
+        >
+          <div className="font-semibold">Atenção: limite de IA próximo do fim</div>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            {llmWarnings.slice(0, 5).map((w) => (
+              <li key={w.clientId}>
+                <span className="font-medium">{w.name}</span>: {Math.floor(w.usagePct)}% — {w.message}
+              </li>
+            ))}
+          </ul>
+          {llmWarnings.length > 5 ? (
+            <div className="mt-2 text-xs opacity-80">+{llmWarnings.length - 5} outros clientes com aviso</div>
+          ) : null}
+        </div>
+      ) : null}
+
       <header>
         <h1 className="text-2xl font-bold">Painel de resultados</h1>
         <p className="text-sm text-gray-600">
@@ -32,11 +84,11 @@ export default async function PainelPage() {
             Pedidos criados (bot + painel)
           </h2>
           <p className="text-2xl font-bold mt-2">
-            {global.totalOrdersCreated}
+            {totalOrdersCreated}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            {global.totalOrdersConfirmedByHuman} concluídos por humano ·{" "}
-            {global.totalOrdersCancelled} cancelados
+            {totalOrdersConfirmedByHuman} concluídos por humano ·{" "}
+            {totalOrdersCancelled} cancelados
           </p>
         </div>
 
@@ -45,12 +97,12 @@ export default async function PainelPage() {
             Mensagens WhatsApp enviadas
           </h2>
           <p className="text-2xl font-bold mt-2">
-            {global.totalWhatsappOutboundText +
-              global.totalWhatsappOutboundMedia}
+            {totalOutboundText +
+              totalOutboundMedia}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            {global.totalWhatsappOutboundText} texto ·{" "}
-            {global.totalWhatsappOutboundMedia} mídia
+            {totalOutboundText} texto ·{" "}
+            {totalOutboundMedia} mídia
           </p>
         </div>
       </section>
@@ -103,8 +155,8 @@ export default async function PainelPage() {
               ) : (
                 clientSummaries.map((c) => {
                   const totalWhatsapp =
-                    c.totalWhatsappOutboundText +
-                    c.totalWhatsappOutboundMedia;
+                    ((c as any).totalOutboundText ?? (c as any).totalWhatsappOutboundText ?? 0) +
+                    ((c as any).totalOutboundMedia ?? (c as any).totalWhatsappOutboundMedia ?? 0);
 
                   const conversionRate =
                     c.totalOrdersCreated > 0
@@ -141,8 +193,8 @@ export default async function PainelPage() {
                         {totalWhatsapp}
                       </td>
                       <td className="px-4 py-2 text-right">
-                        {c.totalCampaignSimulated} /{" "}
-                        {c.totalCampaignSent}
+                        {((c as any).totalCampaignSimulated ?? (c as any).totalSimulated ?? (c as any).campaignSimulated ?? 0)} /{" "}
+                        {((c as any).totalCampaignSent ?? (c as any).totalSent ?? (c as any).campaignSent ?? 0)}
                       </td>
                     </tr>
                   );

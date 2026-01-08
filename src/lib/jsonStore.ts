@@ -79,12 +79,13 @@ export async function readJsonArray<T>(filePath: string): Promise<T[]> {
 /**
  * Lê um arquivo JSON genérico (objeto, número, string, etc).
  *
- * - Se não existir ou estiver vazio/corrompido: grava defaultValue e retorna defaultValue.
  */
+export async function readJsonValue<T>(filePath: string): Promise<T | undefined>;
+export async function readJsonValue<T>(filePath: string, defaultValue: T): Promise<T>;
 export async function readJsonValue<T>(
   filePath: string,
-  defaultValue: T
-): Promise<T> {
+  defaultValue?: T
+): Promise<T | undefined> {
   await ensureDataDirExists();
 
   try {
@@ -92,6 +93,7 @@ export async function readJsonValue<T>(
     const trimmed = raw.trim();
 
     if (!trimmed) {
+      if (defaultValue === undefined) return undefined;
       await fs.writeFile(
         filePath,
         JSON.stringify(defaultValue, null, 2),
@@ -108,6 +110,7 @@ export async function readJsonValue<T>(
         ? (err as Record<string, unknown>).code
         : undefined;
     if (code === "ENOENT") {
+      if (defaultValue === undefined) return undefined;
       await fs.writeFile(
         filePath,
         JSON.stringify(defaultValue, null, 2),

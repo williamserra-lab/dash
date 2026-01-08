@@ -25,6 +25,8 @@ type StoredMessage = {
 type Attendant = { id: string; name: string; role: string; active: boolean };
 type WhatsappInstance = { id: string; label: string; instanceName: string; active: boolean };
 
+type ChatSummaryPurpose = "handoff" | "review_chat";
+
 function fmtTs(ts: number | null | undefined): string {
   if (!ts) return "";
   try {
@@ -33,6 +35,15 @@ function fmtTs(ts: number | null | undefined): string {
     return "";
   }
 }
+
+
+type BudgetDecision = {
+  action: "allow" | "degrade" | "block";
+  usagePct: number;
+  severity: "none" | "warn" | "error";
+  message: string;
+  snapshot: { usedTokens: number; limitTokens: number; remainingTokens: number; monthKey: string };
+};
 
 export default function ChatConsole(props: { clientId: string; instance: string; attendantId?: string }) {
   const { clientId } = props;
@@ -49,12 +60,44 @@ export default function ChatConsole(props: { clientId: string; instance: string;
   const [draft, setDraft] = useState<string>("");
   const [loadingConvs, setLoadingConvs] = useState<boolean>(false);
   const [loadingMsgs, setLoadingMsgs] = useState<boolean>(false);
+  const [summaryPurpose, setSummaryPurpose] = useState<ChatSummaryPurpose>("handoff");
+  const [summaryText, setSummaryText] = useState<string>("");
+  const [loadingSummary, setLoadingSummary] = useState<boolean>(false);
   const [err, setErr] = useState<string>("");
+  const [budgetDecision, setBudgetDecision] = useState<BudgetDecision | null>(null);
+  const [loadingBudget, setLoadingBudget] = useState<boolean>(false);
 
   const selectedConv = useMemo(
     () => conversations.find((c) => c.remoteJid === selectedRemoteJid) || null,
     [conversations, selectedRemoteJid]
   );
+
+  async function loadBudgetDecision() {
+    if (!clientId) {
+      setBudgetDecision(null);
+      return;
+    }
+    setLoadingBudget(true);
+    try {
+      const res = await fetch(`/api/admin/llm-budget-status?clientId=${encodeURIComponent(clientId)}&context=inbound`, {
+        cache: "no-store",
+      });
+      const j = (await res.json()) as any;
+      if (j?.ok && j.decision) setBudgetDecision(j.decision as BudgetDecision);
+      else setBudgetDecision(null);
+    } catch {
+      setBudgetDecision(null);
+    } finally {
+      setLoadingBudget(false);
+    }
+  }
+
+  useEffect(() => {
+    loadBudgetDecision();
+    const t = window.setInterval(loadBudgetDecision, 30_000);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId]);
 
   // Keep URL in sync (so refresh preserves selections)
   function pushUrl(next: { instance?: string; attendantId?: string }) {
@@ -157,10 +200,116 @@ export default function ChatConsole(props: { clientId: string; instance: string;
       }
       const items = Array.isArray((data as any).items) ? (data as any).items : [];
       setMessages(items);
+      // reset summary when switching conversations (summary is per remoteJid)
+      setSummaryText("");
     } catch (e: any) {
       setErr(String(e?.message || e));
     } finally {
       setLoadingMsgs(false);
+    }
+  }
+
+  async function loadSummaryStatus(remoteJid: string) {
+    if (!clientId || !remoteJid) return;
+    try {
+      const url = `/api/admin/chat/summary?clientId=${encodeURIComponent(clientId)}&instance=${encodeURIComponent(instance)}&remoteJid=${encodeURIComponent(remoteJid)}&purpose=${encodeURIComponent(summaryPurpose)}`;
+      const res = await fetch(url, { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && typeof (data as any)?.summary === "string") {
+        setSummaryText(String((data as any).summary));
+      } else {
+        setSummaryText("");
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  async function generateSummary() {
+    if (!clientId || !selectedConv) return;
+    setLoadingSummary(true);
+    setErr("");
+    try {
+      const url = `/api/admin/chat/summary?clientId=${encodeURIComponent(clientId)}&instance=${encodeURIComponent(instance)}&remoteJid=${encodeURIComponent(selectedConv.remoteJid)}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ purpose: summaryPurpose }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        setErr("Acesso admin necessário. Faça login em /admin-login.");
+        return;
+      }
+      if (res.status === 404 && (data as any)?.error === "feature_disabled") {
+        setErr("Resumo de chat desativado. Habilite NEXTIA_FEATURE_CHAT_SUMMARY=1.");
+        return;
+      }
+      if (!res.ok) {
+        setErr(String((data as any)?.error || "Falha ao gerar resumo"));
+        return;
+      }
+      setSummaryText(String((data as any)?.summary || ""));
+    } catch (e: any) {
+      setErr(String(e?.message || e));
+    } finally {
+      setLoadingSummary(false);
+    }
+  }
+
+  async function loadOrGenerateSummary(opts?: { force?: boolean }) {
+    if (!clientId || !selectedRemoteJid) return;
+    setLoadingSummary(true);
+    setErr("");
+    try {
+      const q = new URLSearchParams({
+        clientId,
+        instance,
+        remoteJid: selectedRemoteJid,
+        purpose: summaryPurpose,
+      });
+
+      // 1) status/cache
+      const stRes = await fetch(`/api/admin/chat/summary?${q.toString()}`, { cache: "no-store" });
+      const st = await stRes.json().catch(() => ({}));
+
+      if (stRes.status === 401) {
+        setErr("Acesso admin necessário. Faça login em /admin-login.");
+        return;
+      }
+
+      if (stRes.status === 404 && (st as any)?.error === "feature_disabled") {
+        setErr("Resumo de chat desativado. Habilite NEXTIA_FEATURE_CHAT_SUMMARY=1.");
+        return;
+      }
+
+      if (stRes.ok && typeof (st as any)?.summary === "string") {
+        setSummaryText(String((st as any).summary));
+        return;
+      }
+
+      // 2) generate on demand
+      const genRes = await fetch(`/api/admin/chat/summary?${q.toString()}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ force: opts?.force === true, purpose: summaryPurpose }),
+      });
+      const gen = await genRes.json().catch(() => ({}));
+
+      if (!genRes.ok) {
+        setErr(String((gen as any)?.error || "Falha ao gerar resumo."));
+        return;
+      }
+
+      if (typeof (gen as any).summary === "string") {
+        setSummaryText(String((gen as any).summary));
+      } else {
+        setSummaryText("Resumo não retornado.");
+      }
+    } catch (e: any) {
+      setErr(String(e?.message || e));
+    } finally {
+      setLoadingSummary(false);
     }
   }
 
@@ -173,6 +322,11 @@ export default function ChatConsole(props: { clientId: string; instance: string;
     if (selectedRemoteJid) loadMessages(selectedRemoteJid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRemoteJid, clientId, instance]);
+
+  useEffect(() => {
+    if (selectedRemoteJid) loadSummaryStatus(selectedRemoteJid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRemoteJid, clientId, instance, summaryPurpose]);
 
   async function send() {
     if (!clientId || !selectedConv) return;
@@ -215,6 +369,30 @@ export default function ChatConsole(props: { clientId: string; instance: string;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: 12, height: "78vh" }}>
+      {budgetDecision && budgetDecision.severity !== "none" ? (
+        <div
+          data-testid="llm-budget-banner"
+          className={`sticky top-0 z-20 mb-3 rounded-md border px-4 py-3 text-sm ${
+            budgetDecision.severity === "error"
+              ? "bg-red-50 border-red-200 text-red-900"
+              : "bg-yellow-50 border-yellow-200 text-yellow-900"
+          }`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-semibold">
+                {budgetDecision.severity === "error" ? "Limite de IA atingido" : "Limite de IA quase no fim"}
+              </div>
+              <div className="mt-1 break-words">{budgetDecision.message}</div>
+              <div className="mt-1 text-xs opacity-80">
+                {Math.floor(budgetDecision.usagePct)}% usado · mês {budgetDecision.snapshot.monthKey}
+              </div>
+            </div>
+            <div className="text-xs opacity-70">{loadingBudget ? "Atualizando..." : "Custa tokens"}</div>
+          </div>
+        </div>
+      ) : null}
+
       <div style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 12, overflow: "auto" }}>
         <div style={{ display: "grid", gap: 8, marginBottom: 10 }}>
           <label style={{ fontSize: 12, color: "#444" }}>
@@ -292,6 +470,53 @@ export default function ChatConsole(props: { clientId: string; instance: string;
           <div style={{ fontWeight: 700, marginBottom: 8 }}>
             {selectedConv ? selectedConv.remoteJid : "Selecione uma conversa"}
           </div>
+
+          {selectedConv ? (
+            <div
+              style={{
+                border: "1px solid #e5e5e5",
+                borderRadius: 12,
+                padding: 10,
+                marginBottom: 10,
+                background: "#fff",
+              }}
+            >
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <label style={{ fontSize: 12, color: "#444" }}>
+                  Resumo:&nbsp;
+                  <select
+                    value={summaryPurpose}
+                    onChange={(e) => setSummaryPurpose(e.target.value as ChatSummaryPurpose)}
+                    style={{ padding: 6, borderRadius: 8, border: "1px solid #ddd" }}
+                  >
+                    <option value="handoff">Handoff</option>
+                    <option value="review_chat">Revisão rápida</option>
+                  </select>
+                </label>
+
+                <button
+                  onClick={generateSummary}
+                  disabled={loadingSummary}
+                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ddd", background: "#fff", cursor: "pointer" }}
+                >
+                  {loadingSummary ? "Gerando..." : "Gerar resumo (custa tokens)"}
+                </button>
+
+                <span style={{ fontSize: 12, color: "#666" }}>
+                  O resumo só é gerado quando você clicar.
+                </span>
+              </div>
+
+              {summaryText ? (
+                <div style={{ marginTop: 8, fontSize: 13, whiteSpace: "pre-wrap", background: "#fafafa", border: "1px solid #eee", borderRadius: 10, padding: 10 }}>
+                  {summaryText}
+                </div>
+              ) : (
+                <div style={{ marginTop: 8, fontSize: 12, color: "#666" }}>Nenhum resumo gerado para esta conversa.</div>
+              )}
+            </div>
+          ) : null}
+
           {loadingMsgs ? <div style={{ fontSize: 12, color: "#666" }}>Carregando mensagens...</div> : null}
 
           <div style={{ display: "grid", gap: 8 }}>

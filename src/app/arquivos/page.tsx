@@ -36,6 +36,8 @@ export default function ArquivosPage() {
   const [provider, setProvider] = useState<ProviderOption>("ollama");
   const [model, setModel] = useState<string>(DEFAULT_MODELS["ollama"]);
 
+  const [purpose, setPurpose] = useState<"review_file" | "handoff">("review_file");
+
   // quando mudar provider, ajusta modelo padrão
   useEffect(() => {
     setModel((current) => {
@@ -111,28 +113,50 @@ export default function ArquivosPage() {
       setLoadingSummaryFor(fileId);
       setError(null);
 
-      const params = new URLSearchParams({ provider, model });
+      const params = new URLSearchParams({ provider, model, purpose });
 
-      const res = await fetch(
-        `/api/admin/files/summarize/${encodeURIComponent(fileId)}?${params.toString()}`
+      // 1) status/cache
+      const statusRes = await fetch(
+        `/api/admin/files/summarize/${encodeURIComponent(fileId)}?${params.toString()}`,
+        { cache: "no-store" }
       );
 
-      const data = await res.json();
+      const status = await statusRes.json().catch(() => ({}));
 
-      if (res.status === 401) {
+      if (statusRes.status === 401) {
         setError("Acesso admin necessário. Faça login em /admin-login.");
         return;
       }
 
-      if (!res.ok) {
-        const msg =
-          typeof data?.error === "string" ? data.error : "Falha ao chamar API de resumo.";
+      // Feature flag disabled returns 404.
+      if (statusRes.status === 404 && (status as any)?.error === "feature_disabled") {
+        setError("Resumo de arquivo desativado. Habilite NEXTIA_FEATURE_FILE_SUMMARY=1.");
+        return;
+      }
+
+      if (statusRes.ok && typeof (status as any)?.summary === "string") {
+        setSummaries((prev) => ({ ...prev, [fileId]: String((status as any).summary) }));
+        return;
+      }
+
+      // 2) generate on demand
+      const genRes = await fetch(
+        `/api/admin/files/summarize/${encodeURIComponent(fileId)}?${params.toString()}`,
+        { method: "POST" }
+      );
+      const gen = await genRes.json().catch(() => ({}));
+
+      if (genRes.status === 401) {
+        setError("Acesso admin necessário. Faça login em /admin-login.");
+        return;
+      }
+
+      if (!genRes.ok) {
+        const msg = typeof (gen as any)?.error === "string" ? (gen as any).error : "Falha ao gerar resumo.";
         throw new Error(msg);
       }
 
-      const summary: string =
-        typeof data.summary === "string" ? data.summary : "Resumo não retornado pela API.";
-
+      const summary: string = typeof (gen as any).summary === "string" ? (gen as any).summary : "Resumo não retornado.";
       setSummaries((prev) => ({ ...prev, [fileId]: summary }));
     } catch (e: unknown) {
       console.error("Erro ao gerar resumo:", e);
@@ -177,6 +201,14 @@ export default function ArquivosPage() {
             />
           </label>
 
+          <label>
+            Tipo de resumo:&nbsp;
+            <select value={purpose} onChange={(e) => setPurpose(e.target.value as any)}>
+              <option value="review_file">Leitura rápida</option>
+              <option value="handoff">Handoff</option>
+            </select>
+          </label>
+
           <button type="button" onClick={loadFiles}>
             Recarregar
           </button>
@@ -185,6 +217,10 @@ export default function ArquivosPage() {
         <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>
           Dica: deixe em Ollama enquanto estiver testando para evitar custos. OpenAI/Gemini só funcionam se a
           chave estiver configurada no servidor.
+        </p>
+
+        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.25rem" }}>
+          Aviso: gerar resumo pode consumir tokens quando provider/model pagos estiverem selecionados.
         </p>
       </section>
 
