@@ -53,7 +53,10 @@
     ],
     "billing": {},
     "access": {},
-    "plan": {}
+    "plan": {},
+    "llmPolicy": {
+      "monthlyTokenLimit": 200
+    }
   },
   {
     "id": "Galeria_do_Gordo",
@@ -68,7 +71,10 @@
         "label": "Principal",
         "isDefault": true
       }
-    ]
+    ],
+    "billing": {},
+    "access": {},
+    "plan": {}
   },
   {
     "id": "nextia",

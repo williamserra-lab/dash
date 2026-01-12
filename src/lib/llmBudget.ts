@@ -532,3 +532,26 @@ export async function checkBudgetOrThrow(args: {
     overLimitMode: snap.overLimitMode,
   };
 }
+
+
+// --- Admin/test helpers (no LLM) -----------------------------------------
+// Reset stored usage for a client/month. Intended for tests and admin tools.
+
+export async function resetUsageMonth(clientId: string, monthKey: string): Promise<void> {
+  const store = (await readJsonValue<Record<string, LlmUsageMonth>>(USAGE_FILE, {})) || {};
+  const key = `${clientId}__${monthKey}`;
+  if (store[key] !== undefined) {
+    delete store[key];
+    await writeJsonValue(USAGE_FILE, store);
+  }
+}
+
+export async function resetUsageContextMonth(clientId: string, monthKey: string): Promise<void> {
+  const store =
+    (await readJsonValue<Record<string, LlmUsageContextMonth>>(CONTEXT_USAGE_FILE, {})) || {};
+  const key = `${clientId}__${monthKey}`;
+  if (store[key] !== undefined) {
+    delete store[key];
+    await writeJsonValue(CONTEXT_USAGE_FILE, store);
+  }
+}

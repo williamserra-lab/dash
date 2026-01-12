@@ -1,42 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 function getErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
 export default function AdminLoginPage() {
-  const [key, setKey] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const next =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("next") || "/arquivos"
-      : "/arquivos";
+  const next = useMemo(() => {
+    if (typeof window === "undefined") return "/arquivos";
+    return new URLSearchParams(window.location.search).get("next") || "/arquivos";
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ key }),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok) {
-        const msg = typeof data?.message === "string" ? data.message : "Falha no login.";
+        const msg = data?.message || data?.error || "Falha no login (admin).";
         throw new Error(msg);
       }
 
       window.location.href = next;
-    } catch (err: unknown) {
+    } catch (err) {
       setError(getErrorMessage(err));
     } finally {
       setLoading(false);
@@ -44,32 +45,56 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: 560, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.6rem", marginBottom: "1rem" }}>Login Admin</h1>
+    <main style={{ maxWidth: 420, margin: "4rem auto", padding: "1rem", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
+      <h1 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Login (Admin)</h1>
+      <p style={{ marginTop: 0, color: "#555" }}>
+        Acesso interno para administrar e testar funcionalidades. Esta UI não é para lojista.
+      </p>
 
-      <form onSubmit={onSubmit} style={{ border: "1px solid #ccc", padding: "1rem", borderRadius: 4 }}>
-        <label style={{ display: "block", marginBottom: "0.5rem" }}>
-          NEXTIA_ADMIN_KEY
+      <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "1rem" }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+          Usuário
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+            placeholder="admin"
+            autoComplete="username"
+          />
         </label>
-        <input
-          type="password"
-          value={key}
-          onChange={(e) => setKey(e.target.value)}
-          style={{ width: "100%", padding: "0.5rem" }}
-          placeholder="cole a chave aqui"
-        />
-        <button type="submit" disabled={loading || !key.trim()} style={{ marginTop: "0.75rem" }}>
+
+        <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+          Senha
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: "100%", padding: "0.5rem" }}
+            placeholder="senha"
+            autoComplete="current-password"
+          />
+        </label>
+
+        <button type="submit" disabled={loading || !username.trim() || !password.trim()} style={{ marginTop: "0.25rem", padding: "0.6rem 0.8rem" }}>
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
         {error && (
-          <div style={{ marginTop: "0.75rem", color: "red", whiteSpace: "pre-wrap" }}>{error}</div>
+          <div style={{ marginTop: "0.25rem", color: "red", whiteSpace: "pre-wrap" }}>{error}</div>
         )}
       </form>
 
-      <p style={{ marginTop: "0.75rem", fontSize: "0.9rem", color: "#666" }}>
-        Este login só habilita ferramentas internas (admin). Nada aqui é para lojista.
-      </p>
+      <details style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
+        <summary>Credenciais esperadas</summary>
+        <div style={{ marginTop: "0.5rem" }}>
+          <div>
+            O backend valida <code>NEXTIA_ADMIN_USER</code> e <code>NEXTIA_ADMIN_PASS</code> (env).
+          </div>
+          <div style={{ marginTop: "0.5rem" }}>
+            Se essas variáveis não estiverem definidas, o fallback é: usuário <code>admin</code> e senha igual ao <code>NEXTIA_ADMIN_KEY</code>.
+          </div>
+        </div>
+      </details>
     </main>
   );
 }

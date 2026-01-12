@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/adminAuth";
 import { getUsageMonth, getMonthKey, getUsageContextMonth } from "@/lib/llmBudget";
 
 const QuerySchema = z.object({
@@ -10,6 +11,9 @@ const QuerySchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
+  const denied = requireAdmin(req);
+  if (denied) return denied;
+
   const url = new URL(req.url);
   const parsed = QuerySchema.safeParse({
     clientId: url.searchParams.get("clientId") || "",
@@ -26,10 +30,7 @@ export async function GET(req: NextRequest) {
   const { clientId } = parsed.data;
   const monthKey = parsed.data.month ?? getMonthKey(new Date());
 
-  // Totals (month-level)
   const month = await getUsageMonth(clientId, monthKey);
-
-  // Context breakdown (context totals, not raw rows)
   const ctx = await getUsageContextMonth(clientId, monthKey);
 
   return NextResponse.json({

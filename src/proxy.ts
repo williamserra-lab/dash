@@ -8,7 +8,7 @@ function unauthorizedApi() {
     {
       error: "admin_unauthorized",
       message:
-        "Acesso negado. Envie o header x-nextia-admin-key com NEXTIA_ADMIN_KEY ou faça login em /admin-login.",
+        "Acesso negado. Faça login em /admin-login (NEXTIA_ADMIN_USER/PASS) ou envie o header x-nextia-admin-key (NEXTIA_ADMIN_KEY).",
     },
     { status: 401 }
   );
@@ -25,15 +25,26 @@ function getExpectedAdminKey(): string {
   return (process.env.NEXTIA_ADMIN_KEY || "").trim();
 }
 
+function getExpectedUserPass(): { user: string; pass: string } {
+  return {
+    user: (process.env.NEXTIA_ADMIN_USER || "").trim(),
+    pass: (process.env.NEXTIA_ADMIN_PASS || "").trim(),
+  };
+}
+
+function getSessionSecret(): string {
+  const key = getExpectedAdminKey();
+  const { pass } = getExpectedUserPass();
+  return key || pass || "";
+}
+
 function isDevModeAllowed(): boolean {
-  // In dev, allow running without configuring the key.
-  // In production, missing key means "no admin access".
   return process.env.NODE_ENV !== "production";
 }
 
-function headerAdminKeyMatches(req: NextRequest, expected: string): boolean {
+function headerAdminKeyMatches(req: NextRequest, expectedKey: string): boolean {
   const got = (req.headers.get("x-nextia-admin-key") || "").trim();
-  return Boolean(expected) && got === expected;
+  return Boolean(expectedKey) && got === expectedKey;
 }
 
 function parseSessionCookie(req: NextRequest): { ts: number; sig: string } | null {
@@ -66,8 +77,8 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
   return bytesToHex(sig);
 }
 
-async function cookieAdminAuthorized(req: NextRequest, expected: string): Promise<boolean> {
-  if (!expected) return false;
+async function cookieAdminAuthorized(req: NextRequest, secret: string): Promise<boolean> {
+  if (!secret) return false;
 
   const parsed = parseSessionCookie(req);
   if (!parsed) return false;
@@ -75,17 +86,15 @@ async function cookieAdminAuthorized(req: NextRequest, expected: string): Promis
   const nowSec = Math.floor(Date.now() / 1000);
   const tsSec = Math.floor(parsed.ts / 1000);
 
-  if (tsSec > nowSec + 60) return false; // clock skew protection
+  if (tsSec > nowSec + 60) return false;
   if (nowSec - tsSec > SESSION_TTL_SECONDS) return false;
 
-  const expectedSig = await hmacSha256Hex(expected, String(parsed.ts));
+  const expectedSig = await hmacSha256Hex(secret, String(parsed.ts));
   return parsed.sig.toLowerCase() === expectedSig.toLowerCase();
 }
 
-function basicAuthMatches(req: NextRequest): boolean {
-  const user = (process.env.NEXTIA_ADMIN_USER || "").trim();
-  const pass = (process.env.NEXTIA_ADMIN_PASS || "").trim();
-  if (!user || !pass) return false;
+function basicAuthMatches(req: NextRequest, expectedUser: string, expectedPass: string): boolean {
+  if (!expectedUser || !expectedPass) return false;
 
   const header = req.headers.get("authorization") || "";
   if (!header.toLowerCase().startsWith("basic ")) return false;
@@ -102,31 +111,30 @@ function basicAuthMatches(req: NextRequest): boolean {
   const u = sep >= 0 ? decoded.slice(0, sep) : decoded;
   const p = sep >= 0 ? decoded.slice(sep + 1) : "";
 
-  return u === user && p === pass;
+  return u === expectedUser && p === expectedPass;
 }
 
 function isBypassPath(pathname: string): boolean {
-  // Login must be reachable without prior auth
   if (pathname === "/admin-login") return true;
   if (pathname === "/api/admin/auth/login") return true;
-  // Allow logout without forcing auth (it only clears cookie)
   if (pathname === "/api/admin/auth/logout") return true;
   return false;
 }
 
 async function isAdminAuthorized(req: NextRequest): Promise<boolean> {
-  const expected = getExpectedAdminKey();
+  const expectedKey = getExpectedAdminKey();
+  const { user: expectedUser, pass: expectedPass } = getExpectedUserPass();
 
-  if (!expected) {
-    // Fail-closed in prod, allow in dev
-    return isDevModeAllowed();
-  }
+  const hasAnyCredential = Boolean(expectedKey) || Boolean(expectedUser && expectedPass);
 
-  if (headerAdminKeyMatches(req, expected)) return true;
-  if (await cookieAdminAuthorized(req, expected)) return true;
+  if (!hasAnyCredential) return isDevModeAllowed();
 
-  // Back-compat (optional): allow Basic auth if configured
-  if (basicAuthMatches(req)) return true;
+  if (expectedKey && headerAdminKeyMatches(req, expectedKey)) return true;
+
+  const secret = getSessionSecret();
+  if (await cookieAdminAuthorized(req, secret)) return true;
+
+  if (basicAuthMatches(req, expectedUser, expectedPass)) return true;
 
   return false;
 }
@@ -137,6 +145,8 @@ export async function proxy(req: NextRequest) {
   if (isBypassPath(pathname)) return NextResponse.next();
 
   const mustAuth =
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
     pathname === "/clientes" ||
     pathname.startsWith("/clientes/") ||
     pathname === "/painel" ||
@@ -146,7 +156,7 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith("/api/admin/") ||
     pathname === "/api/clients" ||
     pathname.startsWith("/api/clients/") ||
-    pathname.startsWith("/api/files/"); // deprecated endpoints
+    pathname.startsWith("/api/files/");
 
   if (!mustAuth) return NextResponse.next();
 
@@ -159,6 +169,8 @@ export async function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/admin",
+    "/admin/:path*",
     "/clientes/:path*",
     "/painel/:path*",
     "/arquivos/:path*",
