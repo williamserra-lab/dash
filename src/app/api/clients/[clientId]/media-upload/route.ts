@@ -8,6 +8,8 @@ import {
   ensureDir,
   enforceStorageLimits,
   StorageLimitError,
+  getCatalogMaxFileBytes,
+  getCatalogMaxTotalBytes,
 } from "@/lib/storageLimits";
 
 type RouteContext = {
@@ -55,6 +57,19 @@ function buildPublicUrl(clientId: string, fileName: string) {
   )}`;
 }
 
+
+function normalizeScope(raw: unknown): string {
+  return typeof raw === "string" ? raw.trim().toLowerCase() : "";
+}
+
+function isAllowedCatalogImage(mimeType: string, fileName: string): boolean {
+  const mt = (mimeType || "").toLowerCase();
+  if (!mt.startsWith("image/")) return false;
+  // Permitimos apenas formatos comuns e leves
+  const ext = (path.extname(fileName || "") || "").toLowerCase();
+  return ext in { ".png": 1, ".jpg": 1, ".jpeg": 1, ".webp": 1 };
+}
+
 export async function POST(
   req: NextRequest,
   context: RouteContext
@@ -80,16 +95,33 @@ export async function POST(
     }
 
     const fileSize = file.size;
-    // Limites universais: 10MB/arquivo, 100MB/escopo (por cliente aqui).
+
+    const scope = normalizeScope(formData.get("scope"));
     const clientDir = getClientDir(clientId);
+
+    // Regras especiais do catalogo (ADENDO v11): imagens pequenas + subquota interna
+    const isCatalog = scope === "catalog";
+    const targetDir = isCatalog ? path.join(clientDir, "catalog") : clientDir;
+
+    if (isCatalog) {
+      if (!isAllowedCatalogImage(file.type || "", file.name || "")) {
+        return NextResponse.json(
+          { error: "arquivo_invalido", message: "Para scope=catalog, envie apenas imagens PNG/JPG/WEBP." },
+          { status: 415 }
+        );
+      }
+    }
+
     const quota = await enforceStorageLimits({
-      scope: "client",
-      scopeLabel: clientId,
-      scopeDir: clientDir,
+      scope: isCatalog ? "catalog" : "client",
+      scopeLabel: isCatalog ? `${clientId}:catalog` : clientId,
+      scopeDir: targetDir,
       incomingBytes: fileSize,
+      maxFileBytes: isCatalog ? getCatalogMaxFileBytes() : undefined,
+      maxTotalBytes: isCatalog ? getCatalogMaxTotalBytes() : undefined,
     });
 
-    await ensureDir(clientDir);
+    await ensureDir(targetDir);
 
     const originalName = file.name || "arquivo";
     const ext = path.extname(originalName) || "";
@@ -102,12 +134,14 @@ export async function POST(
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const finalPath = path.join(clientDir, finalName);
+    const finalPath = path.join(targetDir, finalName);
 
     await fs.writeFile(finalPath, buffer);
 
     const usedAfter = quota.usedAfter;
-    const publicUrl = buildPublicUrl(clientId, finalName);
+    const publicUrl = isCatalog
+      ? `/uploads/media/${encodeURIComponent(clientId)}/catalog/${encodeURIComponent(finalName)}`
+      : buildPublicUrl(clientId, finalName);
 
     return NextResponse.json(
       {

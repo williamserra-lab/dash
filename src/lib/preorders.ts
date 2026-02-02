@@ -11,7 +11,9 @@
 
 import { getDataPath, readJsonArray, writeJsonArray } from "@/lib/jsonStore";
 import { createId } from "@/lib/id";
+import { recordTimelineEvent } from "@/lib/timeline";
 import { dbQuery, isDbEnabled } from "@/lib/db";
+import { formatPublicId, nextCounter } from "@/lib/counters";
 
 export type PreorderStatus =
   | "draft"
@@ -50,6 +52,7 @@ export type Preorder = {
   clientId: string;
   contactId: string;
   identifier: string;
+  publicId?: string | null;
 
   items: PreorderItem[];
   delivery: PreorderDelivery;
@@ -117,6 +120,30 @@ const JSON_FILE = "preorders.json";
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+
+async function bestEffortTimeline(input: {
+  clientId: string;
+  preorderId: string;
+  status: string;
+  actor: "bot" | "human" | "system";
+  note?: string | null;
+  at?: string;
+}) {
+  try {
+    await recordTimelineEvent({
+      clientId: input.clientId,
+      entityType: "preorder",
+      entityId: input.preorderId,
+      status: input.status,
+      actor: input.actor === "human" ? "merchant" : "system",
+      note: input.note ?? null,
+      at: input.at,
+    });
+  } catch {
+    // best-effort
+  }
 }
 
 function parseNumber(n: unknown, fallback = 0): number {
@@ -360,6 +387,7 @@ function normalizePreorder(p: any): Preorder | null {
     clientId,
     contactId,
     identifier,
+    publicId: typeof p.publicId === "string" && p.publicId.trim() ? p.publicId.trim() : null,
     items,
     delivery,
     payment,
@@ -373,29 +401,39 @@ function normalizePreorder(p: any): Preorder | null {
 }
 
 async function upsertDb(preorder: Preorder): Promise<void> {
+  // IMPORTANT: Postgres requires payload NOT NULL (jsonb).
+  // Use explicit JSON.stringify + ::jsonb cast to avoid driver-specific serialization issues.
+  const payload = JSON.stringify({ ...(preorder ?? ({} as any)), publicId: (preorder as any)?.publicId ?? null }) || "{}";
   await dbQuery(
     `INSERT INTO nextia_preorders
-      (id, client_id, contact_id, identifier, status, created_at, updated_at, expires_at, payload)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      (id, client_id, contact_id, identifier, public_id, status, created_at, updated_at, expires_at, payload)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,COALESCE(NULLIF($10::jsonb, 'null'::jsonb), '{}'::jsonb))
      ON CONFLICT (id)
      DO UPDATE SET
        client_id = EXCLUDED.client_id,
        contact_id = EXCLUDED.contact_id,
        identifier = EXCLUDED.identifier,
+       public_id = COALESCE(nextia_preorders.public_id, EXCLUDED.public_id),
        status = EXCLUDED.status,
        updated_at = EXCLUDED.updated_at,
        expires_at = EXCLUDED.expires_at,
-       payload = EXCLUDED.payload`,
+       payload = jsonb_set(
+         COALESCE(NULLIF(EXCLUDED.payload, 'null'::jsonb), '{}'::jsonb),
+         '{publicId}',
+         to_jsonb(COALESCE(nextia_preorders.public_id, EXCLUDED.public_id)),
+         true
+       )`,
     [
       preorder.id,
       preorder.clientId,
       preorder.contactId,
       preorder.identifier,
+      preorder.publicId,
       preorder.status,
       preorder.createdAt,
       preorder.updatedAt,
       preorder.expiresAt,
-      preorder,
+      payload,
     ]
   );
 }
@@ -412,10 +450,49 @@ async function maybeExpireAndPersist(pre: Preorder): Promise<Preorder> {
   };
 
   if (isDbEnabled()) {
-    await upsertDb(next);
-    
+    // Persist expiry using the existing row payload (avoids NOT NULL payload issues on upsert).
+    // This makes the listing endpoint resilient even if legacy data had malformed payloads.
+    try {
+      await dbQuery(
+        `UPDATE nextia_preorders
+           SET status = $3,
+               updated_at = $4::timestamptz,
+               expires_at = $5::timestamptz,
+               payload = jsonb_set(
+                 jsonb_set(
+                   jsonb_set(
+                     jsonb_set(
+                       COALESCE(NULLIF(payload, 'null'::jsonb), '{}'::jsonb),
+                       '{status}',
+                       to_jsonb($3::text),
+                       true
+                     ),
+                     '{updatedAt}',
+                     to_jsonb($4::text),
+                     true
+                   ),
+                   '{updatedBy}',
+                   to_jsonb('system'::text),
+                   true
+                 ),
+                 '{expiresAt}',
+                 to_jsonb($5::text),
+                 true
+               )
+         WHERE client_id = $1 AND id = $2`,
+        [next.clientId, next.id, next.status, next.updatedAt, next.expiresAt]
+      );
+    } catch (err) {
+      // Best-effort fallback: try the generic upsert; but never fail listing.
+      try {
+        await upsertDb(next);
+      } catch (err2) {
+        console.warn("[preorders] failed to persist expiry; returning expired in-memory", err2);
+      }
+    }
 
-return next;
+    await bestEffortTimeline({ clientId: next.clientId, preorderId: next.id, status: next.status, actor: "system", note: "auto_expire", at: next.updatedAt });
+    return next;
   }
 
   const all = await readAllJson();
@@ -424,9 +501,9 @@ return next;
     all[idx] = next;
     await writeAllJson(all);
   }
-  
 
-return next;
+  await bestEffortTimeline({ clientId: next.clientId, preorderId: next.id, status: next.status, actor: "system", note: "auto_expire", at: next.updatedAt });
+  return next;
 }
 
 export async function getPreordersByClient(
@@ -436,6 +513,19 @@ export async function getPreordersByClient(
   if (!clientId) return [];
 
   if (isDbEnabled()) {
+    // Healing: legacy rows may exist with payload NULL (from older schema/seed).
+    // This breaks any UPDATE due to NOT NULL constraint. Fix best-effort before listing.
+    try {
+      await dbQuery(
+        `UPDATE nextia_preorders
+            SET payload = '{}'::jsonb
+          WHERE client_id = $1 AND (payload IS NULL OR payload = 'null'::jsonb)`,
+        [clientId]
+      );
+    } catch {
+      // best-effort
+    }
+
     const params: any[] = [clientId];
     let where = "client_id = $1";
     if (status) {
@@ -509,6 +599,7 @@ export async function createPreorder(input: CreatePreorderInput): Promise<Preord
     clientId: input.clientId,
     contactId: input.contactId,
     identifier: input.identifier,
+    publicId: null,
 
     items,
     delivery,
@@ -542,12 +633,15 @@ try {
   // best-effort
 }
 
+await bestEffortTimeline({ clientId: preorder.clientId, preorderId: preorder.id, status: preorder.status, actor: actor ?? preorder.updatedBy, note: null, at: preorder.createdAt });
+
 return preorder;
   }
 
   const all = await readAllJson();
   all.push(preorder);
   await writeAllJson(all);
+  await bestEffortTimeline({ clientId: preorder.clientId, preorderId: preorder.id, status: preorder.status, actor: actor ?? preorder.updatedBy, note: null, at: preorder.createdAt });
   return preorder;
 }
 
@@ -572,6 +666,17 @@ export async function updatePreorder(
   if ("delivery" in patch) next.delivery = normalizeDelivery(patch.delivery);
   if ("payment" in patch) next.payment = normalizePayment(patch.payment);
   if ("status" in patch && patch.status) next.status = patch.status;
+
+  const statusChanged = ("status" in patch && patch.status) ? (existing.status !== patch.status) : false;
+
+  // Número humano do pedido (gerado apenas quando confirmado)
+  if (
+    ("status" in patch && patch.status === "confirmed") &&
+    (!next.publicId || !String(next.publicId).trim())
+  ) {
+    const seq = await nextCounter(clientId, "order");
+    next.publicId = formatPublicId("PD", seq);
+  }
   if ("expiresAt" in patch) next.expiresAt = coerceIsoOrNull(patch.expiresAt);
 
   next.totals = computeTotals(next.items, next.delivery);
@@ -598,6 +703,10 @@ try {
   // best-effort
 }
 
+if (statusChanged) {
+  await bestEffortTimeline({ clientId, preorderId: preorderId, status: next.status, actor, note: normalizeReason(patch.note), at: next.updatedAt });
+}
+
 return next;
   }
 
@@ -606,9 +715,12 @@ return next;
   if (idx < 0) return null;
   all[idx] = next;
   await writeAllJson(all);
-  
 
-return next;
+  if (statusChanged) {
+    await bestEffortTimeline({ clientId, preorderId: preorderId, status: next.status, actor, note: normalizeReason(patch.note), at: next.updatedAt });
+  }
+
+  return next;
 }
 
 export async function setPreorderStatus(

@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/adminAuth";
 import { runWhatsappOutbox } from "@/lib/whatsappOutboxRunner";
 import { readJsonObject } from "@/lib/http/body";
 
@@ -14,6 +15,9 @@ const BodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     const body = await readJsonObject(req);
     const parsed = BodySchema.safeParse(body);
     if (!parsed.success) {

@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/adminAuth";
 import { listConversations } from "@/lib/nextiaConversationIndex";
 
 const QuerySchema = z.object({
@@ -13,6 +14,9 @@ const QuerySchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     const parsed = QuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams.entries()));
     if (!parsed.success) {
       return NextResponse.json({ ok: false, error: "Query inválida.", details: parsed.error.format() }, { status: 400 });

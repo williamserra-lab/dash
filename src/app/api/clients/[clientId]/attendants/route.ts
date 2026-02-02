@@ -26,13 +26,14 @@ export async function POST(req: NextRequest, context: RouteContext): Promise<Nex
 
     const body = await readJsonObject(req);
     const name = typeof (body as any).name === "string" ? (body as any).name.trim() : "";
+    const specialty = typeof (body as any).specialty === "string" ? String((body as any).specialty).trim() : "";
     const roleRaw = typeof (body as any).role === "string" ? String((body as any).role) : "";
     const role: AttendantRole = roleRaw === "admin" ? "admin" : "agent";
     const active = typeof (body as any).active === "boolean" ? (body as any).active : true;
 
     if (!name) return NextResponse.json({ error: "name é obrigatório." }, { status: 400 });
 
-    const created = await createAttendant({ clientId, name, role, active });
+    const created = await createAttendant({ clientId, name, specialty: specialty || null, role, active });
     return NextResponse.json({ ok: true, item: created }, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: "Erro interno.", details: String(err?.message || err) }, { status: 500 });

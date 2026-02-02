@@ -1,0 +1,83 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const COOKIE_NAME = "nextia_admin_session";
+
+function getExpectedAdminKey(): string {
+  return (process.env.NEXTIA_ADMIN_KEY || "").trim();
+}
+
+function isDevModeAllowed(): boolean {
+  return process.env.NODE_ENV !== "production";
+}
+
+function hasAdminSignal(req: NextRequest): boolean {
+  const expected = getExpectedAdminKey();
+  if (!expected) return isDevModeAllowed();
+
+  // Middleware runs on the Edge runtime: keep checks lightweight here.
+  // Real enforcement happens inside route handlers (nodejs runtime).
+  const session = req.cookies.get(COOKIE_NAME)?.value;
+  if (session) return true;
+
+  const got = (req.headers.get("x-nextia-admin-key") || "").trim();
+  return got === expected;
+}
+
+// If you are not authorized, you can still access /admin-login and the login API.
+const ALLOW_LIST = ["/admin-login", "/api/admin/auth/login", "/api/health"];
+
+function isAllowed(pathname: string): boolean {
+  return ALLOW_LIST.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
+function isProtected(pathname: string): boolean {
+  if (pathname.startsWith("/api/admin")) return true;
+
+  // UI routes that should require admin session.
+  if (pathname === "/clientes" || pathname.startsWith("/clientes/")) return true;
+  if (pathname === "/painel" || pathname.startsWith("/painel/")) return true;
+  if (pathname === "/arquivos" || pathname.startsWith("/arquivos/")) return true;
+  if (pathname === "/campanhas" || pathname.startsWith("/campanhas/")) return true;
+  if (pathname === "/midias" || pathname.startsWith("/midias/")) return true;
+
+  return false;
+}
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (isAllowed(pathname) || !isProtected(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (hasAdminSignal(req)) {
+    return NextResponse.next();
+  }
+
+  // Redirect UI pages to /admin-login. Keep API calls as 401 JSON.
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.json(
+      {
+        error: "admin_unauthorized",
+        message: "Acesso negado. Faça login em /admin-login.",
+      },
+      { status: 401 }
+    );
+  }
+
+  const url = req.nextUrl.clone();
+  url.pathname = "/admin-login";
+  url.searchParams.set("next", pathname + (req.nextUrl.search || ""));
+  return NextResponse.redirect(url);
+}
+
+export const config = {
+  matcher: [
+    "/api/:path*",
+    "/clientes/:path*",
+    "/painel/:path*",
+    "/arquivos/:path*",
+    "/campanhas/:path*",
+    "/midias/:path*",
+  ],
+};

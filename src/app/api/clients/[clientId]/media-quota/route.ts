@@ -15,6 +15,8 @@ import {
   getDirectorySizeBytes,
   getMaxFileBytes,
   getMaxTotalBytes,
+  getCatalogMaxFileBytes,
+  getCatalogMaxTotalBytes,
 } from "@/lib/storageLimits";
 
 type RouteContext = {
@@ -42,12 +44,19 @@ export async function GET(
 
     const clientDir = path.join(UPLOAD_BASE_DIR, clientId);
     const usedBytes = await getDirectorySizeBytes(clientDir);
+    const catalogDir = path.join(clientDir, "catalog");
+    const catalogUsedBytes = await getDirectorySizeBytes(catalogDir);
 
     return NextResponse.json(
       {
         usedBytes,
         maxBytes: getMaxTotalBytes(),
         maxFileBytes: getMaxFileBytes(),
+        catalog: {
+          usedBytes: catalogUsedBytes,
+          maxBytes: getCatalogMaxTotalBytes(),
+          maxFileBytes: getCatalogMaxFileBytes(),
+        },
       },
       { status: 200 }
     );

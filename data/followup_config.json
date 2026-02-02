@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "byClientId": {
+    "loja_teste": {
+      "enabled": true,
+      "channel": "whatsapp",
+      "preorders": {
+        "enabled": true,
+        "eligibleStatuses": [
+          "draft",
+          "awaiting_human_confirmation"
+        ],
+        "startMinutes": 0,
+        "stopHours": 24,
+        "followup1Minutes": 10,
+        "followup2Minutes": 60
+      },
+      "bookings": {
+        "enabled": true,
+        "eligibleStatuses": [
+          "requested",
+          "awaiting_confirmation"
+        ],
+        "startMinutes": 0,
+        "stopHours": 24,
+        "stopBeforeStartMinutes": 1,
+        "followup1Minutes": 30,
+        "followup2Minutes": 120
+      },
+      "conversionWindowHours": 6,
+      "templates": {
+        "preorder": "Oi! Vi que seu pré-pedido ainda não foi confirmado. Posso te ajudar a finalizar? 🙂",
+        "booking": "Oi! Seu agendamento ainda está pendente. Quer confirmar agora? 🙂",
+        "approvedAfter24h": null
+      },
+      "after24hPolicy": "stop"
+    },
+    "catia_foods": {
+      "enabled": true,
+      "channel": "whatsapp",
+      "preorders": {
+        "enabled": true,
+        "eligibleStatuses": [
+          "draft",
+          "awaiting_human_confirmation"
+        ],
+        "startMinutes": 0,
+        "stopHours": 24,
+        "followup1Minutes": 1,
+        "followup2Minutes": 60
+      },
+      "bookings": {
+        "enabled": true,
+        "eligibleStatuses": [
+          "requested",
+          "awaiting_confirmation"
+        ],
+        "startMinutes": 0,
+        "stopHours": 24,
+        "stopBeforeStartMinutes": 1,
+        "followup1Minutes": 30,
+        "followup2Minutes": 120
+      },
+      "conversionWindowHours": 6,
+      "templates": {
+        "preorder": "Oi! Vi que seu pré-pedido ainda não foi confirmado. Posso te ajudar a finalizar? 🙂",
+        "booking": "Oi! Seu agendamento ainda está pendente. Quer confirmar agora? 🙂",
+        "approvedAfter24h": null
+      },
+      "after24hPolicy": "stop"
+    }
+  },
+  "updatedAt": "2026-01-28T22:08:54.143Z"
+}

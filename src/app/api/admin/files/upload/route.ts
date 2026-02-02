@@ -1,11 +1,15 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { getAdminUploadsDir, saveAdminUpload } from "@/lib/adminFiles";
 import { enforceStorageLimits, StorageLimitError } from "@/lib/storageLimits";
 
 export async function POST(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     const formData = await req.formData();
     const file = formData.get("file");
 

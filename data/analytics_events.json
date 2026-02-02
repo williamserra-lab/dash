@@ -10228,5 +10228,93 @@
       "degraded": false
     },
     "id": "evt_6fdm7amw_ge1v5l"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_whatsapp_inbound",
+    "createdAt": "2026-01-15T12:08:18.652Z",
+    "payload": {
+      "from": "5521981616154",
+      "to": "",
+      "body": "https://chat.whatsapp.com/E1yQxcmxHfNFkvSBcRDR1U"
+    },
+    "id": "evt_b70f489b465f4e6b8b12b2bcfc589de0"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_llm_reply",
+    "createdAt": "2026-01-15T12:08:19.131Z",
+    "payload": {
+      "provider": "groq",
+      "model": null,
+      "degraded": false
+    },
+    "id": "evt_ab50b2caa210405ea7f76ac9628b1407"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_whatsapp_inbound",
+    "createdAt": "2026-01-15T15:08:27.087Z",
+    "payload": {
+      "from": "5521981616154",
+      "to": "",
+      "body": "✅ *COMERCIANTES VK 1*\nhttps://chat.whatsapp.com/GtTm8eduDcH8NxFWL7KIB7\n\n✅ *COMERCIANTES VK 2*\nhttps://chat.whatsapp.com/KhDDDAuXCKFFe14Z5gkofh\n\n✅ *COMERCIANTES JARDIM BANGU*\nhttps://chat.whatsapp.com/LsUlcMjuNENKvsKqBD1BB0\n\n✅ *COMERCIANTES BANGU*\nhttps://chat.whatsapp.com/J8B8iH1QPFoKu3ikl8fg5\n\n✅ *COMERCIANTES REALENGO*\nhttps://chat.whatsapp.com/BiDgumRtTOc6MHyjYRpt38"
+    },
+    "id": "evt_99f4358d7f714f4ea5c3eed893e0d8b0"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_llm_reply",
+    "createdAt": "2026-01-15T15:08:27.577Z",
+    "payload": {
+      "provider": "groq",
+      "model": null,
+      "degraded": false
+    },
+    "id": "evt_becb8feccaab4189a639f8f5e6b3691c"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_whatsapp_inbound",
+    "createdAt": "2026-01-16T09:43:23.513Z",
+    "payload": {
+      "from": "5521981616154",
+      "to": "",
+      "body": "Acesse este link para entrar no meu grupo do WhatsApp: https://chat.whatsapp.com/ImamYrOozu002t9WgbTQzO"
+    },
+    "id": "evt_b1ec11b9052f46d48f63f758022793c1"
+  },
+  {
+    "clientId": "nextia",
+    "type": "llm_degraded_mode",
+    "createdAt": "2026-01-16T09:43:23.750Z",
+    "payload": {
+      "provider": "groq",
+      "model": null,
+      "reason": "llm_error"
+    },
+    "id": "evt_7cb7c09ca4fe4ad2bf347317d2a62cf3"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_llm_reply",
+    "createdAt": "2026-01-16T09:43:23.766Z",
+    "payload": {
+      "provider": "groq",
+      "model": null,
+      "degraded": true
+    },
+    "id": "evt_c62af592f6674f76bb18c616a505ae5e"
+  },
+  {
+    "clientId": "nextia",
+    "type": "client_whatsapp_inbound",
+    "createdAt": "2026-02-01T12:45:23.731Z",
+    "payload": {
+      "from": "5521981616154",
+      "to": "",
+      "body": "ping"
+    },
+    "id": "evt_05375aa8433f4ab9a63269a818557049"
   }
 ]

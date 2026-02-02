@@ -12,6 +12,7 @@ type Product = {
   currency: string;
   active: boolean;
   imageUrl?: string;
+  imageUrls?: string[];
   updatedAt: string;
 };
 
@@ -20,6 +21,26 @@ type CatalogStatus = {
   activeProducts: number;
   issues: Array<{ code: string; message: string; count: number }>;
 };
+
+type MediaQuota = {
+  usedBytes: number;
+  maxBytes: number;
+  maxFileBytes: number;
+  catalog?: {
+    usedBytes: number;
+    maxBytes: number;
+    maxFileBytes: number;
+  };
+};
+
+function bytesToMB(b: number) {
+  const n = Number(b || 0) / (1024 * 1024);
+  return n.toFixed(1);
+}
+
+function formatQuotaLabel(used: number, max: number) {
+  return `${bytesToMB(used)} MB / ${bytesToMB(max)} MB`;
+}
 
 function formatBRL(priceCents: number) {
   const n = Number(priceCents || 0) / 100;
@@ -32,6 +53,7 @@ export default function ProdutosClient() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [status, setStatus] = useState<CatalogStatus | null>(null);
+  const [quota, setQuota] = useState<MediaQuota | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,14 +66,17 @@ export default function ProdutosClient() {
     setLoading(true);
     setError(null);
     try {
-      const [pRes, sRes] = await Promise.all([
+      const [pRes, sRes, qRes] = await Promise.all([
         fetch(`/api/clients/${clientId}/products`, { cache: "no-store" }),
         fetch(`/api/clients/${clientId}/catalog-status`, { cache: "no-store" }),
+        fetch(`/api/clients/${clientId}/media-quota`, { cache: "no-store" }),
       ]);
       const pj = await pRes.json();
       const sj = await sRes.json();
+      const qj = await qRes.json();
       setProducts((pj.products || []) as Product[]);
       setStatus((sj.status || null) as CatalogStatus | null);
+      setQuota((qj || null) as MediaQuota | null);
     } catch (e: any) {
       setError(String(e?.message || e));
     } finally {
@@ -74,7 +99,7 @@ export default function ProdutosClient() {
       active: true,
       updatedAt: new Date().toISOString(),
     });
-    setDraft({ name: "", description: "", price: "", active: true });
+    setDraft({ name: "", description: "", price: "", active: true, imageUrls: [] });
   }
 
   function openEdit(p: Product) {
@@ -84,7 +109,7 @@ export default function ProdutosClient() {
       description: p.description,
       price: p.priceCents ? String((p.priceCents / 100).toFixed(2)).replace(".", ",") : "",
       active: p.active !== false,
-      imageUrl: p.imageUrl || "",
+      imageUrls: Array.isArray((p as any).imageUrls) ? (p as any).imageUrls : (p.imageUrl ? [p.imageUrl] : []),
     });
   }
 
@@ -96,7 +121,8 @@ export default function ProdutosClient() {
       description: String(draft.description || ""),
       price: String(draft.price || "").trim(),
       active: draft.active !== false,
-      imageUrl: String(draft.imageUrl || "").trim() || undefined,
+      imageUrls: Array.isArray(draft.imageUrls) ? draft.imageUrls : [],
+      imageUrl: Array.isArray(draft.imageUrls) && draft.imageUrls.length ? String(draft.imageUrls[0] || "").trim() || undefined : undefined,
     };
 
     try {
@@ -258,8 +284,74 @@ export default function ProdutosClient() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium">Imagem (opcional)</label>
-                <input className="mt-1 w-full p-2 border rounded" placeholder="URL" value={draft.imageUrl || ""} onChange={(e) => setDraft({ ...draft, imageUrl: e.target.value })} />
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-sm font-medium">Imagens do produto (até 5)</label>
+                  {quota?.catalog && (
+                    <div className="text-xs text-gray-600">
+                      Catálogo: {formatQuotaLabel(quota.catalog.usedBytes, quota.catalog.maxBytes)} · Máx. arquivo: {bytesToMB(quota.catalog.maxFileBytes)} MB
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(Array.isArray(draft.imageUrls) ? draft.imageUrls : []).map((url: string, idx: number) => (
+                    <div key={idx} className="relative w-20 h-20 rounded border overflow-hidden bg-gray-50">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        className="absolute top-1 right-1 text-[11px] bg-white/90 border rounded px-1"
+                        onClick={() => {
+                          const list = Array.isArray(draft.imageUrls) ? [...draft.imageUrls] : [];
+                          list.splice(idx, 1);
+                          setDraft({ ...draft, imageUrls: list });
+                        }}
+                      >
+                        x
+                      </button>
+                      {idx === 0 && (
+                        <div className="absolute bottom-0 left-0 right-0 text-[10px] bg-black/60 text-white text-center">principal</div>
+                      )}
+                    </div>
+                  ))}
+
+                  <label className={`w-20 h-20 rounded border flex items-center justify-center text-xs cursor-pointer bg-white ${((Array.isArray(draft.imageUrls) ? draft.imageUrls.length : 0) >= 5) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      disabled={(Array.isArray(draft.imageUrls) ? draft.imageUrls.length : 0) >= 5}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = '';
+                        if (!file) return;
+                        const current = Array.isArray(draft.imageUrls) ? draft.imageUrls : [];
+                        if (current.length >= 5) return;
+                        setError(null);
+                        try {
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          fd.append('scope', 'catalog');
+                          const res = await fetch(`/api/clients/${clientId}/media-upload`, { method: 'POST', body: fd });
+                          const j = await res.json();
+                          if (!res.ok) throw new Error(j?.message || j?.error || `HTTP ${res.status}`);
+                          const url = String(j?.url || '').trim();
+                          if (!url) throw new Error('upload_sem_url');
+                          const next = [...current, url].slice(0, 5);
+                          setDraft({ ...draft, imageUrls: next });
+                          // Atualiza quota em background (sem bloquear)
+                          fetch(`/api/clients/${clientId}/media-quota`, { cache: 'no-store' }).then(r => r.json()).then(qj => setQuota(qj)).catch(() => {});
+                        } catch (err: any) {
+                          setError(String(err?.message || err));
+                        }
+                      }}
+                    />
+                    +
+                  </label>
+                </div>
+
+                <p className="mt-2 text-xs text-gray-600">
+                  Dica: a primeira imagem é usada como <b>principal</b>.
+                </p>
               </div>
             </div>
             <div className="p-4 border-t flex items-center justify-between">

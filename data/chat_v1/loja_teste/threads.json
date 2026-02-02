@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "updatedAt": "2026-01-16T20:41:58.385Z",
+  "data": [
+    {
+      "id": "86e5b15f-9c4f-4873-b701-cfcfdeb5391a",
+      "clientId": "loja_teste",
+      "title": "Teste thread",
+      "createdAt": "2026-01-16T09:09:22.543Z",
+      "updatedAt": "2026-01-16T20:41:58.385Z",
+      "lastMessagePreview": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: PING_CACHE_001"
+    }
+  ]
+}

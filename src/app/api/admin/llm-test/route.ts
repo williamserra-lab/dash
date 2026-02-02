@@ -1,4 +1,7 @@
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { runLLM, resolveLLMProvider, resolveLLMModel, getLLMTimeoutMs, type LLMProvider } from "@/lib/llm";
 
 type Body = {
@@ -19,6 +22,9 @@ function getErrorMessage(err: unknown) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   const raw = await req.text();
   let body: Body = {};
   try {

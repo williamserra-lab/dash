@@ -12,7 +12,11 @@ import path from "path";
 export const DEFAULT_MAX_FILE_MB = 10;
 export const DEFAULT_MAX_TOTAL_MB = 100;
 
-export type StorageScope = "client" | "global";
+// Defaults do catalog (sub-quota interna do total do cliente)
+export const DEFAULT_CATALOG_TOTAL_PERCENT = 20;
+export const DEFAULT_MAX_CATALOG_FILE_MB = 2;
+
+export type StorageScope = "client" | "global" | "catalog";
 
 export class StorageLimitError extends Error {
   code: "file_too_large" | "storage_quota_exceeded";
@@ -49,6 +53,26 @@ export function getMaxTotalBytes(): number {
   return compat * 1024 * 1024;
 }
 
+
+export function getCatalogTotalPercent(): number {
+  const p = envNumber("NEXTIA_CATALOG_TOTAL_PERCENT", DEFAULT_CATALOG_TOTAL_PERCENT);
+  const compat = envNumber("CATALOG_TOTAL_PERCENT", p);
+  // manter entre 1 e 100
+  return Math.min(100, Math.max(1, compat));
+}
+
+export function getCatalogMaxFileBytes(): number {
+  const mb = envNumber("NEXTIA_MAX_CATALOG_FILE_MB", DEFAULT_MAX_CATALOG_FILE_MB);
+  const compat = envNumber("MAX_CATALOG_FILE_MB", mb);
+  return compat * 1024 * 1024;
+}
+
+export function getCatalogMaxTotalBytes(): number {
+  const total = getMaxTotalBytes();
+  const percent = getCatalogTotalPercent();
+  return Math.floor((total * percent) / 100);
+}
+
 export async function ensureDir(dir: string): Promise<void> {
   await fs.mkdir(dir, { recursive: true });
 }
@@ -81,9 +105,12 @@ export async function enforceStorageLimits(params: {
   scopeLabel: string; // ex: clientId, "admin"
   scopeDir: string;
   incomingBytes: number;
+  // Overrides opcionais (ex.: catalog scope)
+  maxFileBytes?: number;
+  maxTotalBytes?: number;
 }): Promise<{ usedBefore: number; usedAfter: number; maxFileBytes: number; maxTotalBytes: number }> {
-  const maxFileBytes = getMaxFileBytes();
-  const maxTotalBytes = getMaxTotalBytes();
+  const maxFileBytes = params.maxFileBytes ?? getMaxFileBytes();
+  const maxTotalBytes = params.maxTotalBytes ?? getMaxTotalBytes();
 
   if (params.incomingBytes > maxFileBytes) {
     throw new StorageLimitError(

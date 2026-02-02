@@ -2,8 +2,9 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
+import { isAdminAuthorized, requireAdmin } from "@/lib/adminAuth";
 import { assertClientActive, ClientAccessError } from "@/lib/tenantAccess";
-import { getClientById, updateClient } from "@/lib/clients";
+import { getClientById, updateClient, deleteClient } from "@/lib/clients";
 import { readJsonObject } from "@/lib/http/body";
 
 type RouteContext = {
@@ -11,7 +12,6 @@ type RouteContext = {
     clientId: string;
   }>;
 };
-
 function getErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
@@ -34,8 +34,12 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
 
   const body = await readJsonObject(req);
 
-  // LOJISTA pode editar apenas cadastro (name/profile). Campos de plano/billing/acesso/números são SUPERADMIN-only.
-  const allowedKeys = new Set(["name", "profile"]);
+  // LOJISTA pode editar apenas cadastro (name/profile).
+  // SUPERADMIN (cookie/admin-key) pode editar também status/segment/whatsappNumbers.
+  const isAdmin = await isAdminAuthorized(req);
+  const allowedKeys = isAdmin
+    ? new Set(["name", "profile", "status", "segment", "whatsappNumbers"])
+    : new Set(["name", "profile"]);
   const providedKeys = Object.keys(body || {});
   const forbiddenKeys = providedKeys.filter((k) => !allowedKeys.has(k));
   if (forbiddenKeys.length > 0) {
@@ -69,5 +73,23 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
     const msgRaw = getErrorMessage(err) || "Erro ao atualizar cliente.";
     const status = msgRaw.includes("não encontrado") || msgRaw.includes("inválido") ? 404 : 400;
     return NextResponse.json({ error: msgRaw }, { status });
+  }
+}
+
+
+
+export async function DELETE(req: NextRequest, context: RouteContext) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
+  const { clientId } = await context.params;
+
+  try {
+    const ok = await deleteClient(clientId, "superadmin");
+    if (!ok) return NextResponse.json({ error: "Cliente não encontrado." }, { status: 404 });
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (err: unknown) {
+    const msgRaw = getErrorMessage(err) || "Erro ao excluir cliente.";
+    return NextResponse.json({ error: msgRaw }, { status: 400 });
   }
 }

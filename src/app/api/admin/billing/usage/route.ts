@@ -11,7 +11,7 @@ const QuerySchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const denied = requireAdmin(req);
+  const denied = await requireAdmin(req);
   if (denied) return denied;
 
   const url = new URL(req.url);

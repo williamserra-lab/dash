@@ -20,7 +20,7 @@ async function readJsonSafe(req: NextRequest): Promise<Body> {
 }
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ clientId: string }> }) {
-  const denied = requireAdmin(req);
+  const denied = await requireAdmin(req);
   if (denied) return denied;
 
   const { clientId } = await ctx.params;
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ clientId: s
 }
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ clientId: string }> }) {
-  const denied = requireAdmin(req);
+  const denied = await requireAdmin(req);
   if (denied) return denied;
 
   const { clientId } = await ctx.params;

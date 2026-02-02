@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { assertClientActive, ClientAccessError } from "@/lib/tenantAccess";
 import {
   getCampaignById,
+  getEligibleWhatsAppContactsForCampaign,
   getSendsByCampaign,
   markCampaignSent,
+  recordCampaignSendStatus,
 } from "@/lib/campaigns";
-import { getContactsByClient } from "@/lib/contacts";
 import { sendWhatsappCampaignMessage } from "@/lib/whatsapp";
 import { logAnalyticsEvent } from "@/lib/analytics";
 import { reserveDailyQuota } from "@/lib/whatsappDailyLimits";
@@ -56,18 +57,12 @@ export async function POST(
 
     const policy = getWhatsAppOperationalPolicy();
 
-    // Alvos
-    const contacts = await getContactsByClient(clientId);
-    const contactIds = Array.isArray(campaign.target?.contactIds) ? campaign.target.contactIds : [];
-    const allowedIds = contactIds.length ? new Set(contactIds.map((x) => String(x))) : null;
-    const targets = contacts.filter((c) => {
-      if (allowedIds && !allowedIds.has(String(c.id))) return false;
-      if (campaign.target.excludeOptOut && c.optOutMarketing) return false;
-      if (campaign.target.excludeBlocked && c.blockedGlobal) return false;
-      if (campaign.target.vipOnly && !c.vip) return false;
-      if (c.channel !== "whatsapp") return false;
-      return true;
+    // Alvos (mesma regra da simulação: contactIds/listIds/tagsAny + flags)
+    const targets = await getEligibleWhatsAppContactsForCampaign({
+      clientId,
+      target: campaign.target,
     });
+
 
     // Teto por campanha (segurança)
     const cappedTargets = targets.slice(0, policy.perCampaignMax);
@@ -84,6 +79,8 @@ export async function POST(
       return true; // inclui erro e undefined
     });
 
+    const skippedAlreadyHandled = Math.max(0, cappedTargets.length - eligible.length);
+
     // Limite diário (PARCIAL)
     const quota = await reserveDailyQuota({ clientId, desired: eligible.length });
     const allowed = eligible.slice(0, quota.allowed);
@@ -98,26 +95,56 @@ export async function POST(
     });
 
     let enqueued = 0;
+    let errors = 0;
     for (let i = 0; i < allowed.length; i++) {
       const contact = allowed[i];
       const notBefore = schedule[i] ?? null;
 
-      await sendWhatsappCampaignMessage(
-        clientId,
-        campaign.id,
-        contact,
-        campaign.message,
-        {
-          notBefore,
-          idempotencyKey: `cmp:${campaign.id}:contact:${contact.id}`,
-          allowRetryOnError: true,
-        }
-      );
+      try {
+        await sendWhatsappCampaignMessage(
+          clientId,
+          campaign.id,
+          contact,
+          campaign.message,
+          {
+            notBefore,
+            idempotencyKey: `cmp:${campaign.id}:contact:${contact.id}`,
+            allowRetryOnError: true,
+          }
+        );
 
-      enqueued += 1;
+        // Marca o envio como "agendado" para garantir idempotência e refletir no dashboard.
+        await recordCampaignSendStatus({
+          campaignId: campaign.id,
+          clientId,
+          contactId: contact.id,
+          identifier: contact.identifier,
+          status: "agendado",
+        });
+
+        enqueued += 1;
+      } catch (err) {
+        errors += 1;
+        // Best-effort: registra o erro no dashboard para permitir retry.
+        try {
+          await recordCampaignSendStatus({
+            campaignId: campaign.id,
+            clientId,
+            contactId: contact.id,
+            identifier: contact.identifier,
+            status: "erro",
+          });
+        } catch {
+        errors += 1;
+          // silencioso
+        }
+      }
     }
 
-    const updated = await markCampaignSent(campaign);
+    const updated = await markCampaignSent(
+      campaign,
+      skippedDueToDailyLimit > 0 ? "em_andamento" : "disparada"
+    );
 
     await auditWhatsApp({
       clientId,
@@ -155,17 +182,28 @@ export async function POST(
 
     return NextResponse.json(
       {
-        campaign: updated,
-        totalTargets: targets.length,
-        eligible: eligible.length,
-        enqueued,
-        skippedDueToDailyLimit,
+        ok: true,
+        mode: "send",
+        clientId,
+        campaignId: updated.id,
+        statusAfter: updated.status,
+        summary: {
+          totalTargets: targets.length,
+          cappedTargets: cappedTargets.length,
+          eligible: eligible.length,
+          attempted: allowed.length,
+          enqueued,
+          errors,
+          skippedAlreadyHandled,
+          skippedDueToDailyLimit,
+        },
         daily: {
           date: quota.date,
           limit: quota.limit,
           usedAfter: quota.usedAfter,
           remainingAfter: quota.remainingAfter,
         },
+        campaign: updated,
       },
       { status: 200 }
     );

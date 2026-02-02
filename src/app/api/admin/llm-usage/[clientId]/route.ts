@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/adminAuth";
 import { addUsage, getBudgetSnapshot, getUsageContextMonth, getUsageMonth, getMonthKey } from "@/lib/llmBudget";
 import { resetUsageMonthForClient } from "@/lib/llmBudgetReset";
 
@@ -38,6 +39,9 @@ async function readJsonSafe(req: NextRequest): Promise<unknown> {
 }
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ clientId: string }> }) {
+  const denied = await requireAdmin(_req);
+  if (denied) return denied;
+
   const { clientId } = await ctx.params;
   const id = String(clientId || "").trim();
   if (!id) return NextResponse.json({ error: "clientId é obrigatório" }, { status: 400 });
@@ -49,6 +53,9 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ clientId: 
 }
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ clientId: string }> }) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   const { clientId } = await ctx.params;
   const id = String(clientId || "").trim();
   if (!id) return NextResponse.json({ error: "clientId é obrigatório" }, { status: 400 });

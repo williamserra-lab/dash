@@ -21,7 +21,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext) {
   const { clientId } = await ctx.params;
   try {
     const bookings = await listBookingsByClient(clientId);
-    return NextResponse.json({ bookings });
+    return NextResponse.json({ items: bookings, bookings });
   } catch (error) {
     console.error("Erro ao listar bookings:", error);
     return NextResponse.json({ error: "Erro ao listar bookings." }, { status: 500 });
@@ -38,10 +38,12 @@ const contactId = String(body.contactId ?? "").trim();
     const endAt = String(body.endAt ?? "").trim();
     const status = body.status as BookingStatus | undefined;
     const collected = body.collected as CollectedFields | undefined;
+    const attendantId = String(body.attendantId ?? "default");
 
     const booking = await createBooking({
       clientId,
       contactId,
+      attendantId,
       service: service ?? { name: "" },
       startAt,
       endAt,

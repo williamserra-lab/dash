@@ -143,3 +143,21 @@ export async function dbUpdateClient(
 
   return next;
 }
+
+
+export async function dbDeleteClientById(id: string, _actor: string): Promise<boolean> {
+  await ensureClientsSchema();
+
+  const res = await dbQuery(
+    `
+    DELETE FROM clients
+    WHERE id=$1
+    `,
+    [id]
+  );
+
+  // dbQuery may not return affectedRows; rely on a follow-up lookup
+  const remaining = await dbGetClientById(id);
+  return !remaining;
+}
+

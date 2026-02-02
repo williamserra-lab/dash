@@ -56,6 +56,7 @@ type Delivery = {
 
 type Order = {
   id: string;
+  publicId?: string | null;
   clientId: string;
   contactId: string;
   identifier: string;
@@ -70,6 +71,15 @@ type Order = {
   createdAt: string;
   updatedAt?: string;
   conversationStep?: string;
+};
+
+type TimelineEvent = {
+  id: string;
+  status: string;
+  statusGroup: string;
+  at: string;
+  actor: string;
+  note?: string | null;
 };
 
 const STALE_MINUTES = 30;
@@ -92,6 +102,25 @@ function labelStatus(status: OrderStatus): string {
       return "Cancelado";
     default:
       return status;
+  }
+}
+
+function timelineGroupLabel(g: string): string {
+  switch (g) {
+    case "criado":
+      return "Criado";
+    case "confirmado":
+      return "Confirmado";
+    case "preparo":
+      return "Preparo";
+    case "entrega/retirada":
+      return "Entrega/retirada";
+    case "concluido":
+      return "Concluído";
+    case "cancelado":
+      return "Cancelado";
+    default:
+      return g;
   }
 }
 
@@ -157,6 +186,12 @@ export default function PedidosPage() {
 
   const [mutatingId, setMutatingId] = useState<string | null>(null);
 
+  // Drawer + Timeline (PASSO 5)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+
   async function loadOrders() {
     try {
       setLoading(true);
@@ -186,6 +221,50 @@ export default function PedidosPage() {
     loadOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId]);
+
+  useEffect(() => {
+    const o = selectedOrder;
+    if (!clientId || !o?.id) {
+      setTimelineEvents([]);
+      setTimelineError(null);
+      setTimelineLoading(false);
+      return;
+    }
+
+    let alive = true;
+    (async () => {
+      setTimelineLoading(true);
+      setTimelineError(null);
+      try {
+        const r = await fetch(
+          `/api/clients/${encodeURIComponent(clientId)}/orders/${encodeURIComponent(o.id)}/timeline`,
+          { cache: "no-store", credentials: "include" },
+        );
+        if (!r.ok) {
+          if (r.status === 401) {
+            throw new Error("Sem sessão admin. Faça login em /admin-login e tente novamente.");
+          }
+          const t = await r.text();
+          throw new Error(t || `HTTP ${r.status}`);
+        }
+        const j = (await r.json()) as any;
+        const items = Array.isArray(j?.events)
+          ? (j.events as TimelineEvent[])
+          : Array.isArray(j?.items)
+            ? (j.items as TimelineEvent[])
+            : [];
+        if (alive) setTimelineEvents(items);
+      } catch (e) {
+        if (alive) setTimelineError(getErrorMessage(e) || "Erro ao carregar timeline.");
+      } finally {
+        if (alive) setTimelineLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [clientId, selectedOrder?.id]);
 
   async function updateOrderStatus(
     order: Order,
@@ -333,7 +412,7 @@ export default function PedidosPage() {
               <table className="min-w-full border-collapse text-xs">
                 <thead className="bg-slate-100 text-[11px] uppercase tracking-wide text-slate-600">
                   <tr>
-                    <th className="px-3 py-2 text-left">ID</th>
+                    <th className="px-3 py-2 text-left">Pedido</th>
                     <th className="px-3 py-2 text-left">Contato</th>
                     <th className="px-3 py-2 text-left">Pedido / Status</th>
                     <th className="px-3 py-2 text-left">Entrega</th>
@@ -379,13 +458,16 @@ export default function PedidosPage() {
 
                     return (
                       <tr
-                        key={o.id}
+                        key={o.publicId || o.id}
                         className={`border-b border-slate-100 ${
                           stale ? "bg-amber-50" : "bg-white"
                         }`}
                       >
                         <td className="px-3 py-2 text-[11px] text-slate-600">
-                          {o.id}
+                          <div className="font-mono font-semibold text-slate-900">
+                            {o.publicId || "-"}
+                          </div>
+                          <div className="font-mono text-[10px] text-slate-500">{o.id}</div>
                         </td>
                         <td className="px-3 py-2 text-xs text-slate-700">
                           <div>{o.identifier}</div>
@@ -452,6 +534,13 @@ export default function PedidosPage() {
                         </td>
                         <td className="px-3 py-2 text-[11px] text-slate-700">
                           <div className="flex flex-col gap-1">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrder(o)}
+                              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                            >
+                              Ver detalhes
+                            </button>
                             {o.status === "aguardando_preparo" && (
                               <>
                                 <button
@@ -547,6 +636,86 @@ export default function PedidosPage() {
               </table>
             )}
           </div>
+
+          {selectedOrder ? (
+            <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-black/30">
+              <div className="h-full w-full max-w-md bg-white shadow-lg">
+                <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                  <div className="text-sm font-semibold text-slate-800">Pedido</div>
+                  <button
+                    type="button"
+                    className="rounded-md px-2 py-1 text-sm text-slate-600 hover:bg-slate-100"
+                    onClick={() => setSelectedOrder(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-3 px-4 py-4 text-sm">
+                  <div>
+                    <div className="text-xs font-semibold text-slate-600">Número</div>
+                    <div className="font-mono">{selectedOrder.publicId || "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-slate-600">ID</div>
+                    <div className="font-mono">{selectedOrder.id}</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs font-semibold text-slate-600">Status</div>
+                      <div className="font-semibold">{labelStatus(selectedOrder.status)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-slate-600">Contato</div>
+                      <div className="truncate">{selectedOrder.identifier}</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs font-semibold text-slate-600">Entrega</div>
+                      <div>{labelDeliveryMode(selectedOrder.delivery?.mode)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-slate-600">Pagamento</div>
+                      <div>{labelTiming(selectedOrder.paymentTiming)}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs font-semibold text-slate-600">Linha do tempo</div>
+                    {timelineLoading ? (
+                      <div className="mt-1 text-xs text-slate-500">Carregando…</div>
+                    ) : timelineError ? (
+                      <div className="mt-1 text-xs text-rose-700">{timelineError}</div>
+                    ) : timelineEvents.length ? (
+                      <div className="mt-2 space-y-2">
+                        {timelineEvents.map((ev) => {
+                          const dt = new Date(ev.at);
+                          const when = Number.isNaN(dt.getTime()) ? ev.at : dt.toLocaleString("pt-BR");
+                          const label = timelineGroupLabel(ev.statusGroup);
+                          return (
+                            <div key={ev.id} className="rounded-md border border-slate-200 bg-white px-2 py-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-xs font-semibold text-slate-800">{label}</div>
+                                <div className="text-[11px] text-slate-500">{when}</div>
+                              </div>
+                              <div className="mt-0.5 text-[11px] text-slate-600">
+                                origem: <span className="font-mono">{String(ev.actor || "-")}</span>
+                                {ev.note ? <span className="text-slate-500"> • {String(ev.note)}</span> : null}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-xs text-slate-500">Sem eventos ainda.</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </section>
       </div>
     </div>

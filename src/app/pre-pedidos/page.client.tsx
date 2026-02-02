@@ -15,6 +15,7 @@ type Preorder = {
   clientId: string;
   contactId: string;
   identifier: string;
+  publicId?: string | null;
   status: PreorderStatus;
   createdAt?: string;
   updatedAt?: string;
@@ -186,7 +187,7 @@ export default function PageClient() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600 dark:bg-slate-950 dark:text-slate-300">
                 <tr>
-                  <th className="px-4 py-3">Identificador</th>
+                  <th className="px-4 py-3">Pedido</th>
                   <th className="px-4 py-3">Contato</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Expira</th>
@@ -199,7 +200,10 @@ export default function PageClient() {
                   <tr key={p.id} className="border-t border-slate-100 dark:border-slate-800">
                     <td className="px-4 py-3">
                       <div className="font-medium text-slate-900 dark:text-slate-100">
-                        {p.identifier || p.id}
+                        {p.publicId || "-"}
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300">
+                        {p.identifier || "-"}
                       </div>
                       <div className="font-mono text-xs text-slate-500 dark:text-slate-400">{p.id}</div>
                     </td>

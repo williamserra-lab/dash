@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, context: RouteContext): Promise<Next
     }
 
     const preorders = await getPreordersByClient(clientId, status);
-    return NextResponse.json({ preorders }, { status: 200 });
+    return NextResponse.json({ items: preorders, preorders }, { status: 200 });
   } catch (error) {
     console.error("Erro ao listar pré-pedidos:", error);
     return NextResponse.json({ error: "Erro interno ao listar pré-pedidos." }, { status: 500 });

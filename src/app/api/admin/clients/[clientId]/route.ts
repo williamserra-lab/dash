@@ -1,10 +1,16 @@
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { getClientById, updateClient, type ClientRecord } from "@/lib/clients";
 
 type Ctx = { params: Promise<{ clientId: string }> };
 
 export async function GET(_req: NextRequest, ctx: Ctx) {
   try {
+    const denied = await requireAdmin(_req);
+    if (denied) return denied;
+
     const { clientId } = await ctx.params;
     const client = await getClientById(clientId);
     if (!client) {
@@ -21,6 +27,9 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
 
 export async function PATCH(req: NextRequest, ctx: Ctx) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     const { clientId } = await ctx.params;
     const body = (await req.json()) as Partial<ClientRecord> | null;
 

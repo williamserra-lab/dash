@@ -31,6 +31,10 @@ export async function PUT(req: NextRequest, ctx: RouteContext) {
       defaultDurationMinutes: body.defaultDurationMinutes,
       bufferMinutes: body.bufferMinutes,
       simultaneousCapacity: body.simultaneousCapacity,
+      bookingConfirmedMessageTemplate: body.bookingConfirmedMessageTemplate,
+      bookingReminderMessageTemplate: body.bookingReminderMessageTemplate,
+      bookingReminderConfirmLeadHours: body.bookingReminderConfirmLeadHours,
+      bookingNoShowGraceMinutes: body.bookingNoShowGraceMinutes,
     });
     return NextResponse.json({ config });
   } catch (error) {

@@ -13,8 +13,8 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const next = useMemo(() => {
-    if (typeof window === "undefined") return "/arquivos";
-    return new URLSearchParams(window.location.search).get("next") || "/arquivos";
+    if (typeof window === "undefined") return "/clientes";
+    return new URLSearchParams(window.location.search).get("next") || "/clientes";
   }, []);
 
   async function onSubmit(e: React.FormEvent) {
@@ -88,10 +88,10 @@ export default function AdminLoginPage() {
         <summary>Credenciais esperadas</summary>
         <div style={{ marginTop: "0.5rem" }}>
           <div>
-            O backend valida <code>NEXTIA_ADMIN_USER</code> e <code>NEXTIA_ADMIN_PASS</code> (env).
+            O acesso de admin está restrito a um único par de credenciais (sem fallback).
           </div>
           <div style={{ marginTop: "0.5rem" }}>
-            Se essas variáveis não estiverem definidas, o fallback é: usuário <code>admin</code> e senha igual ao <code>NEXTIA_ADMIN_KEY</code>.
+            Usuário: <code>admin</code> (senha definida pelo projeto; não exibida aqui).
           </div>
         </div>
       </details>

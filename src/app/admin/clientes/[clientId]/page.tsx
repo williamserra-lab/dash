@@ -5,6 +5,9 @@ import AdminClienteEditor from "./page.client";
 
 export const runtime = "nodejs";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type Ctx = { params: Promise<{ clientId: string }> };
 
 export default async function AdminClientePage(ctx: Ctx) {

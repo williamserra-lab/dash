@@ -1,5 +1,5 @@
 // src/lib/llm.ts
-export type LLMProvider = "groq" | "openai" | "ollama" | "gemini";
+export type LLMProvider = "groq" | "openai" | "ollama" | "gemini" | "xai";
 
 export type RunLLMInput = {
   prompt: string;
@@ -8,6 +8,9 @@ export type RunLLMInput = {
   maxTokens?: number; // default 700
   model?: string; // opcional: override
   provider?: LLMProvider; // opcional: override explícito
+  // opcional: override de credenciais/baseUrl (ex.: por lojista)
+  apiKey?: string;
+  baseUrl?: string;
 };
 
 export type LLMUsage = {
@@ -47,11 +50,12 @@ function pickProvider(explicit?: LLMProvider): LLMProvider {
     env("AI_PROVIDER") ||
     env("PROVIDER");
 
-  if (forced === "groq" || forced === "openai" || forced === "ollama" || forced === "gemini") return forced as any;
+  if (forced === "groq" || forced === "openai" || forced === "ollama" || forced === "gemini" || forced === "xai") return forced as any;
 
   // Heurística: se tiver GROQ_API_KEY, usa Groq. Senão OpenAI. Senão Ollama.
   if (env("GROQ_API_KEY")) return "groq";
   if (env("OPENAI_API_KEY")) return "openai";
+  if (env("XAI_API_KEY")) return "xai";
   return "ollama";
 }
 
@@ -118,7 +122,7 @@ export async function runLLMWithUsage(input: RunLLMInput): Promise<{ text: strin
   const maxTokens = typeof input.maxTokens === "number" ? input.maxTokens : 700;
 
   if (provider === "ollama") {
-    const baseUrl = (env("OLLAMA_BASE_URL") || "http://127.0.0.1:11434").trim();
+    const baseUrl = (input.baseUrl || env("OLLAMA_BASE_URL") || "http://127.0.0.1:11434").trim();
     const model = input.model || env("OLLAMA_MODEL") || "llama3.1";
 
     const payload = {
@@ -149,26 +153,35 @@ export async function runLLMWithUsage(input: RunLLMInput): Promise<{ text: strin
     };
   }
 
-  // Groq e OpenAI usam compatibilidade Chat Completions estilo OpenAI.
+  // Groq / OpenAI / xAI: compatibilidade Chat Completions estilo OpenAI.
   const isGroq = provider === "groq";
-  const apiKey = isGroq ? env("GROQ_API_KEY") : env("OPENAI_API_KEY");
+  const isXai = provider === "xai";
+
+  const apiKey =
+    (input.apiKey || "").trim() ||
+    (isGroq ? env("GROQ_API_KEY") : isXai ? env("XAI_API_KEY") : env("OPENAI_API_KEY"));
 
   if (!apiKey) {
     throw new Error(
       provider === "groq"
-        ? "GROQ_API_KEY não configurada no .env.local"
-        : "OPENAI_API_KEY não configurada no .env.local"
+        ? "GROQ_API_KEY não configurada (nem override por lojista)."
+        : provider === "xai"
+          ? "XAI_API_KEY não configurada (nem override por lojista)."
+          : "OPENAI_API_KEY não configurada (nem override por lojista)."
     );
   }
 
-  const url = isGroq
-    ? (env("GROQ_BASE_URL") || "https://api.groq.com/openai/v1").replace(/\/$/, "")
-    : (env("OPENAI_BASE_URL") || "https://api.openai.com/v1").replace(/\/$/, "");
+  const url = ((): string => {
+    if ((input.baseUrl || "").trim()) return (input.baseUrl || "").trim().replace(/\/$/, "");
+    if (isGroq) return (env("GROQ_BASE_URL") || "https://api.groq.com/openai/v1").replace(/\/$/, "");
+    if (isXai) return (env("XAI_BASE_URL") || "https://api.x.ai/v1").replace(/\/$/, "");
+    return (env("OPENAI_BASE_URL") || "https://api.openai.com/v1").replace(/\/$/, "");
+  })();
 
   const model =
     input.model ||
-    (isGroq ? env("GROQ_MODEL") : env("OPENAI_MODEL")) ||
-    (isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini");
+    (isGroq ? env("GROQ_MODEL") : isXai ? env("XAI_MODEL") : env("OPENAI_MODEL")) ||
+    (isGroq ? "llama-3.1-70b-versatile" : isXai ? "grok-beta" : "gpt-4o-mini");
 
   const payload = {
     model,
@@ -217,7 +230,7 @@ export async function runLLMWithUsage(input: RunLLMInput): Promise<{ text: strin
 
 export function resolveLLMProvider(explicit?: string | LLMProvider): LLMProvider {
   const v = (explicit || "").toString().trim().toLowerCase();
-  if (v === "groq" || v === "openai" || v === "ollama" || v === "gemini") return v as LLMProvider;
+  if (v === "groq" || v === "openai" || v === "ollama" || v === "gemini" || v === "xai") return v as LLMProvider;
   return pickProvider(undefined);
 }
 

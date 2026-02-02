@@ -1,10 +1,14 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { listAdminFiles } from "@/lib/adminFiles";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     const files = await listAdminFiles(200);
     return NextResponse.json({ files }, { status: 200 });
   } catch (err) {

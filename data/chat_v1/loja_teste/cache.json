@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "updatedAt": "2026-01-16T20:41:58.387Z",
+  "data": [
+    {
+      "key": "94d56150e3a25860c13ac36a617b08e64bd9929c595c76fa9170dac8c388669f",
+      "value": {
+        "assistant": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: PING_CACHE_001",
+        "usage": {
+          "promptTokens": 80,
+          "completionTokens": 21,
+          "totalTokens": 101,
+          "cached": false
+        }
+      },
+      "createdAt": "2026-01-16T20:41:58.386Z",
+      "lastAccessAt": "2026-01-16T20:41:58.386Z",
+      "expiresAt": "2026-01-17T20:41:58.386Z",
+      "sizeBytes": 268
+    },
+    {
+      "key": "d1407f81b2c21b968cfc6df9c67ed9b98bc8982e63a496caa966614723c7fb72",
+      "value": {
+        "assistant": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: PING_CACHE_001",
+        "usage": {
+          "promptTokens": 50,
+          "completionTokens": 21,
+          "totalTokens": 71,
+          "cached": false
+        }
+      },
+      "createdAt": "2026-01-16T20:41:54.632Z",
+      "lastAccessAt": "2026-01-16T20:41:54.632Z",
+      "expiresAt": "2026-01-17T20:41:54.632Z",
+      "sizeBytes": 267
+    },
+    {
+      "key": "a98613816b64fc9b8ae92457e69b6a8b8cc801d2bdfbc8a4843ff12d6d482b71",
+      "value": {
+        "assistant": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: Oi",
+        "usage": {
+          "promptTokens": 24,
+          "completionTokens": 18,
+          "totalTokens": 42,
+          "cached": false
+        }
+      },
+      "createdAt": "2026-01-16T09:18:16.909Z",
+      "lastAccessAt": "2026-01-16T09:18:16.909Z",
+      "expiresAt": "2026-01-17T09:18:16.909Z",
+      "sizeBytes": 255
+    },
+    {
+      "key": "fca36553139bb5b04eddf810d9713a7cc0d7417e1b99a75b0bf7365ba6ffb774",
+      "value": {
+        "assistant": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: Oi",
+        "usage": {
+          "promptTokens": 1,
+          "completionTokens": 18,
+          "totalTokens": 19,
+          "cached": false
+        }
+      },
+      "createdAt": "2026-01-16T09:11:04.082Z",
+      "lastAccessAt": "2026-01-16T09:11:04.082Z",
+      "expiresAt": "2026-01-17T09:11:04.082Z",
+      "sizeBytes": 254
+    }
+  ]
+}

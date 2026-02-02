@@ -8,6 +8,7 @@ import {
   dbInsertClient,
   dbListClients,
   dbUpdateClient,
+  dbDeleteClientById,
   type DbClientRow,
 } from "@/lib/clientsDb";
 import { detectAndValidateDocumento, digitsOnly } from "@/lib/validators/brDocument";
@@ -173,8 +174,8 @@ function validateProfile(profile: ClientProfile | undefined): ClientProfile | un
     if (!det.isValid) {
       throw new Error("Documento inválido: CPF/CNPJ não passou na validação.");
     }
-    // Infer tipoPessoa if missing
-    if (!next.tipoPessoa) next.tipoPessoa = det.type === "CPF" ? "PF" : "PJ";
+    // Derive tipoPessoa from documento (source of truth)
+    next.tipoPessoa = det.type === "CPF" ? "PF" : "PJ";
   }
 
   // CEP normalization
@@ -184,6 +185,68 @@ function validateProfile(profile: ClientProfile | undefined): ClientProfile | un
   }
 
   return next;
+}
+
+
+function normalizeWhatsappNumbers(raw: any): ClientWhatsappNumber[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+
+  const next: ClientWhatsappNumber[] = [];
+
+  for (const item of raw) {
+    if (!item) continue;
+    const id = String((item as any).id || "").trim() || "w1";
+    const pnRaw = (item as any).phoneNumber ?? (item as any).phone ?? "";
+    const phoneDigits = digitsOnly(String(pnRaw));
+
+    if (!phoneDigits) continue;
+
+    // E.164 allows up to 15 digits. We accept 10-15 digits to cover BR (DDI+DDD+num) and most cases.
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      throw new Error("WhatsApp inválido: use DDI+DDD+número (somente dígitos, 10 a 15).");
+    }
+
+    next.push({
+      id,
+      phoneNumber: phoneDigits,
+      label: typeof (item as any).label === "string" ? (item as any).label : undefined,
+      isDefault: (item as any).isDefault === true,
+    });
+  }
+
+  if (next.length === 0) return undefined;
+
+  // Ensure exactly one default if possible
+  const hasDefault = next.some((n) => n.isDefault);
+  if (!hasDefault) next[0].isDefault = true;
+
+  return next;
+}
+
+async function ensureUniqueClientEmail(email: string | undefined, excludeClientId?: string): Promise<void> {
+  const e = normalizeEmail(email);
+  if (!e) return;
+
+
+  if (isDbEnabled()) {
+    const list = await dbListClients();
+    const conflict = list.find((row) => {
+      if (excludeClientId && row.id === excludeClientId) return false;
+      const p: any = row.profile || null;
+      const other = typeof p?.emailPrincipal === "string" ? normalizeEmail(p.emailPrincipal) : "";
+      return other && other === e;
+    });
+    if (conflict) throw new Error("Email principal já está em uso por outro cliente.");
+    return;
+  }
+
+  const list = await loadClientsJson();
+  const conflict = list.find((c) => {
+    if (excludeClientId && c.id === excludeClientId) return false;
+    const other = normalizeEmail(c.profile?.emailPrincipal);
+    return other && other === e;
+  });
+  if (conflict) throw new Error("Email principal já está em uso por outro cliente.");
 }
 
 function normalizeClientRecord(raw: any): ClientRecord {
@@ -201,9 +264,7 @@ function normalizeClientRecord(raw: any): ClientRecord {
 
   const status: ClientStatus = raw.status === "inactive" ? "inactive" : "active";
 
-  const whatsappNumbers = Array.isArray(raw.whatsappNumbers)
-    ? raw.whatsappNumbers.filter((n: any) => n && n.id && n.phoneNumber)
-    : undefined;
+  const whatsappNumbers = normalizeWhatsappNumbers(raw.whatsappNumbers);
 
   const segment = typeof raw.segment === "string" ? raw.segment : undefined;
 
@@ -280,6 +341,26 @@ export async function listClients(): Promise<ClientRecord[]> {
   return loadClientsJson();
 }
 
+export async function deleteClient(
+  clientId: string,
+  actor: string = "operator_generic"
+): Promise<boolean> {
+  const id = String(clientId || "").trim();
+  if (!id) throw new Error("id inválido.");
+
+  if (isDbEnabled()) {
+    const ok = await dbDeleteClientById(id, actor);
+    return ok;
+  }
+
+  const list = await loadClientsJson();
+  const next = list.filter((c) => c.id !== id);
+  if (next.length === list.length) return false;
+  await saveClientsJson(next);
+  return true;
+}
+
+
 export async function getClientById(clientId: string): Promise<ClientRecord | null> {
   const id = String(clientId || "").trim();
   if (!id) return null;
@@ -354,6 +435,8 @@ export async function updateClient(
       profile: patch.profile ? { ...(fromDbRow(current).profile || {}), ...patch.profile } : fromDbRow(current).profile,
     });
 
+    await ensureUniqueClientEmail(merged.profile?.emailPrincipal, id);
+
     const updated = await dbUpdateClient(id, toDbRow(merged) as any, actor);
     if (!updated) throw new Error("Cliente não encontrado.");
     return merged;
@@ -370,6 +453,8 @@ export async function updateClient(
     updatedAt: nowIso(),
     profile: patch.profile ? { ...(list[idx].profile || {}), ...patch.profile } : list[idx].profile,
   });
+
+  await ensureUniqueClientEmail(merged.profile?.emailPrincipal, id);
 
   list[idx] = merged;
   await saveClientsJson(list);

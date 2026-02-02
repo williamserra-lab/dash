@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { createClient, listClients } from "@/lib/clients";
 
 function getErrorMessage(error: unknown): string {
@@ -14,12 +15,17 @@ function getErrorMessage(error: unknown): string {
 }
 
 export async function GET(_req: NextRequest) {
-  void _req;
+  const denied = await requireAdmin(_req);
+  if (denied) return denied;
+
   const clients = await listClients();
   return NextResponse.json({ clients }, { status: 200 });
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const client = await createClient(

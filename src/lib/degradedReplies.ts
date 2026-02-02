@@ -22,7 +22,8 @@ function orderChecklist(includeItems: boolean): string {
 export function buildInboundDegradedReply(reason: InboundDegradeReason): string {
   if (reason === "budget") {
     return (
-      "No momento estou em modo econômico (limite do plano está quase acabando).\n\n" +
+      "No momento o assistente automático está em modo econômico (limite mensal perto de acabar).\n" +
+      "As respostas inteligentes (IA/LLM) estão temporariamente desativadas para evitar parar de surpresa.\n\n" +
       orderChecklist(true)
     );
   }
@@ -36,7 +37,7 @@ export function buildInboundDegradedReply(reason: InboundDegradeReason): string 
  */
 export function buildInboundBlockedReply(): string {
   return (
-    "Limite do plano atingido. O assistente automático foi pausado.\n\n" +
+    "Limite mensal de créditos de IA atingido. O assistente automático foi pausado.\n\n" +
     "Por favor, aguarde um atendente humano para continuar o atendimento."
   );
 }

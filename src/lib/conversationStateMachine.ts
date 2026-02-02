@@ -49,6 +49,9 @@ export type DeterministicState = {
 
   // Handoff
   handoffActive?: boolean | null;
+  handoffAttendantId?: string | null;
+  handoffAcceptedAt?: string | null;
+  handoffResolvedAt?: string | null;
 };
 
 export type MachineDecision =
@@ -155,6 +158,9 @@ function ensureDeterministicState(raw: ConversationState | null | undefined): De
     lastAssistCtaAt: (raw as any)?.lastAssistCtaAt ?? null,
 
     handoffActive: (raw as any)?.handoffActive ?? false,
+    handoffAttendantId: (raw as any)?.handoffAttendantId ?? null,
+    handoffAcceptedAt: (raw as any)?.handoffAcceptedAt ?? null,
+    handoffResolvedAt: (raw as any)?.handoffResolvedAt ?? null,
   };
 }
 
@@ -378,10 +384,19 @@ export async function persistDeterministicState(opts: {
   state: DeterministicState;
   transitioned: boolean;
 }): Promise<void> {
+  // Compare with previous state to emit meaningful audit events (best-effort).
+  let prev: DeterministicState | null = null;
+  try {
+    const rawPrev = await getConversationState(opts.key);
+    prev = rawPrev ? (ensureDeterministicState(rawPrev) as DeterministicState) : null;
+  } catch {
+    prev = null;
+  }
+
   await setConversationState(opts.key, opts.state as unknown as ConversationState);
 
+  // 1) Phase transitions (generic)
   if (opts.transitioned) {
-    // Best-effort audit event
     try {
       await appendConversationEvent({
         id: makeEventId({ clientId: opts.key.clientId, instance: opts.key.instance, remoteJid: opts.key.remoteJid, eventType: "state_transition" }),
@@ -396,5 +411,44 @@ export async function persistDeterministicState(opts: {
     } catch {
       // ignore
     }
+  }
+
+  // 2) Handoff lifecycle (important for ops)
+  try {
+    const prevPhase = prev?.phase || null;
+    const nextPhase = opts.state.phase || null;
+
+    const prevActive = Boolean(prev?.handoffActive) || prevPhase === "handoff";
+    const nextActive = Boolean(opts.state.handoffActive) || nextPhase === "handoff";
+
+    // Entering handoff: create a dedicated event for ops/audit.
+    if (!prevActive && nextActive) {
+      await appendConversationEvent({
+        id: makeEventId({ clientId: opts.key.clientId, instance: opts.key.instance, remoteJid: opts.key.remoteJid, eventType: "handoff_created" }),
+        createdAt: nowIso(),
+        clientId: opts.key.clientId,
+        instance: opts.key.instance,
+        remoteJid: opts.key.remoteJid,
+        eventType: "handoff_created",
+        payload: { reason: "deterministic", phase: nextPhase },
+        meta: {},
+      });
+    }
+
+    // Leaving handoff (rare in MVP): emit resolved event.
+    if (prevActive && !nextActive) {
+      await appendConversationEvent({
+        id: makeEventId({ clientId: opts.key.clientId, instance: opts.key.instance, remoteJid: opts.key.remoteJid, eventType: "handoff_resolved" }),
+        createdAt: nowIso(),
+        clientId: opts.key.clientId,
+        instance: opts.key.instance,
+        remoteJid: opts.key.remoteJid,
+        eventType: "handoff_resolved",
+        payload: { phase: nextPhase },
+        meta: {},
+      });
+    }
+  } catch {
+    // ignore
   }
 }

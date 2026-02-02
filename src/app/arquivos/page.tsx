@@ -54,7 +54,7 @@ export default function ArquivosPage() {
       setError(null);
       const res = await fetch("/api/admin/files/list");
       if (res.status === 401) {
-        setError("Acesso admin necessário. Faça login em /admin-login.");
+        setError("Acesso admin necessário. Faça login em /login.");
         setFiles([]);
         return;
       }
@@ -89,7 +89,7 @@ export default function ArquivosPage() {
       });
 
       if (res.status === 401) {
-        setError("Acesso admin necessário. Faça login em /admin-login.");
+        setError("Acesso admin necessário. Faça login em /login.");
         return;
       }
 
@@ -124,7 +124,7 @@ export default function ArquivosPage() {
       const status = await statusRes.json().catch(() => ({}));
 
       if (statusRes.status === 401) {
-        setError("Acesso admin necessário. Faça login em /admin-login.");
+        setError("Acesso admin necessário. Faça login em /login.");
         return;
       }
 
@@ -147,7 +147,7 @@ export default function ArquivosPage() {
       const gen = await genRes.json().catch(() => ({}));
 
       if (genRes.status === 401) {
-        setError("Acesso admin necessário. Faça login em /admin-login.");
+        setError("Acesso admin necessário. Faça login em /login.");
         return;
       }
 
@@ -249,8 +249,8 @@ export default function ArquivosPage() {
       {error && (
         <div style={{ color: "red", marginBottom: "1rem", whiteSpace: "pre-wrap" }}>
           {error}{" "}
-          {error.includes("/admin-login") ? (
-            <a href="/admin-login" style={{ textDecoration: "underline" }}>
+          {error.includes("/login") ? (
+            <a href="/login" style={{ textDecoration: "underline" }}>
               Abrir login
             </a>
           ) : null}

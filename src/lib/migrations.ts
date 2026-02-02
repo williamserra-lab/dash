@@ -6,6 +6,7 @@
 // - Build-safe (no toolchain)
 // - Deterministic and auditable (nextia_migrations table with checksums)
 // - Idempotent when migrations are written with IF NOT EXISTS
+// - Production-safe: serialized with Postgres advisory lock to avoid concurrent runners
 
 import path from "path";
 import { promises as fs } from "fs";
@@ -24,60 +25,76 @@ function defaultMigrationsDir(): string {
   return path.join(process.cwd(), "db", "migrations");
 }
 
+/**
+ * Applies SQL migrations from db/migrations in lexicographic order.
+ *
+ * Concurrency:
+ * Next.js build/dev can spawn multiple workers. If each worker tries to run migrations,
+ * Postgres DDL can race and throw errors like pg_type unique violations.
+ * We prevent that by taking a database-wide advisory lock for the duration of applyMigrations.
+ */
 export async function applyMigrations(pool: Pool, migrationsDir?: string): Promise<void> {
-  const dir = (migrationsDir || "").trim() ? String(migrationsDir).trim() : defaultMigrationsDir();
-
-  // Migration ledger (idempotent)
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS nextia_migrations (
-      name TEXT PRIMARY KEY,
-      checksum TEXT NOT NULL,
-      applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
-
-  const appliedRes = await pool.query(`SELECT name, checksum FROM nextia_migrations ORDER BY name ASC;`);
-  const applied = new Map<string, string>(
-    (appliedRes?.rows || []).map((r: AppliedRow) => [String(r.name), String(r.checksum)])
-  );
-
-  let files: string[] = [];
+  // Prevent concurrent migration runners (e.g., Next build workers / multi-process).
+  // The lock key is an arbitrary constant scoped to this app.
+  await pool.query("SELECT pg_advisory_lock(418220179);");
   try {
-    files = await fs.readdir(dir);
-  } catch {
-    // No migrations directory (dev), nothing to do.
-    return;
-  }
+    const dir = (migrationsDir || "").trim() ? String(migrationsDir).trim() : defaultMigrationsDir();
 
-  const sqlFiles = files
-    .filter((f) => f.toLowerCase().endsWith(".sql"))
-    .sort((a, b) => a.localeCompare(b));
+    // Migration ledger (idempotent)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS nextia_migrations (
+        name TEXT PRIMARY KEY,
+        checksum TEXT NOT NULL,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
 
-  for (const fileName of sqlFiles) {
-    const fullPath = path.join(dir, fileName);
-    const sql = await fs.readFile(fullPath, "utf8");
-    const checksum = sha256(sql);
+    const appliedRes = await pool.query(`SELECT name, checksum FROM nextia_migrations ORDER BY name ASC;`);
+    const applied = new Map<string, string>(
+      (appliedRes?.rows || []).map((r: AppliedRow) => [String(r.name), String(r.checksum)])
+    );
 
-    const prior = applied.get(fileName);
-    if (prior) {
-      if (prior !== checksum) {
+    let files: string[] = [];
+    try {
+      files = await fs.readdir(dir);
+    } catch {
+      // No migrations directory (dev), nothing to do.
+      return;
+    }
+
+    const sqlFiles = files
+      .filter((f) => typeof f === "string" && f.toLowerCase().endsWith(".sql"))
+      .sort((a, b) => a.localeCompare(b, "en"));
+
+    for (const fileName of sqlFiles) {
+      const filePath = path.join(dir, fileName);
+      const sql = await fs.readFile(filePath, "utf8");
+      const checksum = sha256(sql);
+
+      // Skip if already applied with same checksum.
+      const prev = applied.get(fileName);
+      if (prev && prev === checksum) continue;
+
+      // If migration name exists but checksum differs, fail fast.
+      if (prev && prev !== checksum) {
         throw new Error(
-          `Migration checksum mismatch for ${fileName}. Applied=${prior} Current=${checksum}. ` +
-            `Do not edit applied migrations; create a new migration instead.`
+          `Migration checksum mismatch for ${fileName}. ` +
+            `Applied: ${prev.slice(0, 12)}..., Current: ${checksum.slice(0, 12)}...`
         );
       }
-      continue;
-    }
 
-    await pool.query("BEGIN");
-    try {
-      // Multi-statement SQL is allowed by pg for simple query strings.
-      await pool.query(sql);
-      await pool.query(`INSERT INTO nextia_migrations (name, checksum) VALUES ($1, $2);`, [fileName, checksum]);
-      await pool.query("COMMIT");
-    } catch (err) {
-      await pool.query("ROLLBACK");
-      throw err;
+      await pool.query("BEGIN");
+      try {
+        // Multi-statement SQL is allowed by pg for simple query strings.
+        await pool.query(sql);
+        await pool.query(`INSERT INTO nextia_migrations (name, checksum) VALUES ($1, $2);`, [fileName, checksum]);
+        await pool.query("COMMIT");
+      } catch (err) {
+        await pool.query("ROLLBACK");
+        throw err;
+      }
     }
+  } finally {
+    await pool.query("SELECT pg_advisory_unlock(418220179);");
   }
 }

@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import pdfParse from "pdf-parse";
+import { requireAdmin } from "@/lib/adminAuth";
 import { runLLMWithUsage, type LLMProvider } from "@/lib/llm";
 import { addUsage } from "@/lib/llmBudget";
 import { getClientById } from "@/lib/clients";
@@ -98,6 +99,9 @@ async function readPdfText(fileId: string): Promise<string> {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ fileId: string }> }) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     if (!featureEnabled()) {
       return NextResponse.json({ ok: false, error: "feature_disabled" }, { status: 404 });
     }
@@ -155,6 +159,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ file
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ fileId: string }> }) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     if (!featureEnabled()) {
       return NextResponse.json({ ok: false, error: "feature_disabled" }, { status: 404 });
     }

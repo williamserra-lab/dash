@@ -2,9 +2,11 @@
 // Core inbound flow used by multiple webhook adapters (Evolution, generic inbound).
 // Goal: single source of truth for deterministic + LLM behavior.
 
-import { getAssistantSettings, type AssistantSettings } from "@/lib/assistantSettings";
+import { decryptApiKey, getAssistantSettings, type AssistantSettings } from "@/lib/assistantSettings";
 import { listMediaByClient } from "@/lib/mediaAssets";
 import { getContactByIdentifier, upsertContactFromInbound } from "@/lib/contacts";
+import { findAwaitingConfirmationByContact, confirmBookingByClient, cancelBookingBySystem } from "@/lib/bookings";
+import { getAttendantById } from "@/lib/attendants";
 import { runLLMWithUsage, type LLMProvider } from "@/lib/llm";
 import { logAnalyticsEvent } from "@/lib/analytics";
 import { deliveryPricingToPromptText, getDeliveryPricing } from "@/lib/deliveryPricing";
@@ -174,6 +176,66 @@ export async function handleWhatsappInboundFlow(input: WhatsappInboundFlowInput)
       lastMessage: body,
       interactionDate: getNowIso(),
     });
+
+
+// Agendamento: confirmação via WhatsApp (sem LLM)
+const bodyNorm = String(body || "").trim().toUpperCase();
+const isYes = ["SIM", "CONFIRMO", "CONFIRMAR", "OK", "OKEY", "CERTO"].includes(bodyNorm);
+const isNo = ["NAO", "NÃO", "CANCELAR", "CANCELO", "N", "NAO VOU", "NÃO VOU"].includes(bodyNorm);
+
+if ((isYes || isNo) && contactFinal?.id) {
+  const pending = await findAwaitingConfirmationByContact(clientId, contactFinal.id);
+  if (pending) {
+    const now = new Date();
+    const deadline = pending.confirmByAt ? new Date(pending.confirmByAt) : null;
+
+    if (deadline && now >= deadline && !pending.clientConfirmedAt) {
+      await cancelBookingBySystem(clientId, pending.id, "no_confirmation_before_deadline");
+      await enqueueWhatsappText({
+        clientId,
+        to: fromNorm,
+        message: "⏰ O prazo de confirmação expirou e o horário foi liberado na agenda.",
+        context: { kind: "booking_confirm_expired", bookingId: pending.id },
+      });
+      return { ok: true, handled: "booking_confirmation_expired" } as any;
+    }
+
+    const start = new Date(pending.startAt);
+    const dd = String(start.getDate()).padStart(2, "0");
+    const mm = String(start.getMonth() + 1).padStart(2, "0");
+    const yyyy = String(start.getFullYear());
+    const hh = String(start.getHours()).padStart(2, "0");
+    const mi = String(start.getMinutes()).padStart(2, "0");
+
+    const attendant = await getAttendantById(clientId, pending.attendantId);
+    const pro = attendant ? `${attendant.name}${attendant.specialty ? ` (${attendant.specialty})` : ""}` : "Padrão";
+
+    if (isYes) {
+      await confirmBookingByClient(clientId, pending.id, getNowIso());
+      await enqueueWhatsappText({
+        clientId,
+        to: fromNorm,
+        message:
+          `✅ Presença confirmada!\n\nServiço: ${pending.service?.name || ""}\nProfissional: ${pro}\nData: ${dd}/${mm}/${yyyy} ${hh}:${mi}`,
+        context: { kind: "booking_confirmed_by_client", bookingId: pending.id },
+      });
+      return { ok: true, handled: "booking_confirmed_by_client" } as any;
+    }
+
+    if (isNo) {
+      await cancelBookingBySystem(clientId, pending.id, "client_declined");
+      await enqueueWhatsappText({
+        clientId,
+        to: fromNorm,
+        message:
+          `❌ Agendamento cancelado.\n\nServiço: ${pending.service?.name || ""}\nProfissional: ${pro}\nData: ${dd}/${mm}/${yyyy} ${hh}:${mi}`,
+        context: { kind: "booking_cancelled_by_client", bookingId: pending.id },
+      });
+      return { ok: true, handled: "booking_cancelled_by_client" } as any;
+    }
+  }
+}
+
   }
 
   // Deterministic conversation state machine (MVP)
@@ -311,6 +373,10 @@ export async function handleWhatsappInboundFlow(input: WhatsappInboundFlowInput)
 
   const provider: LLMProvider = (assistantSettings.provider as LLMProvider | undefined) ?? pickDefaultProvider();
   const model = assistantSettings.model ?? undefined;
+  const baseUrl = typeof assistantSettings.baseUrl === "string" ? assistantSettings.baseUrl : undefined;
+
+  // apiKey por lojista (quando configurado). Se não houver, runLLM usa env vars.
+  const apiKey = decryptApiKey(assistantSettings.apiKeyEnc) || undefined;
 
   const priceTableText = await extractOfficialPriceTableText(clientId);
   const deliveryPricingText = deliveryPricingToPromptText(await getDeliveryPricing(clientId));
@@ -389,6 +455,8 @@ export async function handleWhatsappInboundFlow(input: WhatsappInboundFlowInput)
       const out = await runLLMWithUsage({
         provider,
         model,
+        baseUrl,
+        apiKey,
         prompt: `${systemPrompt}\n\nCLIENTE: ${body}\nASSISTENTE:`,
         temperature,
       });

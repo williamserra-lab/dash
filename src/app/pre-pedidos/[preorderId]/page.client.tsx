@@ -15,6 +15,7 @@ type Preorder = {
   clientId: string;
   contactId: string;
   identifier: string;
+  publicId?: string | null;
   status: PreorderStatus;
   items?: any;
   delivery?: any;
@@ -36,6 +37,20 @@ type PreorderEvent = {
   data?: any;
   createdAt?: string;
 };
+
+
+type TimelineEvent = {
+  id: string;
+  clientId: string;
+  entityType: "preorder" | "booking" | "order";
+  entityId: string;
+  status: string;
+  statusGroup: string;
+  at: string;
+  actor: string;
+  note: string | null;
+};
+
 
 function getErrorMessage(err: unknown): string | null {
   if (!err) return null;
@@ -84,6 +99,10 @@ export default function PageClient({ preorderId }: { preorderId: string }) {
   const [preorder, setPreorder] = useState<Preorder | null>(null);
   const [events, setEvents] = useState<PreorderEvent[]>([]);
 
+
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
   // Edit form (mínimo)
   const [identifier, setIdentifier] = useState("");
   const [note, setNote] = useState("");
@@ -137,7 +156,30 @@ export default function PageClient({ preorderId }: { preorderId: string }) {
     }
   }
 
-  useEffect(() => {
+  
+  async function fetchTimeline() {
+    if (!clientId) return;
+    setTimelineLoading(true);
+    setTimelineError(null);
+    try {
+      const r = await fetch(
+        `/api/clients/${encodeURIComponent(clientId)}/preorders/${encodeURIComponent(preorderId)}/timeline`,
+        { cache: "no-store" }
+      );
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(t || `HTTP ${r.status}`);
+      }
+      const data = (await r.json()) as { events?: TimelineEvent[] };
+      setTimelineEvents(Array.isArray(data.events) ? data.events : []);
+    } catch (e) {
+      setTimelineError(getErrorMessage(e) || "Erro ao carregar timeline");
+    } finally {
+      setTimelineLoading(false);
+    }
+  }
+
+useEffect(() => {
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId, preorderId]);
@@ -218,7 +260,14 @@ export default function PageClient({ preorderId }: { preorderId: string }) {
 
   const status = preorder?.status;
 
-  return (
+  
+  useEffect(() => {
+    if (!clientId) return;
+    fetchTimeline();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId, preorderId]);
+
+return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -231,10 +280,13 @@ export default function PageClient({ preorderId }: { preorderId: string }) {
             </a>
           </div>
           <h1 className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Pré-pedido {preorderId}
+            Pedido {preorder?.publicId || preorderId}
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-300">
             Detalhe, ações humanas e auditoria (eventos).
+          </p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Identificador do cliente: <span className="font-mono">{preorder?.identifier || "-"}</span>
           </p>
         </div>
 
@@ -435,6 +487,64 @@ export default function PageClient({ preorderId }: { preorderId: string }) {
                       <div className="font-medium text-slate-900 dark:text-slate-100">{ev.action}</div>
                       <div className="text-xs text-slate-500 dark:text-slate-400">{fmtIso(ev.createdAt)}</div>
                     </div>
+
+        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Timeline (unificada)</h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                Eventos operacionais auditáveis (inclui follow-up). Fonte: timeline_events_* (DB/JSON store).
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => fetchTimeline()}
+              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
+              disabled={!clientId || timelineLoading}
+            >
+              {timelineLoading ? "Atualizando..." : "Atualizar"}
+            </button>
+          </div>
+
+          {timelineError ? (
+            <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-200">
+              {timelineError}
+            </div>
+          ) : null}
+
+          <div className="mt-3 space-y-3">
+            {timelineLoading && timelineEvents.length === 0 ? (
+              <div className="text-sm text-slate-600 dark:text-slate-300">Carregando...</div>
+            ) : timelineEvents.length === 0 ? (
+              <div className="text-sm text-slate-600 dark:text-slate-300">Sem eventos na timeline.</div>
+            ) : (
+              timelineEvents
+                .slice()
+                .sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
+                .map((ev) => (
+                  <div key={ev.id} className="rounded-md border border-slate-200 p-3 text-sm dark:border-slate-700">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium text-slate-900 dark:text-slate-100">
+                        {ev.statusGroup} <span className="text-slate-500 dark:text-slate-400">•</span>{" "}
+                        <span className="font-mono">{ev.status}</span>
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">{fmtIso(ev.at)}</div>
+                    </div>
+                    <div className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                      Actor: <span className="font-mono">{ev.actor || "-"}</span>
+                      {" "}• Entity: <span className="font-mono">{ev.entityType}:{ev.entityId}</span>
+                    </div>
+                    {ev.note ? (
+                      <div className="mt-2 whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-200">
+                        {ev.note}
+                      </div>
+                    ) : null}
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
                     <div className="mt-1 text-xs text-slate-600 dark:text-slate-300">
                       Actor: <span className="font-mono">{ev.actor || "-"}</span>
                       {ev.reason ? (

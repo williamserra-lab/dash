@@ -1,24 +1,49 @@
+// src/app/api/clients/[clientId]/group-campaigns/route.ts
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { assertClientActive, ClientAccessError } from "@/lib/tenantAccess";
+import { getBillingSummaryForClient } from "@/lib/billingCore";
+import { getEntitlementNumber } from "@/lib/entitlements";
 import { createGroupCampaign, listGroupCampaigns } from "@/lib/groupCampaigns";
 import { listAuthorizedGroupsByClient } from "@/lib/whatsappGroups";
-void assertClientActive;
 
 type RouteContext = {
   params: Promise<{ clientId: string }>;
 };
 
+async function enforceClientAndPlanLimits(clientId: string): Promise<{ maxGroupCampaigns: number }> {
+  const summary = await getBillingSummaryForClient(clientId);
+  const status = String(summary?.billing?.status || "active");
+  if (status === "suspended") {
+    const reason = summary?.billing?.suspendedReason ? String(summary.billing.suspendedReason) : "";
+    throw new Error(`CLIENT_SUSPENDED:${reason || "billing"}`);
+  }
+
+  const ent = summary?.plan?.entitlements || {};
+  const maxGroupCampaigns = getEntitlementNumber(ent, "maxCampaigns", 10);
+  return { maxGroupCampaigns };
+}
+
 export async function GET(_req: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
     const { clientId } = await context.params;
-    await assertClientActive(clientId);
+    if (!clientId) {
+      return NextResponse.json({ error: "clientId é obrigatório." }, { status: 400 });
+    }
+
+    // Enforce billing status (DB)
+    await enforceClientAndPlanLimits(clientId);
 
     const campaigns = await listGroupCampaigns(clientId);
     return NextResponse.json({ ok: true, campaigns }, { status: 200 });
-  } catch (error) {
-    if (error instanceof ClientAccessError) return NextResponse.json({ error: error.message }, { status: 403 });
+  } catch (error: any) {
+    const msg = String(error?.message || "");
+    if (msg.startsWith("CLIENT_SUSPENDED:")) {
+      return NextResponse.json(
+        { error: "Cliente suspenso por billing. Regularize o pagamento para liberar campanhas." },
+        { status: 403 }
+      );
+    }
     console.error("Erro ao listar campanhas de grupos:", error);
     return NextResponse.json({ error: "Erro interno ao listar campanhas." }, { status: 500 });
   }
@@ -27,7 +52,24 @@ export async function GET(_req: NextRequest, context: RouteContext): Promise<Nex
 export async function POST(req: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
     const { clientId } = await context.params;
-    await assertClientActive(clientId);
+    if (!clientId) {
+      return NextResponse.json({ error: "clientId é obrigatório." }, { status: 400 });
+    }
+
+    const { maxGroupCampaigns } = await enforceClientAndPlanLimits(clientId);
+
+    // Plan limit: max campaigns
+    const existing = await listGroupCampaigns(clientId);
+    const activeCount = existing.filter((c: any) => c && c.status !== "cancelada").length;
+    if (activeCount >= maxGroupCampaigns) {
+      return NextResponse.json(
+        {
+          error: "plan_limit_reached",
+          message: `Limite de campanhas do seu plano atingido (max ${maxGroupCampaigns}).`,
+        },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json().catch(() => ({} as any));
     const name = String(body.name || "").trim();
@@ -60,9 +102,15 @@ export async function POST(req: NextRequest, context: RouteContext): Promise<Nex
     });
 
     return NextResponse.json({ ok: true, campaign }, { status: 201 });
-  } catch (error) {
-    if (error instanceof ClientAccessError) return NextResponse.json({ error: error.message }, { status: 403 });
+  } catch (error: any) {
+    const msg = String(error?.message || "");
+    if (msg.startsWith("CLIENT_SUSPENDED:")) {
+      return NextResponse.json(
+        { error: "Cliente suspenso por billing. Regularize o pagamento para liberar campanhas." },
+        { status: 403 }
+      );
+    }
     console.error("Erro ao criar campanha de grupos:", error);
-    return NextResponse.json({ error: (error as any)?.message || "Erro interno ao criar campanha." }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Erro interno ao criar campanha." }, { status: 500 });
   }
 }

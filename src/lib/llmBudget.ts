@@ -7,6 +7,7 @@
 
 import { getDataPath, readJsonValue, writeJsonValue } from "@/lib/jsonStore";
 import { dbQuery, isDbEnabled } from "@/lib/db";
+import { sumTopupCreditsForMonth } from "@/lib/topupGrants";
 
 export type LlmOverLimitMode = "degrade" | "block";
 
@@ -489,7 +490,9 @@ export async function getBudgetSnapshot(clientId: string): Promise<{
   const policy = await getPolicyForClient(clientId);
 
   const used = Math.max(0, usage.totalTokens || 0);
-  const limit = Math.max(1, policy.monthlyTokenLimit);
+  const baseLimit = Math.max(1, policy.monthlyTokenLimit);
+  const topup = await sumTopupCreditsForMonth(clientId, monthKey);
+  const limit = Math.max(1, baseLimit + Math.max(0, topup));
   const remaining = Math.max(0, limit - used);
   const percent = Math.min(100, Math.round((used / limit) * 100));
 

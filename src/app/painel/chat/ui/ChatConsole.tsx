@@ -238,7 +238,7 @@ export default function ChatConsole(props: { clientId: string; instance: string;
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 401) {
-        setErr("Acesso admin necessário. Faça login em /admin-login.");
+        setErr("Acesso admin necessário. Faça login em /login.");
         return;
       }
       if (res.status === 404 && (data as any)?.error === "feature_disabled") {
@@ -274,7 +274,7 @@ export default function ChatConsole(props: { clientId: string; instance: string;
       const st = await stRes.json().catch(() => ({}));
 
       if (stRes.status === 401) {
-        setErr("Acesso admin necessário. Faça login em /admin-login.");
+        setErr("Acesso admin necessário. Faça login em /login.");
         return;
       }
 

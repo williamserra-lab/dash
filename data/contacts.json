@@ -12,7 +12,8 @@
     "updatedAt": "2025-11-30T17:02:18.844Z",
     "lastMessage": "pode me mandar o cardápio?",
     "lastInteractionAt": "2025-11-30T17:02:18.844Z",
-    "conversationSummary": "Contato de WhatsApp 5511999999999, identificado como Fulano. Marcado como cliente normal (não VIP). Não aceita receber campanhas de marketing. Está liberado para atendimento. Última interação registrada em 27/11/2025, 15:37:38. Última mensagem registrada: \"pagar antecipado no pix, 50 reais\"."
+    "conversationSummary": "Contato de WhatsApp 5511999999999, identificado como Fulano. Marcado como cliente normal (não VIP). Não aceita receber campanhas de marketing. Está liberado para atendimento. Última interação registrada em 27/11/2025, 15:37:38. Última mensagem registrada: \"pagar antecipado no pix, 50 reais\".",
+    "tags": []
   },
   {
     "id": "ct_migblqx0_d8sqsc",
@@ -28,7 +29,8 @@
     "whatsappNumberId": "wpp_catia_principal",
     "conversationSummary": "Contato de WhatsApp 5511888888888, identificado como Cliente X. Marcado como cliente normal (não VIP). Aceita receber campanhas de marketing. Está liberado para atendimento. Sem registro de última interação recente.",
     "lastMessage": "quero fazer um pedido",
-    "lastInteractionAt": "2025-12-09T00:56:14.386Z"
+    "lastInteractionAt": "2025-12-09T00:56:14.386Z",
+    "tags": []
   },
   {
     "id": "ct_0p3uh2dc_mfwopq",
@@ -40,7 +42,8 @@
     "createdAt": "2025-12-30T14:00:21.776Z",
     "updatedAt": "2025-12-30T14:21:34.082Z",
     "lastMessage": "",
-    "lastInteractionAt": "2025-12-30T14:21:34.080Z"
+    "lastInteractionAt": "2025-12-30T14:21:34.080Z",
+    "tags": []
   },
   {
     "id": "ct_8xzq2w6s_jxzixz",
@@ -52,7 +55,8 @@
     "createdAt": "2025-12-30T14:00:56.661Z",
     "updatedAt": "2025-12-30T20:31:52.376Z",
     "lastMessage": "",
-    "lastInteractionAt": "2025-12-30T20:31:52.374Z"
+    "lastInteractionAt": "2025-12-30T20:31:52.374Z",
+    "tags": []
   },
   {
     "id": "ct_cd1z6wln_ge42qy",
@@ -65,7 +69,8 @@
     "createdAt": "2025-12-30T20:32:51.000Z",
     "updatedAt": "2026-01-01T18:19:27.236Z",
     "lastMessage": "\nAr Condicionado TCL Split Hi Wall Elite Inverter 9.000 Btus Frio TAC-09CSGV-INV Frio 220V\n\nde: ~R$ 2756,90~ \n💰 *por: R$ 1599,00*\n💳 em até 12x sem juros\n\n👉 Compre aqui: https://s.shopee.com.br/9zr9RJxVjn",
-    "lastInteractionAt": "2026-01-01T18:19:27.235Z"
+    "lastInteractionAt": "2026-01-01T18:19:27.235Z",
+    "tags": []
   },
   {
     "id": "ct_n3kzbztu_lrxs9s",
@@ -76,9 +81,10 @@
     "optOutMarketing": false,
     "blockedGlobal": false,
     "createdAt": "2025-12-30T20:34:34.288Z",
-    "updatedAt": "2025-12-30T20:34:34.288Z",
-    "lastMessage": "teste",
-    "lastInteractionAt": "2025-12-30T20:34:34.283Z"
+    "updatedAt": "2026-02-01T12:45:23.795Z",
+    "lastMessage": "ping",
+    "lastInteractionAt": "2026-02-01T12:45:23.787Z",
+    "tags": []
   },
   {
     "id": "ct_8qsw5fuf_5xpakr",
@@ -91,7 +97,8 @@
     "createdAt": "2025-12-30T20:38:39.919Z",
     "updatedAt": "2025-12-30T22:28:10.812Z",
     "lastMessage": "Pagar com o corpo",
-    "lastInteractionAt": "2025-12-30T22:28:10.809Z"
+    "lastInteractionAt": "2025-12-30T22:28:10.809Z",
+    "tags": []
   },
   {
     "id": "ct_gz96vqbl_9ngof4",
@@ -104,7 +111,8 @@
     "createdAt": "2025-12-30T23:06:48.539Z",
     "updatedAt": "2025-12-31T11:37:38.161Z",
     "lastMessage": "🔗 *COMPRE AGORA:* https://s.shopee.com.br/6Kxp9ekhLk",
-    "lastInteractionAt": "2025-12-31T11:37:38.156Z"
+    "lastInteractionAt": "2025-12-31T11:37:38.156Z",
+    "tags": []
   },
   {
     "id": "ct_nf762i39_tk0hto",
@@ -117,6 +125,22 @@
     "createdAt": "2026-01-01T16:46:29.639Z",
     "updatedAt": "2026-01-01T17:59:58.619Z",
     "lastMessage": "oi",
-    "lastInteractionAt": "2026-01-01T17:59:58.617Z"
+    "lastInteractionAt": "2026-01-01T17:59:58.617Z",
+    "tags": []
+  },
+  {
+    "id": "ct_vjicpdpi_41bl87",
+    "clientId": "loja_teste",
+    "channel": "whatsapp",
+    "identifier": "+55 11 99999-0000",
+    "name": "Contato Seed",
+    "tags": [],
+    "vip": false,
+    "optOutMarketing": false,
+    "blockedGlobal": false,
+    "createdAt": "2026-01-25T20:35:48.967Z",
+    "updatedAt": "2026-01-27T22:20:55.158Z",
+    "lastMessage": "seed",
+    "lastInteractionAt": "2026-01-27T22:20:55.156Z"
   }
 ]

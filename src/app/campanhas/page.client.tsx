@@ -1,8 +1,20 @@
 "use client";
 
-
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Kpi,
+  StatusBadge,
+  type CampaignStatus,
+} from "@/components/ui";
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -14,9 +26,15 @@ function getErrorMessage(err: unknown): string {
 
 const DEFAULT_CLIENT_ID = "catia_foods";
 
-type CampaignStatus = "rascunho" | "simulada" | "disparada" | "cancelada";
-
-type Contact = { id: string; name?: string | null; phone?: string | null; channel: string; vip?: boolean; optOutMarketing?: boolean; blockedGlobal?: boolean };
+type Contact = {
+  id: string;
+  name?: string | null;
+  phone?: string | null;
+  channel: string;
+  vip?: boolean;
+  optOutMarketing?: boolean;
+  blockedGlobal?: boolean;
+};
 
 type Campaign = {
   id: string;
@@ -29,6 +47,11 @@ type Campaign = {
   messageTemplate?: string;
   target?: {
     vipOnly: boolean;
+    contactIds?: string[];
+    tagsAny?: string[];
+    listIds?: string[];
+    excludeOptOut?: boolean;
+    excludeBlocked?: boolean;
   };
   status: CampaignStatus;
   createdAt: string;
@@ -65,9 +88,37 @@ type CampaignSendSummary = {
   agendado: number;
   enviado: number;
   erro: number;
+  replied24h?: number;
+  replied7d?: number;
   lastAt?: string | null;
 };
 
+type DispatchSummary = {
+  totalTargets: number;
+  cappedTargets: number;
+  eligible: number;
+  attempted: number;
+  enqueued: number;
+  errors: number;
+  skippedAlreadyHandled: number;
+  skippedDueToDailyLimit: number;
+};
+
+type DispatchResponse = {
+  ok: boolean;
+  mode: "send" | "resume" | "retry_errors";
+  clientId: string;
+  campaignId: string;
+  statusAfter: CampaignStatus;
+  summary: DispatchSummary;
+  daily?: {
+    date: string;
+    limit: number;
+    usedAfter: number;
+    remainingAfter: number;
+  };
+  campaign?: Campaign;
+};
 
 async function readJsonSafe<T = unknown>(res: Response): Promise<T | null> {
   try {
@@ -77,48 +128,29 @@ async function readJsonSafe<T = unknown>(res: Response): Promise<T | null> {
   }
 }
 
-const STATUS_LABEL: Record<CampaignStatus, string> = {
-  rascunho: "Rascunho",
-  simulada: "Simulada",
-  disparada: "Disparada",
-  cancelada: "Cancelada",
-};
-
-export default function CampanhasPage() {
+export default function CampanhasPage({ clientId: clientIdProp }: { clientId?: string } = {}) {
   const searchParams = useSearchParams();
   const clientId = useMemo(
-    () => searchParams.get("clientId") || DEFAULT_CLIENT_ID,
+    () => String(searchParams.get("clientId") || DEFAULT_CLIENT_ID).trim(),
     [searchParams]
   );
 
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [contactQuery, setContactQuery] = useState<string>("");
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [sendSummaryById, setSendSummaryById] = useState<Record<string, CampaignSendSummary>>({});
 
-  const filteredContacts = useMemo(() => {
-    const q = contactQuery.trim().toLowerCase();
-    const list = Array.isArray(contacts) ? contacts : [];
-    if (!q) return list;
-    return list.filter((c) => {
-      const name = String(c.name || "").toLowerCase();
-      const phone = String(c.phone || "").toLowerCase();
-      const id = String(c.id || "").toLowerCase();
-      return name.includes(q) || phone.includes(q) || id.includes(q);
-    });
-  }, [contacts, contactQuery]);
-
-  const [dashboard, setDashboard] = useState<Record<string, CampaignSendSummary>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [simulatingId, setSimulatingId] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [resumingId, setResumingId] = useState<string | null>(null);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
 
-  const [simulation, setSimulation] = useState<Simulation | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [lastDispatch, setLastDispatch] = useState<DispatchResponse | null>(null);
 
-  const [form, setForm] = useState<CreateFormState>({
+  const [createForm, setCreateForm] = useState<CreateFormState>({
     name: "",
     message: "",
     vipOnly: false,
@@ -126,129 +158,114 @@ export default function CampanhasPage() {
     contactIds: [],
   });
 
-  useEffect(() => {
-    setSimulation(null);
-    setSuccessMessage(null);
-    setError(null);
-  }, [clientId]);
+  const selectedContacts = useMemo(() => {
+    const set = new Set(createForm.contactIds);
+    return contacts.filter((c) => set.has(String(c.id)));
+  }, [contacts, createForm.contactIds]);
 
-  useEffect(() => {
-    loadContacts();
-    loadCampaigns();
-    loadDashboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId]);
-  async function loadDashboard() {
-    try {
-      const res = await fetch(`/api/clients/${clientId}/campaigns/dashboard`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!res.ok) {
-        // Endpoint opcional: não derruba a página se não existir/der erro.
-        return;
-      }
-
-      const data = await readJsonSafe<any>(res);
-      const items = data && Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : [];
-      const next: Record<string, CampaignSendSummary> = {};
-
-      for (const it of items) {
-        if (!it || typeof it !== "object") continue;
-        const campaignId = String((it as any).campaignId || (it as any).id || "");
-        if (!campaignId) continue;
-        const s = (it as any).summary || (it as any).sendSummary || it;
-        next[campaignId] = {
-          total: Number((s as any)?.total || 0),
-          simulado: Number((s as any)?.simulado || 0),
-          agendado: Number((s as any)?.agendado || 0),
-          enviado: Number((s as any)?.enviado || 0),
-          erro: Number((s as any)?.erro || 0),
-          lastAt: typeof (s as any)?.lastAt === "string" ? (s as any).lastAt : null,
-        };
-      }
-
-      setDashboard(next);
-    } catch (err) {
-      console.error("Erro ao carregar dashboard de campanhas:", err);
-    }
-  }
+  const eligibleContacts = useMemo(() => {
+    return contacts.filter((c) => c.channel === "whatsapp");
+  }, [contacts]);
 
   async function loadContacts() {
-    try {
-      const res = await fetch(`/api/clients/${encodeURIComponent(clientId)}/contacts`);
-      if (!res.ok) throw new Error(`Falha ao carregar contatos (${res.status})`);
-      const data = (await res.json()) as { contacts?: Contact[] };
-      setContacts(Array.isArray(data.contacts) ? data.contacts : []);
-    } catch (e) {
-      console.warn("Falha ao carregar contatos", e);
+    const res = await fetch(`/api/clients/${clientId}/contacts`);
+    const data = await readJsonSafe<unknown>(res);
+    if (!res.ok) {
+      throw new Error(
+        isRecord(data) && typeof data.error === "string" ? data.error : "Falha ao carregar contatos."
+      );
     }
+    if (!Array.isArray(data)) return;
+    setContacts(data as Contact[]);
   }
 
   async function loadCampaigns() {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const res = await fetch(`/api/clients/${clientId}/campaigns`, {
-        method: "GET",
-      });
-
-      const data = await readJsonSafe<unknown>(res);
-
-      if (!res.ok) {
-        throw new Error(
-          (isRecord(data) && typeof (data as any).error === "string" ? (data as any).error : undefined) ||
-            "Falha ao carregar campanhas."
-        );
-      }
-
-      const campaignsValue = isRecord(data) ? (data as any).campaigns : undefined;
-
-      const list: Campaign[] = Array.isArray(campaignsValue)
-        ? (campaignsValue as Campaign[])
-        : Array.isArray(data)
-          ? (data as Campaign[])
-          : [];
-
-      setCampaigns(list);
-    } catch (err: unknown) {
-      console.error("Erro ao carregar campanhas:", err);
-      setError(getErrorMessage(err) || "Erro ao carregar campanhas.");
-    } finally {
-      setLoading(false);
+    const res = await fetch(`/api/clients/${clientId}/campaigns`);
+    const data = await readJsonSafe<unknown>(res);
+    if (!res.ok) {
+      throw new Error(
+        isRecord(data) && typeof data.error === "string" ? data.error : "Falha ao carregar campanhas."
+      );
     }
+    if (!Array.isArray(data)) return;
+    setCampaigns(data as Campaign[]);
   }
+
+  async function loadSummaries(campaignIds: string[]) {
+    // best-effort: não falha o page load
+    const next: Record<string, CampaignSendSummary> = {};
+    await Promise.all(
+      campaignIds.map(async (id) => {
+        try {
+          const res = await fetch(`/api/clients/${clientId}/campaigns/${id}/results`);
+          const data = await readJsonSafe<unknown>(res);
+          if (!res.ok || !isRecord(data)) return;
+          next[id] = data as CampaignSendSummary;
+        } catch {
+          // ignore
+        }
+      })
+    );
+    setSendSummaryById(next);
+  }
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        setSuccessMessage(null);
+        setLastDispatch(null);
+
+        await loadContacts();
+        await loadCampaigns();
+      } catch (err) {
+        if (!mounted) return;
+        setError(getErrorMessage(err));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId]);
+
+  useEffect(() => {
+    if (campaigns.length === 0) return;
+    loadSummaries(campaigns.map((c) => c.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaigns.length, clientId]);
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-
-    if (!form.name.trim() || !form.message.trim()) {
-      setError("Nome e mensagem são obrigatórios.");
-      return;
-    }
-
     try {
       setCreating(true);
+      setError(null);
+      setSuccessMessage(null);
+      setLastDispatch(null);
+
+      const payload = {
+        name: createForm.name.trim(),
+        channel: "whatsapp",
+        message: createForm.message,
+        target: {
+          vipOnly: createForm.vipOnly,
+          contactIds: createForm.targetMode === "selected" ? createForm.contactIds : undefined,
+          excludeOptOut: true,
+          excludeBlocked: true,
+        },
+      };
 
       const res = await fetch(`/api/clients/${clientId}/campaigns`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          // Canonical do backend: "message".
-          // Mantém "messageTemplate" por compatibilidade com versões antigas.
-          message: form.message.trim(),
-          messageTemplate: form.message.trim(),
-          target: { vipOnly: form.vipOnly, contactIds: form.targetMode === "selected" ? form.contactIds : undefined },
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data = await readJsonSafe<{ error?: string }>(res);
-
+      const data = await readJsonSafe<unknown>(res);
       if (!res.ok) {
         throw new Error(
           (isRecord(data) && typeof data.error === "string" ? data.error : undefined) ||
@@ -256,13 +273,18 @@ export default function CampanhasPage() {
         );
       }
 
-      setForm((prev) => ({ ...prev, name: "", message: "" }));
+      setCreateForm({
+        name: "",
+        message: "",
+        vipOnly: false,
+        targetMode: "all",
+        contactIds: [],
+      });
+
       setSuccessMessage("Campanha criada.");
-      await loadContacts();
       await loadCampaigns();
-    } catch (err: unknown) {
-      console.error("Erro ao criar campanha:", err);
-      setError(getErrorMessage(err) || "Erro ao criar campanha.");
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setCreating(false);
     }
@@ -273,36 +295,62 @@ export default function CampanhasPage() {
       setSimulatingId(campaignId);
       setError(null);
       setSuccessMessage(null);
-      setSimulation(null);
+      setLastDispatch(null);
 
-      const res = await fetch(
-        `/api/clients/${clientId}/campaigns/${campaignId}/simulate`,
-        { method: "POST" }
-      );
+      const res = await fetch(`/api/clients/${clientId}/campaigns/${campaignId}/simulate`, {
+        method: "POST",
+      });
 
       const data = await readJsonSafe<unknown>(res);
 
       if (!res.ok) {
         throw new Error(
-          (isRecord(data) && typeof (data as any).error === "string" ? (data as any).error : undefined) ||
+          (isRecord(data) && typeof data.error === "string" ? data.error : undefined) ||
             "Falha ao simular campanha."
         );
       }
 
-      // Alguns endpoints retornam { simulation: {...} }, outros retornam direto o objeto.
-      const simValue =
-        isRecord(data) && "simulation" in data ? (data as any).simulation : data;
+      // A simulação atual do backend retorna os contadores; aqui mantemos simples.
+      const sim = (isRecord(data) ? (data as Simulation) : null) as Simulation | null;
+      if (sim) {
+        setSuccessMessage(`Simulação pronta: ${sim.eligibleContacts} elegíveis (de ${sim.totalContacts}).`);
+      } else {
+        setSuccessMessage("Simulação pronta.");
+      }
 
-      setSimulation(simValue as Simulation);
-      setSuccessMessage("Simulação concluída.");
-      await loadContacts();
-    loadCampaigns();
-    } catch (err: unknown) {
-      console.error("Erro ao simular campanha:", err);
-      setError(getErrorMessage(err) || "Erro ao simular campanha.");
+      await loadCampaigns();
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setSimulatingId(null);
     }
+  }
+
+  async function postDispatch(endpoint: string, mode: DispatchResponse["mode"]) {
+    const res = await fetch(endpoint, { method: "POST" });
+    const data = await readJsonSafe<unknown>(res);
+
+    if (!res.ok) {
+      throw new Error(
+        (isRecord(data) && typeof data.error === "string" ? data.error : undefined) ||
+          "Falha ao executar operação."
+      );
+    }
+
+    // Backend agora padroniza este payload.
+    if (!isRecord(data)) {
+      throw new Error("Resposta inesperada do servidor.");
+    }
+
+    const parsed = data as DispatchResponse;
+    // Garantia mínima para evitar UI quebrada
+    if (!parsed || parsed.ok !== true || parsed.mode !== mode) {
+      setLastDispatch(null);
+    } else {
+      setLastDispatch(parsed);
+    }
+
+    return parsed;
   }
 
   async function handleSend(campaignId: string) {
@@ -310,296 +358,432 @@ export default function CampanhasPage() {
       setSendingId(campaignId);
       setError(null);
       setSuccessMessage(null);
+      setLastDispatch(null);
 
-      const res = await fetch(
-        `/api/clients/${clientId}/campaigns/${campaignId}/send`,
-        { method: "POST" }
+      const parsed = await postDispatch(`/api/clients/${clientId}/campaigns/${campaignId}/send`, "send");
+
+      setSuccessMessage(
+        parsed.summary.skippedDueToDailyLimit > 0
+          ? "Envio iniciado (parcial por limite diário)."
+          : "Envio iniciado."
       );
 
-      const data = await readJsonSafe<{ error?: string }>(res);
-
-      if (!res.ok) {
-        throw new Error(
-          (isRecord(data) && typeof data.error === "string" ? data.error : undefined) ||
-            "Falha ao disparar campanha."
-        );
-      }
-
-      setSuccessMessage("Campanha disparada (simulado).");
       await loadContacts();
-    loadCampaigns();
-    } catch (err: unknown) {
-      console.error("Erro ao disparar campanha:", err);
-      setError(getErrorMessage(err) || "Erro ao disparar campanha.");
+      await loadCampaigns();
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setSendingId(null);
     }
   }
 
-  function formatDate(iso?: string): string {
-    if (!iso) return "-";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleString("pt-BR");
+  async function handleResumeSend(campaignId: string) {
+    try {
+      setResumingId(campaignId);
+      setError(null);
+      setSuccessMessage(null);
+      setLastDispatch(null);
+
+      const parsed = await postDispatch(
+        `/api/clients/${clientId}/campaigns/${campaignId}/resume-send`,
+        "resume"
+      );
+
+      setSuccessMessage(
+        parsed.summary.attempted === 0
+          ? "Nada pendente para retomar."
+          : parsed.summary.skippedDueToDailyLimit > 0
+            ? "Retomada iniciada (parcial por limite diário)."
+            : "Retomada iniciada."
+      );
+
+      await loadCampaigns();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setResumingId(null);
+    }
   }
 
-  const canCreate = form.name.trim().length > 0 && form.message.trim().length > 0;
+  async function handleRetryErrors(campaignId: string) {
+    try {
+      setRetryingId(campaignId);
+      setError(null);
+      setSuccessMessage(null);
+      setLastDispatch(null);
+
+      const parsed = await postDispatch(`/api/clients/${clientId}/campaigns/${campaignId}/retry-errors`, "retry_errors");
+
+      setSuccessMessage(parsed.summary.attempted === 0 ? "Não há erros para retentar." : "Retentativa iniciada.");
+
+      await loadCampaigns();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setRetryingId(null);
+    }
+  }
+
+  const kpiData = useMemo(() => {
+    const total = campaigns.length;
+    const inProgress = campaigns.filter((c) => c.status === "em_andamento").length;
+    const sent = campaigns.filter((c) => c.status === "disparada").length;
+    const drafts = campaigns.filter((c) => c.status === "rascunho").length;
+    return { total, inProgress, sent, drafts };
+  }, [campaigns]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <header>
-          <h1 className="text-2xl font-semibold text-slate-900">Campanhas</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Cliente: <span className="font-medium">{clientId}</span>
-          </p>
-        </header>
-
-        {error ? (
-          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">Campanhas</h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Cliente: <span className="font-mono">{clientId}</span>
+            </p>
           </div>
+          <div className="flex flex-wrap gap-2">
+            <div className="rounded-lg bg-white px-3 py-2 text-sm text-gray-700 ring-1 ring-black/5">
+              Contatos WhatsApp: <span className="font-semibold tabular-nums">{eligibleContacts.length}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Kpi label="Total" value={kpiData.total} />
+          <Kpi label="Em andamento" value={kpiData.inProgress} />
+          <Kpi label="Disparadas" value={kpiData.sent} />
+          <Kpi label="Rascunhos" value={kpiData.drafts} />
+        </div>
+
+        {(error || successMessage) && (
+          <div className="mt-6 space-y-2">
+            {error ? <Alert variant="error">{error}</Alert> : null}
+            {successMessage ? <Alert variant="success">{successMessage}</Alert> : null}
+          </div>
+        )}
+
+        {lastDispatch ? (
+          <Card className="mt-6 p-5">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="text-sm font-semibold text-gray-900">Resumo da última operação</div>
+                <div className="mt-1 text-xs text-gray-600">
+                  Modo: <span className="font-mono">{lastDispatch.mode}</span> • Status após:{" "}
+                  <span className="font-mono">{lastDispatch.statusAfter}</span>
+                </div>
+              </div>
+              {lastDispatch.daily ? (
+                <div className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-700 ring-1 ring-gray-200">
+                  Quota {lastDispatch.daily.date}: restante{" "}
+                  <span className="font-semibold tabular-nums">{lastDispatch.daily.remainingAfter}</span> (limite{" "}
+                  <span className="tabular-nums">{lastDispatch.daily.limit}</span>)
+                </div>
+              ) : null}
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <Kpi label="Elegíveis" value={lastDispatch.summary.eligible} />
+              <Kpi label="Tentados" value={lastDispatch.summary.attempted} />
+              <Kpi label="Enfileirados" value={lastDispatch.summary.enqueued} />
+              <Kpi label="Erros" value={lastDispatch.summary.errors} />
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <Kpi label="Já tratados" value={lastDispatch.summary.skippedAlreadyHandled} />
+              <Kpi label="Cortados (limite)" value={lastDispatch.summary.skippedDueToDailyLimit} />
+              <Kpi label="Total alvo" value={lastDispatch.summary.totalTargets} />
+              <Kpi label="Cap (policy)" value={lastDispatch.summary.cappedTargets} />
+            </div>
+          </Card>
         ) : null}
 
-        {successMessage ? (
-          <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-            {successMessage}
-          </div>
-        ) : null}
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Criar campanha</CardTitle>
+              <CardDescription>
+                Crie campanhas WhatsApp com segmentação simples (VIP e seleção de contatos).
+              </CardDescription>
+            </CardHeader>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:col-span-1">
-            <h2 className="text-base font-semibold text-slate-900">Nova campanha</h2>
-            <form className="mt-4 space-y-3" onSubmit={handleCreate}>
-              <div>
-                <label className="text-xs font-medium text-slate-700">Nome</label>
-                <input
-                  className="mt-1 w-full rounded-md border border-slate-200 p-2 text-sm outline-none focus:border-slate-400"
-                  value={form.name}
-                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ex.: Promo almoço"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-700">Mensagem</label>
-                <textarea
-                  className="mt-1 min-h-[120px] w-full rounded-md border border-slate-200 p-2 text-sm outline-none focus:border-slate-400"
-                  value={form.message}
-                  onChange={(e) => setForm((prev) => ({ ...prev, message: e.target.value }))}
-                  placeholder="Texto do disparo."
-                />
-              </div>
-
-
-              <div className="rounded-md border border-slate-200 p-3">
-                <div className="text-sm font-medium text-slate-800">Destinatários (1:1)</div>
-                <p className="mt-1 text-xs text-slate-600">
-                  Por padrão, a campanha vai para todos os contatos elegíveis. Se quiser controlar, escolha “Apenas selecionados”.
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-700">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="targetMode"
-                      checked={form.targetMode === "all"}
-                      onChange={() => setForm((prev) => ({ ...prev, targetMode: "all", contactIds: [] }))}
-                    />
-                    Todos elegíveis
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="targetMode"
-                      checked={form.targetMode === "selected"}
-                      onChange={() => setForm((prev) => ({ ...prev, targetMode: "selected" }))}
-                    />
-                    Apenas selecionados
-                  </label>
+            <CardContent>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-900">Nome</label>
+                  <input
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/10"
+                    value={createForm.name}
+                    onChange={(e) => setCreateForm((s) => ({ ...s, name: e.target.value }))}
+                    placeholder="Ex.: Promoção de Janeiro"
+                    required
+                  />
                 </div>
 
-                {form.targetMode === "selected" ? (
-                  <div className="mt-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-900">Mensagem</label>
+                  <textarea
+                    className="mt-1 min-h-[120px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/10"
+                    value={createForm.message}
+                    onChange={(e) => setCreateForm((s) => ({ ...s, message: e.target.value }))}
+                    placeholder="Digite a mensagem que será enviada no WhatsApp."
+                    required
+                  />
+                  <div className="mt-1 text-xs text-gray-500">
+                    Dica: mantenha a mensagem curta. Evite links e linguagem agressiva para reduzir bloqueios.
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="inline-flex items-center gap-2 text-sm text-gray-800">
                     <input
-                      className="w-full rounded-md border border-slate-200 p-2 text-sm outline-none focus:border-slate-400"
-                      value={contactQuery}
-                      onChange={(e) => setContactQuery(e.target.value)}
-                      placeholder="Buscar contato por nome/telefone..."
+                      type="checkbox"
+                      checked={createForm.vipOnly}
+                      onChange={(e) => setCreateForm((s) => ({ ...s, vipOnly: e.target.checked }))}
                     />
-                    <div className="mt-2 max-h-56 overflow-auto rounded-md border border-slate-200 p-2">
-                      {filteredContacts.length ? (
+                    Apenas VIP
+                  </label>
+
+                  <div className="ml-auto flex items-center gap-2">
+                    <span className="text-sm text-gray-600">Destinatários:</span>
+                    <select
+                      className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900/10"
+                      value={createForm.targetMode}
+                      onChange={(e) =>
+                        setCreateForm((s) => ({
+                          ...s,
+                          targetMode: e.target.value === "selected" ? "selected" : "all",
+                          contactIds: [],
+                        }))
+                      }
+                    >
+                      <option value="all">Todos elegíveis</option>
+                      <option value="selected">Selecionar contatos</option>
+                    </select>
+                  </div>
+                </div>
+
+                {createForm.targetMode === "selected" ? (
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div className="text-sm font-medium text-gray-900">Selecionar contatos</div>
+                    <div className="mt-2 max-h-56 overflow-auto rounded-lg bg-white p-2 ring-1 ring-black/5">
+                      {eligibleContacts.length === 0 ? (
+                        <div className="p-3 text-sm text-gray-600">Nenhum contato WhatsApp encontrado.</div>
+                      ) : (
                         <div className="space-y-2">
-                          {filteredContacts.map((c) => {
-                            const label = String(c.name || c.phone || c.id);
+                          {eligibleContacts.map((c) => {
+                            const id = String(c.id);
+                            const checked = createForm.contactIds.includes(id);
                             return (
-                              <label key={c.id} className="flex items-center gap-2 text-sm text-slate-700">
+                              <label
+                                key={id}
+                                className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-gray-50"
+                              >
                                 <input
                                   type="checkbox"
-                                  checked={form.contactIds.includes(String(c.id))}
+                                  checked={checked}
                                   onChange={(e) => {
-                                    const id = String(c.id);
-                                    setForm((prev) => {
-                                      const next = new Set(prev.contactIds);
-                                      if (e.target.checked) next.add(id);
-                                      else next.delete(id);
-                                      return { ...prev, contactIds: Array.from(next) };
-                                    });
+                                    const on = e.target.checked;
+                                    setCreateForm((s) => ({
+                                      ...s,
+                                      contactIds: on
+                                        ? Array.from(new Set([...s.contactIds, id]))
+                                        : s.contactIds.filter((x) => x !== id),
+                                    }));
                                   }}
                                 />
-                                <span>
-                                  {label} {c.vip ? <span className="text-xs text-amber-700">(VIP)</span> : null}
-                                </span>
+                                <div className="min-w-0">
+                                  <div className="truncate text-sm font-medium text-gray-900">
+                                    {c.name || "(sem nome)"}
+                                  </div>
+                                  <div className="truncate text-xs text-gray-600">
+                                    {c.phone || "(sem telefone)"} • {c.vip ? "VIP" : "Não VIP"}
+                                  </div>
+                                </div>
                               </label>
                             );
                           })}
                         </div>
-                      ) : (
-                        <p className="text-sm text-slate-600">Nenhum contato encontrado.</p>
                       )}
                     </div>
-                    <p className="mt-1 text-xs text-slate-600">
-                      Selecionados: <span className="font-medium">{form.contactIds.length}</span>
-                    </p>
-                  </div>
-                ) : null}
-              </div>
 
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={form.vipOnly}
-                  onChange={(e) => setForm((prev) => ({ ...prev, vipOnly: e.target.checked }))}
-                />
-                Apenas VIP
-              </label>
-
-              <button
-                type="submit"
-                disabled={!canCreate || creating}
-                className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {creating ? "Criando..." : "Criar campanha"}
-              </button>
-            </form>
-          </section>
-
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:col-span-2">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-slate-900">Campanhas do cliente</h2>
-              <button
-                onClick={() => { loadContacts();
-    loadCampaigns(); loadDashboard(); }}
-                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Recarregar
-              </button>
-            </div>
-
-            {loading ? (
-              <p className="mt-4 text-sm text-slate-600">Carregando...</p>
-            ) : campaigns.length === 0 ? (
-              <p className="mt-4 text-sm text-slate-600">Nenhuma campanha cadastrada.</p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {campaigns.map((c) => (
-                  <div key={c.id} className="rounded-md border border-slate-200 p-3">
-                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">{c.name}</p>
-                        <p className="mt-1 text-xs text-slate-600">
-                          Status: <span className="font-medium">{STATUS_LABEL[c.status] || c.status}</span>
-                          {" · "}Criada em: <span className="font-medium">{formatDate(c.createdAt)}</span>
-                        </p>
-
-                        {dashboard[c.id] ? (
-                          <p className="mt-1 text-xs text-slate-600">
-                            Envios: <span className="font-medium">{dashboard[c.id].total}</span>
-                            {" · "}Agendados: <span className="font-medium">{dashboard[c.id].agendado}</span>
-                            {" · "}Enviados: <span className="font-medium">{dashboard[c.id].enviado}</span>
-                            {" · "}Erros: <span className="font-medium">{dashboard[c.id].erro}</span>
-                          </p>
-                        ) : null}
+                    {selectedContacts.length > 0 ? (
+                      <div className="mt-2 text-xs text-gray-600">
+                        Selecionados: <span className="font-semibold tabular-nums">{selectedContacts.length}</span>
                       </div>
-
-                      <div className="mt-2 flex flex-wrap gap-2 sm:mt-0">
-                        <button
-                          onClick={() => handleSimulate(c.id)}
-                          disabled={!!simulatingId || !!sendingId}
-                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-                        >
-                          {simulatingId === c.id ? "Simulando..." : "Simular"}
-                        </button>
-                        <button
-                          onClick={() => handleSend(c.id)}
-                          disabled={!!sendingId || !!simulatingId}
-                          className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
-                        >
-                          {sendingId === c.id ? "Disparando..." : "Disparar"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 rounded-md bg-slate-50 p-3">
-                      <p className="text-xs font-semibold text-slate-700">Mensagem</p>
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800">
-                        {c.message ?? c.messageTemplate ?? ""}
-                      </p>
-                    </div>
-
-                    <div className="mt-3 text-xs text-slate-600">
-                      <span className="font-semibold">Segmentação:</span> {c.target?.vipOnly ? "VIP only" : "Todos"}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {simulation ? (
-              <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-4">
-                <h3 className="text-sm font-semibold text-slate-900">Resultado da simulação</h3>
-                <div className="mt-2 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
-                  <p>
-                    Total de contatos: <span className="font-semibold">{simulation.totalContacts}</span>
-                  </p>
-                  <p>
-                    Elegíveis: <span className="font-semibold">{simulation.eligibleContacts}</span>
-                  </p>
-                  <p>
-                    VIP elegíveis: <span className="font-semibold">{simulation.vipContacts}</span>
-                  </p>
-                  {typeof simulation.excludedOptOut === "number" ? (
-                    <p>
-                      Excluídos (opt-out): <span className="font-semibold">{simulation.excludedOptOut}</span>
-                    </p>
-                  ) : null}
-                  {typeof simulation.excludedBlocked === "number" ? (
-                    <p>
-                      Excluídos (bloqueados): <span className="font-semibold">{simulation.excludedBlocked}</span>
-                    </p>
-                  ) : null}
-                </div>
-
-                {simulation.targets?.length ? (
-                  <div className="mt-4">
-                    <p className="text-xs font-semibold text-slate-700">Alvos (amostra)</p>
-                    <ul className="mt-2 max-h-48 space-y-1 overflow-auto rounded-md border border-slate-200 bg-white p-2 text-xs text-slate-700">
-                      {simulation.targets.slice(0, 50).map((t) => (
-                        <li key={`${t.contactId}_${t.identifier}`} className="flex items-center justify-between">
-                          <span>{t.identifier}</span>
-                          <span className="text-slate-500">{t.vip ? "VIP" : "Normal"}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    {simulation.targets.length > 50 ? (
-                      <p className="mt-2 text-xs text-slate-600">Mostrando 50 de {simulation.targets.length} alvos.</p>
                     ) : null}
                   </div>
-                ) : (
-                  <p className="mt-3 text-sm text-slate-600">Nenhum alvo elegível na simulação.</p>
-                )}
+                ) : null}
+
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={creating || !createForm.name.trim() || !createForm.message.trim()}
+                  >
+                    {creating ? "Criando..." : "Criar campanha"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex items-start justify-between gap-3 md:flex-row md:items-center">
+              <div>
+                <CardTitle>Campanhas existentes</CardTitle>
+                <CardDescription>
+                  Simule antes de enviar. Use “Retomar” para campanhas em andamento e “Retry erros” para retentar falhas.
+                </CardDescription>
               </div>
-            ) : null}
-          </section>
+              <Button
+                variant="secondary"
+                disabled={loading}
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    setError(null);
+                    setSuccessMessage(null);
+                    setLastDispatch(null);
+                    await loadCampaigns();
+                  } catch (err) {
+                    setError(getErrorMessage(err));
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >
+                Atualizar
+              </Button>
+            </CardHeader>
+
+            <CardContent>
+              <div className="overflow-hidden rounded-xl ring-1 ring-gray-200">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
+                        Campanha
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
+                        Resultado
+                      </th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {campaigns.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-6">
+                          <EmptyState
+                            title="Nenhuma campanha ainda"
+                            description="Crie a primeira campanha ao lado para começar a enviar."
+                          />
+                        </td>
+                      </tr>
+                    ) : (
+                      campaigns
+                        .slice()
+                        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+                        .map((c) => {
+                          const summary = sendSummaryById[c.id];
+                          const hasErrors = summary?.erro && summary.erro > 0;
+                          const busy =
+                            simulatingId === c.id ||
+                            sendingId === c.id ||
+                            resumingId === c.id ||
+                            retryingId === c.id;
+
+                          const allBusy = Boolean(simulatingId || sendingId || resumingId || retryingId);
+
+                          return (
+                            <tr key={c.id} className={busy ? "opacity-70" : undefined}>
+                              <td className="px-4 py-4">
+                                <div className="text-sm font-semibold text-gray-900">{c.name}</div>
+                                <div className="mt-1 text-xs text-gray-600">
+                                  <span className="font-mono">{c.id}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4">
+                                <StatusBadge status={c.status} />
+                                <div className="mt-2 text-xs text-gray-600">
+                                  VIP: <span className="font-mono">{String(Boolean(c.target?.vipOnly))}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4">
+                                {summary ? (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="text-xs text-gray-600">
+                                      Agendado:{" "}
+                                      <span className="font-semibold tabular-nums">{summary.agendado}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      Enviado:{" "}
+                                      <span className="font-semibold tabular-nums">{summary.enviado}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      Erro: <span className="font-semibold tabular-nums">{summary.erro}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      Total: <span className="font-semibold tabular-nums">{summary.total}</span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-xs text-gray-500">(sem dados)</div>
+                                )}
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="flex flex-wrap justify-end gap-2">
+                                  <Button
+                                    variant="secondary"
+                                    disabled={allBusy}
+                                    onClick={() => handleSimulate(c.id)}
+                                  >
+                                    {simulatingId === c.id ? "Simulando..." : "Simular"}
+                                  </Button>
+
+                                  <Button variant="primary" disabled={allBusy} onClick={() => handleSend(c.id)}>
+                                    {sendingId === c.id ? "Enviando..." : "Enviar"}
+                                  </Button>
+
+                                  {c.status === "em_andamento" ? (
+                                    <Button
+                                      variant="secondary"
+                                      disabled={allBusy}
+                                      onClick={() => handleResumeSend(c.id)}
+                                    >
+                                      {resumingId === c.id ? "Retomando..." : "Retomar"}
+                                    </Button>
+                                  ) : null}
+
+                                  {hasErrors ? (
+                                    <Button
+                                      variant="secondary"
+                                      disabled={allBusy}
+                                      onClick={() => handleRetryErrors(c.id)}
+                                    >
+                                      {retryingId === c.id ? "Retry..." : "Retry erros"}
+                                    </Button>
+                                  ) : null}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 text-xs text-gray-500">
+                Observação: “Retry erros” só aparece se houver falhas registradas em Results. “Retomar” só aparece em campanhas
+                <span className="font-mono"> em_andamento</span>.
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

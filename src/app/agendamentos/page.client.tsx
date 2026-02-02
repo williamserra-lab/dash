@@ -13,6 +13,7 @@ type BookingStatus =
 type Booking = {
   id: string;
   clientId: string;
+  publicId?: string | null;
   contactId: string;
   service?: { name: string; durationMinutes?: number; price?: number | null } | null;
   startAt: string;
@@ -29,6 +30,9 @@ type Contact = {
   displayName?: string | null;
   phone?: string | null;
 };
+
+
+type Attendant = { id: string; name: string; specialty?: string | null };
 
 function isoDateKey(d: Date): string {
   const y = d.getFullYear();
@@ -94,16 +98,37 @@ export default function PageClient() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [contactsById, setContactsById] = useState<Record<string, Contact>>({});
+  const [attendants, setAttendants] = useState<Attendant[]>([]);
 
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+const [drawerTab, setDrawerTab] = useState<"details" | "timeline">("details");
+
+type TimelineEvent = {
+  id: string;
+  clientId: string;
+  entityType: "booking" | "order";
+  entityId: string;
+  status: string;
+  statusGroup: string;
+  at: string;
+  actor: string;
+  note: string | null;
+};
+
+const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+const [timelineLoading, setTimelineLoading] = useState(false);
+const [timelineError, setTimelineError] = useState<string | null>(null);
+
 
   // Create modal
   const [createOpen, setCreateOpen] = useState(false);
   const [createDay, setCreateDay] = useState<Date | null>(null);
   const [createContactId, setCreateContactId] = useState("");
+  const [createAttendantId, setCreateAttendantId] = useState<string>("default");
   const [createServiceName, setCreateServiceName] = useState("");
   const [createStartAt, setCreateStartAt] = useState("");
   const [createDurationMinutes, setCreateDurationMinutes] = useState<number>(60);
@@ -139,6 +164,27 @@ export default function PageClient() {
       setLoading(false);
     }
   }
+
+function timelineGroupLabel(group: string) {
+  switch (group) {
+    case "criado":
+      return "Criado";
+    case "confirmado":
+      return "Confirmado";
+    case "concluido":
+      return "Concluído";
+    case "cancelado":
+      return "Cancelado";
+    case "nao_compareceu":
+      return "Não compareceu";
+    case "preparo":
+      return "Em preparo";
+    case "entrega/retirada":
+      return "Entrega/Retirada";
+    default:
+      return group || "—";
+  }
+}
 
   useEffect(() => {
     refresh();
@@ -192,11 +238,55 @@ export default function PageClient() {
     const base = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 9, 0, 0, 0);
     setCreateStartAt(toLocalInputValue(base));
     setCreateContactId("");
+    setCreateAttendantId("default");
     setCreateServiceName("");
     setCreateDurationMinutes(60);
   }
 
-  async function submitCreate() {
+  
+async function acceptBooking(bookingId: string) {
+  if (!clientId) return;
+  setLoading(true);
+  setError(null);
+  try {
+    const r = await fetch(
+      `/api/clients/${encodeURIComponent(clientId)}/bookings/${encodeURIComponent(bookingId)}/accept`,
+      { method: "POST" }
+    );
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(t || `HTTP ${r.status}`);
+    }
+    await refresh();
+  } catch (e) {
+    setError(getErrorMessage(e));
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function rejectBooking(bookingId: string) {
+  if (!clientId) return;
+  setLoading(true);
+  setError(null);
+  try {
+    const r = await fetch(
+      `/api/clients/${encodeURIComponent(clientId)}/bookings/${encodeURIComponent(bookingId)}/reject`,
+      { method: "POST" }
+    );
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(t || `HTTP ${r.status}`);
+    }
+    await refresh();
+  } catch (e) {
+    setError(getErrorMessage(e));
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function submitCreate() {
     if (!clientId) {
       setError("Selecione um clientId.");
       return;
@@ -212,6 +302,7 @@ export default function PageClient() {
       const end = addMinutes(start, Number(createDurationMinutes || 60));
       const payload: any = {
         contactId: createContactId.trim(),
+        attendantId: createAttendantId,
         service: { name: createServiceName.trim(), durationMinutes: Number(createDurationMinutes || 60) },
         startAt: start.toISOString(),
         endAt: end.toISOString(),
@@ -259,6 +350,71 @@ export default function PageClient() {
 
   const weekdayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
+
+  useEffect(() => {
+    let aborted = false;
+
+    async function load() {
+      if (!clientId || !selectedBooking) {
+        setTimelineEvents([]);
+        setTimelineError(null);
+        setTimelineLoading(false);
+        return;
+      }
+
+      setTimelineLoading(true);
+      setTimelineError(null);
+
+      try {
+        const r = await fetch(
+          `/api/clients/${encodeURIComponent(clientId)}/bookings/${encodeURIComponent(selectedBooking.id)}/timeline`,
+          { credentials: "include" }
+        );
+
+        if (r.status === 401) {
+          const j = await r.json().catch(() => null);
+          const msg =
+            (j && (j.message || j.error)) ||
+            "Sem sessão admin. Faça login em /admin-login e tente novamente.";
+          if (!aborted) {
+            setTimelineEvents([]);
+            setTimelineError(String(msg));
+            setTimelineLoading(false);
+          }
+          return;
+        }
+
+        if (!r.ok) {
+          const t = await r.text();
+          throw new Error(t || `HTTP ${r.status}`);
+        }
+
+        const j = (await r.json()) as any;
+        const items: TimelineEvent[] = Array.isArray(j?.events)
+          ? j.events
+          : Array.isArray(j?.items)
+          ? j.items
+          : [];
+
+        if (!aborted) {
+          setTimelineEvents(items);
+          setTimelineLoading(false);
+        }
+      } catch (e: any) {
+        if (!aborted) {
+          setTimelineEvents([]);
+          setTimelineError(e?.message ? String(e.message) : "Falha ao carregar timeline.");
+          setTimelineLoading(false);
+        }
+      }
+    }
+
+    load();
+    return () => {
+      aborted = true;
+    };
+  }, [clientId, selectedBooking?.id]);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -270,6 +426,30 @@ export default function PageClient() {
         </div>
 
         <div className="flex items-center gap-2">
+<button
+  type="button"
+  onClick={() => setViewMode("calendar")}
+  className={`rounded-md border px-3 py-2 text-sm ${
+    viewMode === "calendar"
+      ? "border-slate-300 bg-slate-100 font-semibold"
+      : "border-slate-200 bg-white"
+  }`}
+>
+  Calendário
+</button>
+<button
+  type="button"
+  onClick={() => setViewMode("list")}
+  className={`rounded-md border px-3 py-2 text-sm ${
+    viewMode === "list"
+      ? "border-slate-300 bg-slate-100 font-semibold"
+      : "border-slate-200 bg-white"
+  }`}
+>
+  Lista
+</button>
+
+
           <a
             href={`/agendamentos/config?clientId=${encodeURIComponent(clientId)}`}
             className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -309,7 +489,8 @@ export default function PageClient() {
 
       {loading ? <div className="mb-4 text-sm text-slate-600">Carregando…</div> : null}
 
-      <div className="rounded-lg border border-slate-200 bg-white">
+      {viewMode === "calendar" ? (
+<div className="rounded-lg border border-slate-200 bg-white">
         <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
           {weekdayLabels.map((w) => (
             <div key={w} className="px-2 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -360,9 +541,9 @@ export default function PageClient() {
                       <button
                         key={b.id}
                         type="button"
-                        onClick={() => setSelectedBooking(b)}
+                        onClick={() => { setSelectedBooking(b); setDrawerTab("details"); }}
                         className="block w-full truncate rounded border border-slate-200 bg-white px-2 py-1 text-left text-xs hover:bg-slate-50"
-                        title={`${hhmm} — ${title} — ${who}`}
+                        title={`${hhmm} — ${b.publicId ? "#" + b.publicId + " — " : ""}${title} — ${who}`}
                       >
                         <span className="font-mono">{hhmm}</span>{" "}
                         <span className="font-semibold">{title}</span>{" "}
@@ -379,8 +560,66 @@ export default function PageClient() {
           })}
         </div>
       </div>
+      ) : (
+  <div className="rounded-lg border border-slate-200 bg-white">
+    <div className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+      Agendamentos (lista)
+    </div>
 
-      {/* Create modal */}
+    {bookings.length === 0 ? (
+      <div className="px-3 py-3 text-sm text-slate-600">Nenhum agendamento no período carregado.</div>
+    ) : (
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-white">
+            <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+              <th className="px-3 py-2">Número</th>
+              <th className="px-3 py-2">Status</th>
+              <th className="px-3 py-2">Contato</th>
+              <th className="px-3 py-2">Serviço</th>
+              <th className="px-3 py-2">Início</th>
+              <th className="px-3 py-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...bookings]
+              .sort((a, b) => (a.startAt < b.startAt ? -1 : a.startAt > b.startAt ? 1 : 0))
+              .map((b) => {
+                const start = parseDateSafe(b.startAt)?.toLocaleString("pt-BR") || b.startAt;
+                const contact =
+                  contactsById[b.contactId]?.displayName ||
+                  contactsById[b.contactId]?.name ||
+                  b.contactId;
+                return (
+                  <tr key={b.id} className="border-b border-slate-100">
+                    <td className="px-3 py-2 font-mono">{b.publicId || "—"}</td>
+                    <td className="px-3 py-2">{statusLabel(b.status)}</td>
+                    <td className="px-3 py-2">{contact}</td>
+                    <td className="px-3 py-2">{b.service?.name || "—"}</td>
+                    <td className="px-3 py-2">{start}</td>
+                    <td className="px-3 py-2">
+                      <button
+                        className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50"
+                        onClick={() => {
+                          setSelectedBooking(b);
+                          setDrawerTab("details");
+                        }}
+                        type="button"
+                      >
+                        Abrir
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
+
+{/* Create modal */}
       {createOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
           <div className="w-full max-w-lg rounded-lg bg-white shadow-lg">
@@ -398,6 +637,24 @@ export default function PageClient() {
             </div>
 
             <div className="space-y-3 px-4 py-4">
+
+<div className="grid gap-2">
+  <label className="text-xs font-semibold text-slate-700">Profissional</label>
+  <select
+    value={createAttendantId}
+    onChange={(e) => setCreateAttendantId(e.target.value)}
+    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+  >
+    <option value="default">Padrão</option>
+    {attendants.map((a) => (
+      <option key={a.id} value={a.id}>
+        {a.name}
+        {a.specialty ? ` (${a.specialty})` : ""}
+      </option>
+    ))}
+  </select>
+</div>
+
               <div className="grid gap-2">
                 <label className="text-xs font-semibold text-slate-700">contactId</label>
                 <input
@@ -483,6 +740,69 @@ export default function PageClient() {
             </div>
 
             <div className="space-y-3 px-4 py-4 text-sm">
+<div className="flex items-center gap-2">
+  <button
+    type="button"
+    onClick={() => setDrawerTab("details")}
+    className={`rounded-md border px-3 py-1.5 text-xs ${
+      drawerTab === "details"
+        ? "border-slate-300 bg-slate-100 font-semibold"
+        : "border-slate-200 bg-white"
+    }`}
+  >
+    Detalhes
+  </button>
+  <button
+    type="button"
+    onClick={() => setDrawerTab("timeline")}
+    className={`rounded-md border px-3 py-1.5 text-xs ${
+      drawerTab === "timeline"
+        ? "border-slate-300 bg-slate-100 font-semibold"
+        : "border-slate-200 bg-white"
+    }`}
+  >
+    Linha do tempo
+  </button>
+</div>
+
+{drawerTab === "timeline" ? (
+  <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+    {timelineLoading ? (
+      <div className="text-xs text-slate-600">Carregando…</div>
+    ) : timelineError ? (
+      <div className="text-xs text-rose-700">{timelineError}</div>
+    ) : timelineEvents.length ? (
+      <div className="space-y-2">
+        {timelineEvents.map((ev) => {
+          const dt = parseDateSafe(ev.at);
+          const when = dt ? dt.toLocaleString("pt-BR") : ev.at;
+          const label = timelineGroupLabel(ev.statusGroup);
+          return (
+            <div key={ev.id} className="rounded-md border border-slate-200 bg-white px-2 py-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs font-semibold text-slate-800">{label}</div>
+                <div className="text-[11px] text-slate-500">{when}</div>
+              </div>
+              <div className="mt-1 text-[11px] text-slate-600">ator: {ev.actor}</div>
+              {ev.note ? (
+                <div className="mt-1 text-[11px] text-slate-600">nota: {ev.note}</div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <div className="text-xs text-slate-600">Sem eventos ainda.</div>
+    )}
+  </div>
+) : null}
+
+
+              <div>
+                <div className="text-xs font-semibold text-slate-600">Número</div>
+                <div className="font-mono">{selectedBooking.publicId || "-"}</div>
+              </div>
+
               <div>
                 <div className="text-xs font-semibold text-slate-600">ID</div>
                 <div className="font-mono">{selectedBooking.id}</div>

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "fum__l1jrnf1t_c361cl",
+    "at": "2026-01-28T22:14:34.688Z",
+    "clientId": "loja_teste",
+    "type": "sent",
+    "entityType": "preorder",
+    "entityId": "preorder_dt0tvx85_v8ac6i",
+    "attempt": 1,
+    "traceId": "fu_trc__mo6lztyp_vgr0sw",
+    "to": "+5511999990000",
+    "details": {
+      "outboxId": "wout_2459cbbbc4c948e4"
+    }
+  }
+]

@@ -3,6 +3,7 @@
 // Fonte de verdade: src/lib/clients.ts
 
 import { getClientById as getClientByIdCanon, listClients, type ClientRecord, type ClientWhatsappNumber } from "@/lib/clients";
+import { assertClientActive as assertClientActiveCanon } from "@/lib/tenantAccess";
 
 function digitsOnly(v: string): string {
   return String(v || "").replace(/\D+/g, "");
@@ -33,33 +34,9 @@ export async function getClientByWhatsappNumber(phoneNumber: string): Promise<Cl
 }
 
 export async function assertClientActive(clientId: string): Promise<void> {
-  await assertClientActiveOrThrow(clientId);
+  await assertClientActiveCanon(clientId);
 }
 
 export async function assertClientActiveOrThrow(clientId: string): Promise<ClientRecord> {
-  const id = String(clientId || "").trim();
-  if (!id) throw new Error("clientId vazio.");
-
-  const client = await getClientByIdCanon(id);
-  if (!client) {
-    throw new Error(`Cliente '${id}' não encontrado.`);
-  }
-
-  // Compatibilidade: alguns ramos antigos usam `active: boolean`,
-  // e o canônico usa `status: "active" | "inactive"`.
-  const activeFlag = (client as any).active;
-  const status = (client as any).status;
-
-  const isActive =
-    typeof activeFlag === "boolean"
-      ? activeFlag
-      : status === "inactive"
-        ? false
-        : true;
-
-  if (!isActive) {
-    throw new Error(`Cliente '${id}' está inativo.`);
-  }
-
-  return client;
+  return await assertClientActiveCanon(clientId);
 }

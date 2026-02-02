@@ -1,0 +1,12 @@
+services:
+  nextia:
+    # For production integrity checks, set a real JID to validate Evolution auth (findMessages) without sending.
+    environment:
+      # --- Evolution (required for /api/admin/health to be OK)
+      # Values taken from .env.local (keep in sync). Consider rotating keys in production.
+      EVOLUTION_BASE_URL: "http://localhost:8080"
+      EVOLUTION_API_KEY: "128495D3-9EE4-4239-8ACE-22F66FD15C2A"
+      EVOLUTION_INSTANCE: "NextIA"
+
+      # Optional: deeper Evolution validation (reachability + auth), does NOT send messages.
+      NEXTIA_HEALTHCHECK_REMOTE_JID: "5521971287464@s.whatsapp.net"

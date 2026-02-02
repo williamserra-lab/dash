@@ -1,10 +1,16 @@
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { readJsonObject } from "@/lib/http/body";
 import { runFollowupsAndQueue, type Vertical } from "@/lib/followupsRunner";
 import { optString } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     const body = await readJsonObject(req);
 
     const clientId = optString((body as any)?.clientId);

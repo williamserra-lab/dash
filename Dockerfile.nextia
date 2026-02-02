@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1
+#
+# Nextia — build de imagem estável (para Ubuntu/VPS)
+# - Evita "npm install && npm run build" em runtime
+# - Healthcheck passa porque o servidor sobe imediatamente
+#
+# IMPORTANT:
+# - Usa Debian slim para compatibilidade com @next/swc
+# - Copia apenas o necessário para runtime
+#
+
+FROM node:20-bookworm-slim AS deps
+WORKDIR /app
+
+# Dependências primeiro (melhor cache)
+COPY package.json package-lock.json* ./
+RUN npm ci --no-audit --no-fund
+
+FROM node:20-bookworm-slim AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+# Runtime deps + build output
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.* ./ 
+COPY --from=builder /app/db ./db
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]

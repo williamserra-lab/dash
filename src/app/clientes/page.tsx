@@ -2,35 +2,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-void getReadableError;
-void isRecord;
-
-
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return typeof v === "object" && v !== null && !Array.isArray(v);
-}
-
-function getErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
-
-
-type ApiError = { error?: string; code?: string } | null;
-
-async function readJsonSafe<T>(res: Response): Promise<T | null> {
-  const text = await res.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    return null;
-  }
-}
-
-function getReadableError(data: ApiError, fallback: string) {
-  const msg = (data && typeof data === "object" && "error" in data && data.error) ? data.error : "";
-  return msg || fallback;
-}
+import { detectAndValidateDocumento, digitsOnly as digitsOnlyDoc } from "@/lib/validators/brDocument";
 
 type ClientStatus = "active" | "inactive";
 
@@ -45,236 +17,109 @@ type ClientRecord = {
     id: string;
     phoneNumber: string;
     label?: string;
+    active?: boolean;
     isDefault?: boolean;
   }>;
+  profile?: {
+    tipoPessoa?: "PF" | "PJ";
+    documento?: string;
+    documentoTipo?: "CPF" | "CNPJ";
+    documentoValidado?: boolean;
+    razaoSocial?: string;
+    nomeFantasia?: string;
+    emailPrincipal?: string;
+  };
 };
 
-type LlmBudgetSnapshot = {
-  monthKey: string;
-  usedTokens: number;
-  limitTokens: number;
-  remainingTokens: number;
-  percentUsed: number;
-  overLimitMode: "degrade" | "block";
-};
-
-type LlmPolicy = {
-  monthlyTokenLimit: number;
-  overLimitMode: "degrade" | "block";
-};
-
-async function fetchLlmUsage(clientId: string): Promise<{ snapshot: LlmBudgetSnapshot; policy?: LlmPolicy } | null> {
-  const res = await fetch(`/api/admin/llm-usage/${encodeURIComponent(clientId)}`, { cache: "no-store" });
-  const data = await readJsonSafe<any>(res);
-  if (!res.ok) return null;
-  const snap = (data as any)?.snapshot;
-  if (!snap) return null;
-
-  // policy vem de budget endpoint (separado)
+async function readJsonSafe<T>(res: Response): Promise<T | null> {
+  const text = await res.text();
+  if (!text) return null;
   try {
-    const res2 = await fetch(`/api/admin/llm-budget/${encodeURIComponent(clientId)}`, { cache: "no-store" });
-    const data2 = await readJsonSafe<any>(res2);
-    const policy = res2.ok ? (data2 as any)?.policy : undefined;
-    return { snapshot: snap as LlmBudgetSnapshot, policy: policy as LlmPolicy | undefined };
+    return JSON.parse(text) as T;
   } catch {
-    return { snapshot: snap as LlmBudgetSnapshot };
+    return null;
   }
 }
 
-function slugify(input: string) {
-  return input
-    .toLowerCase()
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 64);
+function getErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
 }
 
-
-function pickDefaultWhatsapp(c: ClientRecord): string | null {
-  const list = Array.isArray(c.whatsappNumbers) ? c.whatsappNumbers : [];
-  if (!list.length) return null;
-  const def = list.find((n) => n && n.isDefault && typeof n.phoneNumber === "string");
-  const first = list.find((n) => n && typeof n.phoneNumber === "string");
-  const raw = (def?.phoneNumber || first?.phoneNumber || "").toString();
-  const digits = raw.replace(/\D+/g, "");
-  return digits || null;
+function normalizeEmail(v: unknown): string {
+  return String(v ?? "").trim().toLowerCase();
 }
 
-function formatInt(n: number): string {
-  try {
-    return new Intl.NumberFormat("pt-BR").format(n);
-  } catch {
-    return String(n);
-  }
+function isValidEmail(v: string): boolean {
+  if (!v) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
-function LlmBudgetPanel({ clientId }: { clientId: string }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [snapshot, setSnapshot] = useState<LlmBudgetSnapshot | null>(null);
-  const [policy, setPolicy] = useState<LlmPolicy | null>(null);
+function digitsOnly(v: unknown): string {
+  return String(v ?? "").replace(/\D+/g, "");
+}
 
-  const [editLimit, setEditLimit] = useState<string>("");
-  const [editMode, setEditMode] = useState<"degrade" | "block">("degrade");
-  const [saving, setSaving] = useState(false);
-
-  async function load() {
-    setLoading(true);
-    setError(null);
-    try {
-      const resUsage = await fetch(`/api/admin/llm-usage/${encodeURIComponent(clientId)}`, { cache: "no-store" });
-      const usageData = await readJsonSafe<{ ok?: boolean; snapshot?: LlmBudgetSnapshot; error?: string }>(resUsage);
-      if (!resUsage.ok) throw new Error(getReadableError(usageData as any, "Falha ao carregar uso de tokens."));
-
-      const resPol = await fetch(`/api/admin/llm-budget/${encodeURIComponent(clientId)}`, { cache: "no-store" });
-      const polData = await readJsonSafe<{ ok?: boolean; policy?: LlmPolicy; error?: string }>(resPol);
-      if (!resPol.ok) throw new Error(getReadableError(polData as any, "Falha ao carregar política de tokens."));
-
-      const snap = (usageData?.snapshot || null) as any;
-      const pol = (polData?.policy || null) as any;
-      setSnapshot(snap);
-      setPolicy(pol);
-      setEditLimit(pol?.monthlyTokenLimit ? String(pol.monthlyTokenLimit) : "");
-      setEditMode((pol?.overLimitMode === "block" ? "block" : "degrade") as any);
-    } catch (e: unknown) {
-      setError(getErrorMessage(e) || "Erro ao carregar orçamento.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function save() {
-    if (!policy) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const limitN = Number(editLimit);
-      const payload: any = {
-        overLimitMode: editMode,
-      };
-      if (Number.isFinite(limitN) && limitN > 0) payload.monthlyTokenLimit = Math.floor(limitN);
-
-      const res = await fetch(`/api/admin/llm-budget/${encodeURIComponent(clientId)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await readJsonSafe<{ ok?: boolean; policy?: LlmPolicy; error?: string }>(res);
-      if (!res.ok) throw new Error(getReadableError(data as any, "Falha ao salvar política."));
-      setPolicy((data?.policy || null) as any);
-      await load();
-    } catch (e: unknown) {
-      setError(getErrorMessage(e) || "Erro ao salvar.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-800 dark:bg-slate-900/30">
-      <div className="flex items-center justify-between gap-3">
-        <div className="font-medium text-slate-800 dark:text-slate-100">Orçamento LLM (tokens)</div>
-        <button
-          type="button"
-          onClick={load}
-          disabled={loading}
-          className="rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-        >
-          {loading ? "Carregando..." : "Atualizar"}
-        </button>
-      </div>
-
-      {error ? (
-        <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-2 text-xs text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200">
-          {error}
-        </div>
-      ) : null}
-
-      {snapshot ? (
-        <div className="mt-3">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-slate-600 dark:text-slate-300">
-              {snapshot.monthKey}: {formatInt(snapshot.usedTokens)} / {formatInt(snapshot.limitTokens)} tokens
-            </div>
-            <div className="text-xs font-medium text-slate-700 dark:text-slate-200">{snapshot.percentUsed}%</div>
-          </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-            <div
-              className="h-2 rounded-full bg-sky-600"
-              style={{ width: `${Math.min(100, Math.max(0, snapshot.percentUsed))}%` }}
-            />
-          </div>
-          <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
-            Modo ao estourar: <span className="font-medium">{snapshot.overLimitMode}</span>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
-          Clique em <span className="font-medium">Atualizar</span> para ver o consumo deste mês.
-        </div>
-      )}
-
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <div>
-          <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Limite mensal (tokens)</label>
-          <input
-            value={editLimit}
-            onChange={(e) => setEditLimit(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-            placeholder="250000"
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Over-limit mode</label>
-          <select
-            value={editMode}
-            onChange={(e) => setEditMode(e.target.value as any)}
-            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-          >
-            <option value="degrade">degrade (atendimento continua)</option>
-            <option value="block">block</option>
-          </select>
-        </div>
-        <div className="flex items-end">
-          <button
-            type="button"
-            onClick={save}
-            disabled={saving}
-            className="w-full rounded-md bg-sky-600 px-4 py-2 text-xs font-medium text-white hover:bg-sky-700 disabled:opacity-60"
-          >
-            {saving ? "Salvando..." : "Salvar"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+function isValidE164Digits(digits: string): boolean {
+  return digits.length >= 10 && digits.length <= 15;
 }
 
 export default function ClientesPage() {
   const [clients, setClients] = useState<ClientRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Form state
   const [name, setName] = useState("");
   const [clientId, setClientId] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
+  const [segment, setSegment] = useState("");
+  const [razaoSocial, setRazaoSocial] = useState("");
+  const [nomeFantasia, setNomeFantasia] = useState("");
+  const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ");
+  const [documento, setDocumento] = useState("");
+  const [emailPrincipal, setEmailPrincipal] = useState("");
+
+  const docDet = useMemo(() => {
+    const d = String(documento || "").trim();
+    if (!d) return null;
+    return detectAndValidateDocumento(d);
+  }, [documento]);
+
+  // Auto-derive PF/PJ from documento when válido
+  useEffect(() => {
+    if (docDet?.isValid) {
+      setTipoPessoa(docDet.type === "CPF" ? "PF" : "PJ");
+    }
+  }, [docDet?.isValid, docDet?.type]);
+
+  const whatsappDigits = useMemo(() => digitsOnly(whatsappNumber), [whatsappNumber]);
+  const whatsappOk = useMemo(
+    () => !whatsappDigits || isValidE164Digits(whatsappDigits),
+    [whatsappDigits]
+  );
+
+  const emailNorm = useMemo(() => normalizeEmail(emailPrincipal), [emailPrincipal]);
+  const emailOk = useMemo(() => isValidEmail(emailNorm), [emailNorm]);
+
   const canCreate = useMemo(() => {
-    return name.trim().length > 1 && clientId.trim().length > 1;
-  }, [name, clientId]);
+    if (name.trim().length <= 1) return false;
+    if (clientId.trim().length <= 1) return false;
+    if (!docDet || !docDet.isValid) return false;
+    if (razaoSocial.trim().length <= 1) return false;
+    if (!emailOk) return false;
+    if (!whatsappOk) return false;
+    return true;
+  }, [name, clientId, docDet, razaoSocial, emailOk, whatsappOk]);
 
   async function load() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/clients", { cache: "no-store" });
+      const res = await fetch("/api/clients", { cache: "no-store", credentials: "include" });
       const data = await readJsonSafe<{ clients?: ClientRecord[]; error?: string }>(res);
       if (!res.ok) throw new Error(data?.error || "Erro ao carregar clientes.");
-      setClients(data?.clients || []);
+      setClients(Array.isArray(data?.clients) ? data!.clients : []);
     } catch (e: unknown) {
       setError(getErrorMessage(e) || "Erro ao carregar clientes.");
     } finally {
@@ -286,21 +131,12 @@ export default function ClientesPage() {
     load();
   }, []);
 
-  useEffect(() => {
-    if (!clientId.trim() && name.trim()) {
-      setClientId(slugify(name));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name]);
-
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
-    setError(null);
+    if (!canCreate) return;
 
-    if (!canCreate) {
-      setError("Preencha nome e clientId.");
-      return;
-    }
+    setSubmitting(true);
+    setError(null);
 
     try {
       const res = await fetch("/api/clients", {
@@ -309,56 +145,95 @@ export default function ClientesPage() {
         body: JSON.stringify({
           id: clientId.trim(),
           name: name.trim(),
-          whatsappNumber: whatsappNumber.trim() || undefined,
+          segment: segment.trim() || undefined,
+          whatsappNumber: whatsappDigits || undefined,
+          profile: {
+            tipoPessoa,
+            documento: (docDet?.digits || digitsOnlyDoc(documento)).trim(),
+            razaoSocial: razaoSocial.trim(),
+            nomeFantasia: nomeFantasia.trim() || undefined,
+            emailPrincipal: emailNorm,
+          },
         }),
       });
 
-      const data = await readJsonSafe<{ error?: string }>(res);
-      if (!res.ok) throw new Error(data?.error || "Erro ao criar cliente.");
+      const data = await readJsonSafe<{ error?: string; message?: string }>(res);
+      if (!res.ok) throw new Error(data?.error || data?.message || "Erro ao criar cliente.");
 
+      // Reset form
       setName("");
       setClientId("");
       setWhatsappNumber("");
+      setSegment("");
+      setRazaoSocial("");
+      setNomeFantasia("");
+      setTipoPessoa("PJ");
+      setDocumento("");
+      setEmailPrincipal("");
+
+      await load();
+    } catch (e2: unknown) {
+      setError(getErrorMessage(e2) || "Erro ao criar cliente.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function renameClient(id: string) {
+    const newName = prompt("Novo nome do cliente:", clients.find((c) => c.id === id)?.name || "");
+    if (!newName || newName.trim().length < 2) return;
+
+    setError(null);
+    try {
+      const res = await fetch(`/api/clients/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName.trim() }),
+      });
+      const data = await readJsonSafe<{ error?: string }>(res);
+      if (!res.ok) throw new Error(data?.error || "Erro ao renomear cliente.");
       await load();
     } catch (e: unknown) {
-      setError(getErrorMessage(e) || "Erro ao criar cliente.");
+      setError(getErrorMessage(e) || "Erro ao renomear cliente.");
     }
   }
 
   async function toggleStatus(id: string, next: ClientStatus) {
     setError(null);
     try {
-      const res = await fetch(`/api/clients/${id}`, {
+      const res = await fetch(`/api/clients/${encodeURIComponent(id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),
       });
-      const data = await readJsonSafe<{ error?: string }>(res);
-      if (!res.ok) throw new Error(data?.error || "Erro ao atualizar status.");
+      const data = await readJsonSafe<{ error?: string; message?: string }>(res);
+      if (!res.ok) throw new Error(data?.error || data?.message || "Erro ao atualizar status.");
       await load();
     } catch (e: unknown) {
       setError(getErrorMessage(e) || "Erro ao atualizar status.");
     }
   }
 
-  async function rename(id: string, newName: string) {
+  async function deleteClientById(id: string) {
     setError(null);
+    const confirm = prompt(`Para excluir definitivamente, digite o clientId: ${id}`);
+    if (confirm !== id) return;
+
     try {
-      const res = await fetch(`/api/clients/${id}`, {
-        method: "PATCH",
+      const res = await fetch(`/api/clients/${encodeURIComponent(id)}`, {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName }),
       });
-      const data = await readJsonSafe<{ error?: string }>(res);
-      if (!res.ok) throw new Error(data?.error || "Erro ao renomear.");
+      const data = await readJsonSafe<{ error?: string; message?: string }>(res);
+      if (!res.ok) throw new Error(data?.error || data?.message || "Erro ao excluir cliente.");
       await load();
     } catch (e: unknown) {
-      setError(getErrorMessage(e) || "Erro ao renomear.");
+      setError(getErrorMessage(e) || "Erro ao excluir cliente.");
     }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Clientes</h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -367,7 +242,7 @@ export default function ClientesPage() {
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200">
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-200">
           {error}
         </div>
       )}
@@ -382,8 +257,10 @@ export default function ClientesPage() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:placeholder:text-slate-500 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              placeholder="Ex.: Cátia Foods"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="Ex.: Loja Exemplo"
             />
           </div>
 
@@ -392,8 +269,10 @@ export default function ClientesPage() {
             <input
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:placeholder:text-slate-500 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              placeholder="ex.: catia_foods"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="ex.: loja_teste"
             />
             <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
               Letras/números/underscore/hífen. É o identificador usado no URL e nos dados.
@@ -407,24 +286,137 @@ export default function ClientesPage() {
             <input
               value={whatsappNumber}
               onChange={(e) => setWhatsappNumber(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:placeholder:text-slate-500 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-              placeholder="5511999999999"
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="DDI+DDD+número (somente dígitos)"
+            />
+            {!whatsappOk && (
+              <p className="mt-1 text-xs text-rose-700 dark:text-rose-300">
+                WhatsApp inválido. Use DDI+DDD+número (10 a 15 dígitos).
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Razão social (obrigatório)
+            </label>
+            <input
+              value={razaoSocial}
+              onChange={(e) => setRazaoSocial(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="Ex.: Loja Exemplo LTDA"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Nome fantasia
+            </label>
+            <input
+              value={nomeFantasia}
+              onChange={(e) => setNomeFantasia(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="Opcional"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Tipo pessoa (obrigatório)
+            </label>
+            <select
+              value={tipoPessoa}
+              onChange={(e) => setTipoPessoa(e.target.value as any)}
+              disabled={!!docDet?.isValid}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         disabled:opacity-70
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            >
+              <option value="PF">PF</option>
+              <option value="PJ">PJ</option>
+            </select>
+            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+              Definido automaticamente quando CPF/CNPJ é válido.
+            </p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              CPF/CNPJ (obrigatório)
+            </label>
+            <input
+              value={documento}
+              onChange={(e) => setDocumento(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="Somente dígitos ou com máscara"
+            />
+            {documento.trim() ? (
+              docDet?.isValid ? (
+                <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
+                  {docDet.type} válido
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-rose-700 dark:text-rose-300">
+                  Documento inválido
+                </p>
+              )
+            ) : null}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Email principal (obrigatório)
+            </label>
+            <input
+              value={emailPrincipal}
+              onChange={(e) => setEmailPrincipal(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="ex.: contato@empresa.com"
+            />
+            {!!emailNorm && !emailOk && (
+              <p className="mt-1 text-xs text-rose-700 dark:text-rose-300">Email inválido</p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Segmento / ramo
+            </label>
+            <input
+              value={segment}
+              onChange={(e) => setSegment(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+                         focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500
+                         dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="Opcional"
             />
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex items-center gap-2">
           <button
             type="submit"
-            disabled={!canCreate}
-            className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={!canCreate || submitting}
+            className="rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-60"
           >
-            Criar cliente
+            {submitting ? "Criando..." : "Criar cliente"}
           </button>
+
           <button
             type="button"
-            onClick={load}
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            onClick={() => load()}
           >
             Recarregar
           </button>
@@ -432,7 +424,7 @@ export default function ClientesPage() {
       </form>
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Lista</h2>
         </div>
 
@@ -445,72 +437,57 @@ export default function ClientesPage() {
         ) : (
           <div className="divide-y divide-slate-200 dark:divide-slate-800">
             {clients.map((c) => (
-              <div
-                key={c.id}
-                className="flex flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      {c.name}
-                    </span>
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <div key={c.id} className="flex flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-slate-900 dark:text-slate-100">{c.name}</span>
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-900 dark:text-slate-300">
                       {c.id}
                     </span>
                     <span
                       className={
                         c.status === "active"
-                          ? "rounded-md bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200"
-                          : "rounded-md bg-amber-50 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-950/40 dark:text-amber-200"
+                          ? "rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
+                          : "rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
                       }
                     >
                       {c.status === "active" ? "ativo" : "inativo"}
                     </span>
-                  </div>
-                  <div className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                    Atualizado: {new Date(c.updatedAt).toLocaleString("pt-BR")}
-                  </div>
-                  <div className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                    WhatsApp: {pickDefaultWhatsapp(c) ? pickDefaultWhatsapp(c) : "não configurado"}
+                    {c.profile?.documentoTipo && (
+                      <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                        {c.profile.documentoTipo}
+                      </span>
+                    )}
                   </div>
 
+                  <div className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                    {c.profile?.razaoSocial ? <span>{c.profile.razaoSocial}</span> : null}
+                    {c.profile?.emailPrincipal ? (
+                      <>
+                        {c.profile?.razaoSocial ? " • " : ""}
+                        <span>{c.profile.emailPrincipal}</span>
+                      </>
+                    ) : null}
+                    {c.segment ? (
+                      <>
+                        {(c.profile?.razaoSocial || c.profile?.emailPrincipal) ? " • " : ""}
+                        <span>segmento: {c.segment}</span>
+                      </>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <a
-                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                    href={`/midias?clientId=${encodeURIComponent(c.id)}`}
+                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                    href={`/clientes/${encodeURIComponent(c.id)}/painel`}
                   >
-                    Mídias
+                    Abrir
                   </a>
-                  <a
-                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                    href={`/assistente?clientId=${encodeURIComponent(c.id)}`}
-                  >
-                    Assistente
-                  </a>
-                  <a
-                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                    href={`/campanhas?clientId=${encodeURIComponent(c.id)}`}
-                  >
-                    Campanhas
-                  </a>
-                  <a
-                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                    href={`/campanhas-grupos?clientId=${encodeURIComponent(c.id)}`}
-                  >
-                    Campanhas (Grupos)
-                  </a>
-
 
                   <button
-                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                    onClick={() => {
-                      const newName = prompt("Novo nome do cliente:", c.name);
-                      if (newName && newName.trim() && newName.trim() !== c.name) {
-                        rename(c.id, newName.trim());
-                      }
-                    }}
+                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => renameClient(c.id)}
                   >
                     Renomear
                   </button>
@@ -530,15 +507,13 @@ export default function ClientesPage() {
                       Ativar
                     </button>
                   )}
-                </div>
 
-                <div className="w-full md:col-span-2">
-                  <details className="mt-2 rounded-lg">
-                    <summary className="cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-200">
-                      Orçamento LLM (tokens)
-                    </summary>
-                    <LlmBudgetPanel clientId={c.id} />
-                  </details>
+                  <button
+                    className="rounded-md bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700"
+                    onClick={() => deleteClientById(c.id)}
+                  >
+                    Excluir
+                  </button>
                 </div>
               </div>
             ))}

@@ -2,6 +2,8 @@
 // Tipos e helper para leitura dos pedidos em /data/orders.json
 
 import { getDataPath, readJsonArray, writeJsonArray } from "./jsonStore";
+import { formatPublicId, nextCounter } from "./counters";
+import { recordTimelineEvent } from "./timeline";
 
 export type OrderStatus =
   | "novo"
@@ -55,6 +57,7 @@ export type PaymentInfo = {
 
 export type Order = {
   id: string;
+  publicId?: string | null;
   clientId: string;
   contactId: string;
   identifier: string; // telefone do cliente
@@ -97,6 +100,8 @@ export async function readAllOrders(): Promise<Order[]> {
   return raw.map((o: any): Order => {
     return {
       id: String(o.id ?? ""),
+      publicId:
+        typeof o.publicId === "string" && o.publicId.trim() ? String(o.publicId).trim() : null,
       clientId: String(o.clientId ?? ""),
       contactId: String(o.contactId ?? ""),
       identifier: String(o.identifier ?? ""),
@@ -183,6 +188,7 @@ export async function patchOrder(
 
   const now = new Date().toISOString();
   const current = all[idx];
+  const prevStatus = current.status;
 
   // Keep id/clientId immutable.
   const { id: _ignoreId, clientId: _ignoreClientId, ...rest } = patch as any;
@@ -193,7 +199,30 @@ export async function patchOrder(
     updatedAt: now,
   };
 
+  // Número humano do pedido (gerado quando o pedido é aceito/entra em preparo)
+  if (updated.status === "em_preparo" && !current.publicId && !updated.publicId) {
+    const seq = await nextCounter(clientId, "order");
+    updated.publicId = formatPublicId("PD", seq);
+  }
+
+
   all[idx] = updated;
   await writeAllOrders(all);
+
+  // Timeline (PASSO 5) - registra mudança de status (best-effort)
+  if (prevStatus !== updated.status) {
+    try {
+      await recordTimelineEvent({
+        clientId,
+        entityType: "order",
+        entityId: updated.id,
+        status: updated.status,
+        at: updated.updatedAt,
+        actor: "merchant",
+      });
+    } catch (e) {
+      console.error("timeline:patchOrder", e);
+    }
+  }
   return updated;
 }

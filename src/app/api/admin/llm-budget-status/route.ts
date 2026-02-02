@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { resolveLlmDecision } from "@/lib/llmPolicy";
 import type { LlmContext } from "@/lib/llmPolicy";
 
@@ -15,6 +16,9 @@ function parseContext(raw: string | null): LlmContext {
 }
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   const { searchParams } = new URL(req.url);
   const clientId = String(searchParams.get("clientId") || "").trim();
   const context = parseContext(searchParams.get("context"));

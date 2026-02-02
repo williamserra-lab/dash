@@ -9,6 +9,11 @@ type ServiceCalendarConfig = {
   defaultDurationMinutes?: number;
   bufferMinutes?: number;
   simultaneousBookingsCap?: number;
+
+  bookingConfirmedMessageTemplate?: string;
+  bookingReminderMessageTemplate?: string;
+  bookingReminderConfirmLeadHours?: number; // ex.: 2
+  bookingNoShowGraceMinutes?: number; // ex.: 15
 };
 
 function getErrorMessage(err: unknown): string {
@@ -32,6 +37,7 @@ export default function PageClient() {
   const [defaultDurationMinutes, setDefaultDurationMinutes] = useState<number>(60);
   const [bufferMinutes, setBufferMinutes] = useState<number>(0);
   const [simultaneousBookingsCap, setSimultaneousBookingsCap] = useState<number>(1);
+  const [noShowGraceMinutes, setNoShowGraceMinutes] = useState<number>(15);
   const [workingHoursJson, setWorkingHoursJson] = useState<string>("{}");
 
   async function load() {
@@ -84,6 +90,7 @@ export default function PageClient() {
         bufferMinutes: Number(bufferMinutes || 0),
         simultaneousBookingsCap: Number(simultaneousBookingsCap || 1),
         workingHours,
+        bookingNoShowGraceMinutes: Number(noShowGraceMinutes || 15),
       };
 
       const r = await fetch(`/api/clients/${encodeURIComponent(clientId)}/service-calendar-config`, {
@@ -185,6 +192,19 @@ export default function PageClient() {
             <div className="mt-1 text-xs text-slate-500">
               Exemplo: {"{ \"mon\": [{\"start\":\"09:00\",\"end\":\"18:00\"}], \"tue\": [...] }"}
             </div>
+
+<div>
+  <label className="text-xs font-semibold text-slate-700">Tolerância para no-show (min)</label>
+  <input
+    type="number"
+    className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+    value={noShowGraceMinutes}
+    onChange={(e) => setNoShowGraceMinutes(Number(e.target.value))}
+    min={0}
+    step={5}
+  />
+</div>
+
           </div>
         </div>
 

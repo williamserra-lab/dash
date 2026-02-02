@@ -8,13 +8,28 @@ function getErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
-
 type ClientConfig = {
   id: string;
   name: string;
   segment?: string;
   status?: "active" | "inactive";
 };
+
+function extractClientIdFromPath(pathname: string): string {
+  const segs = pathname.split("/").filter(Boolean);
+  if (segs.length === 0) return "";
+
+  // Canonical V1: /clientes/[clientId]/...
+  if (segs[0] === "clientes" && segs[1]) return segs[1];
+
+  // Legacy: /painel/[clientId]
+  if (segs[0] === "painel" && segs[1] && segs[1] !== "chat") return segs[1];
+
+  // Admin ops: /admin/clientes/[clientId]
+  if (segs[0] === "admin" && segs[1] === "clientes" && segs[2]) return segs[2];
+
+  return "";
+}
 
 export function ClientSelector() {
   const router = useRouter();
@@ -25,7 +40,10 @@ export function ClientSelector() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const currentClientId = (searchParams.get("clientId") || "").trim();
+  const currentClientId = (
+    extractClientIdFromPath(pathname) ||
+    (searchParams.get("clientId") || "")
+  ).trim();
 
   const activeClients = useMemo(
     () => clients.filter((c) => (c.status || "active") === "active"),
@@ -37,7 +55,7 @@ export function ClientSelector() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/clients", { cache: "no-store" });
+        const res = await fetch("/api/clients", { cache: "no-store", credentials: "include" });
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error || "Erro ao carregar clientes.");
         setClients(data.clients || []);
@@ -51,17 +69,66 @@ export function ClientSelector() {
     load();
   }, []);
 
-  // Se não houver clientId no URL, tentamos selecionar o primeiro cliente ativo.
+  // If clientId is missing, set default selection WITHOUT navigating away from /clientes.
   useEffect(() => {
     if (!loading && !currentClientId && activeClients.length > 0) {
+      const first = activeClients[0].id;
+
+      // /clientes is the registry (create/edit/list). Never auto-navigate away.
+      if (pathname === "/clientes") return;
+
+      // Legacy: /painel -> /painel/{id}
+      if (pathname === "/painel") {
+        router.replace(`/painel/${encodeURIComponent(first)}`);
+        return;
+      }
+
+      // Fallback: keep legacy query param behavior for non-canonical pages.
       const params = new URLSearchParams(searchParams.toString());
-      params.set("clientId", activeClients[0].id);
+      params.set("clientId", first);
       router.replace(`${pathname}?${params.toString()}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, currentClientId, activeClients.length]);
+  }, [loading, currentClientId, activeClients.length, pathname]);
 
   function handleChange(nextId: string) {
+    const segs = pathname.split("/").filter(Boolean);
+
+    // Canonical: /clientes and /clientes/[clientId]/...
+    if (segs[0] === "clientes") {
+      if (segs.length === 1) {
+        router.push(`/clientes/${encodeURIComponent(nextId)}/painel`);
+        return;
+      }
+      const nextSegs = [...segs];
+      nextSegs[1] = nextId;
+      router.push(`/${nextSegs.map((s, i) => (i === 1 ? encodeURIComponent(s) : s)).join("/")}`);
+      return;
+    }
+
+    // Legacy: /painel/[clientId]/...
+    if (segs[0] === "painel") {
+      if (segs.length === 1) {
+        router.push(`/painel/${encodeURIComponent(nextId)}`);
+        return;
+      }
+      if (segs[1] && segs[1] !== "chat") {
+        const nextSegs = [...segs];
+        nextSegs[1] = nextId;
+        router.push(`/${nextSegs.map((s, i) => (i === 1 ? encodeURIComponent(s) : s)).join("/")}`);
+        return;
+      }
+    }
+
+    // Admin: /admin/clientes/[clientId]
+    if (segs[0] === "admin" && segs[1] === "clientes") {
+      const nextSegs = [...segs];
+      if (nextSegs.length >= 3) nextSegs[2] = nextId;
+      router.push(`/${nextSegs.map((s, i) => (i === 2 ? encodeURIComponent(s) : s)).join("/")}`);
+      return;
+    }
+
+    // Fallback: keep legacy query param behavior.
     const params = new URLSearchParams(searchParams.toString());
     params.set("clientId", nextId);
     router.push(`${pathname}?${params.toString()}`);
@@ -72,20 +139,11 @@ export function ClientSelector() {
   }
 
   if (error) {
-    // Em produção para lojistas, não exponha detalhe de erro (pode revelar que existe endpoint interno)
-    return (
-      <div className="text-xs text-slate-600 dark:text-slate-300">
-        Cliente não disponível.
-      </div>
-    );
+    return <div className="text-xs text-slate-600 dark:text-slate-300">Cliente não disponível.</div>;
   }
 
   if (activeClients.length === 0) {
-    return (
-      <div className="text-xs text-slate-600 dark:text-slate-300">
-        Nenhum cliente disponível.
-      </div>
-    );
+    return <div className="text-xs text-slate-600 dark:text-slate-300">Nenhum cliente disponível.</div>;
   }
 
   return (

@@ -14,6 +14,7 @@ export type Product = {
   active: boolean;
   tags?: string[];
   imageUrl?: string;
+  imageUrls?: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -112,6 +113,19 @@ export async function upsertProduct(
   const tags = Array.isArray(input.tags) ? input.tags.map(String).filter(Boolean) : undefined;
   const imageUrl = typeof (input as any).imageUrl === "string" ? String((input as any).imageUrl).trim() : undefined;
 
+  const rawImageUrls = (input as any).imageUrls;
+  const imageUrls = Array.isArray(rawImageUrls)
+    ? rawImageUrls.map((x: any) => String(x || '').trim()).filter(Boolean)
+    : undefined;
+
+  const normalizedImageUrls = imageUrls && imageUrls.length ? Array.from(new Set(imageUrls)).slice(0, 5) : undefined;
+  // compat: se vier apenas imageUrl, usa como primeira imagem
+  const finalImageUrls = normalizedImageUrls ?? (imageUrl ? [imageUrl] : undefined);
+  if (finalImageUrls && finalImageUrls.length > 5) {
+    throw new Error('Máximo de 5 imagens por produto.');
+  }
+  const primaryImageUrl = finalImageUrls && finalImageUrls.length ? finalImageUrls[0] : imageUrl;
+
   const idx = all.findIndex((x) => x.clientId === clientId && x.id === id);
   if (idx >= 0) {
     const prev = all[idx];
@@ -123,7 +137,8 @@ export async function upsertProduct(
       currency,
       active,
       tags,
-      imageUrl,
+      imageUrl: primaryImageUrl,
+      imageUrls: finalImageUrls,
       updatedAt: now,
     };
     all[idx] = updated;
@@ -140,7 +155,8 @@ export async function upsertProduct(
     currency,
     active,
     tags,
-    imageUrl,
+    imageUrl: primaryImageUrl,
+    imageUrls: finalImageUrls,
     createdAt: now,
     updatedAt: now,
   };

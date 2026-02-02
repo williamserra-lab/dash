@@ -187,6 +187,8 @@ function buildSoftDedupeKey(input: {
 
 // Exported so /api/webhooks/evolution/[event] can reuse the same implementation.
 export async function handleEvolutionWebhook(req: NextRequest, forcedEvent?: string) {
+  const traceId = `evwh_trc_${Math.random().toString(36).slice(2, 10)}_${Math.random().toString(36).slice(2, 10)}`;
+  console.info(`[EVWH] incoming`, { traceId, method: req.method, url: req.url });
   // 1) secret (optional)
   const expected = (process.env.EVOLUTION_WEBHOOK_SECRET || "").trim();
   if (expected) {
@@ -203,6 +205,23 @@ export async function handleEvolutionWebhook(req: NextRequest, forcedEvent?: str
     payload = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "invalid json" }, { status: 400 });
+  }
+
+
+  // 2.1) evento (pré-tenant) — proteção contra 400 em eventos que NÃO são mensagem
+  // O Evolution envia vários eventos (contacts.update, chats.update, connection.update, etc.).
+  // Esses eventos normalmente NÃO têm dados suficientes para inferir tenant (clientId) no Nextia.
+  // Regra segura:
+  // - Se vier "event/type" e NÃO for "messages.upsert" => ignora cedo (200).
+  // - Se NÃO vier "event/type" => só continua se o payload "parece mensagem"; senão ignora cedo (200).
+  const preEvent = safeString(forcedEvent || payload?.event || payload?.type || "");
+  if (preEvent && preEvent !== "messages.upsert") {
+    console.info(`[EVWH] ignored`, { traceId, event: preEvent });
+    return NextResponse.json({ ok: true, ignored: true, event: preEvent });
+  }
+  if (!preEvent && !looksLikeMessagePayload(payload)) {
+    console.info(`[EVWH] ignored`, { traceId, event: "unknown" });
+    return NextResponse.json({ ok: true, ignored: true, event: "unknown" });
   }
 
   // 3) tenant
@@ -224,6 +243,7 @@ export async function handleEvolutionWebhook(req: NextRequest, forcedEvent?: str
   }
 
   if (!clientId) {
+    console.error(`[EVWH] tenant_error`, { traceId });
     return NextResponse.json(
       { error: "EVOLUTION_TENANT_CLIENT_ID não configurado e não foi possível inferir clientId pela instância." },
       { status: 400 }
@@ -245,6 +265,7 @@ export async function handleEvolutionWebhook(req: NextRequest, forcedEvent?: str
 
   // Evita tempestade de webhooks (status/update). Só reagimos a mensagens novas.
   if (event !== "messages.upsert") {
+    console.info(`[EVWH] ignored`, { traceId, event });
     return NextResponse.json({ ok: true, ignored: true, event });
   }
 

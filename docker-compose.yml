@@ -1,6 +1,9 @@
 version: "3.9"
 
 services:
+  # =========================
+  # Nextia DB (Postgres)
+  # =========================
   postgres:
     image: postgres:16
     environment:
@@ -11,23 +14,99 @@ services:
       - "5432:5432"
     volumes:
       - nextia_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextia -d nextia -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
+  # =========================
+  # Evolution DB (Postgres) - separado do Nextia
+  # =========================
+  evolution-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: evolution
+    # Não publicar porta no host (evita conflito com 5432 do Nextia)
+    volumes:
+      - evolution_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution -d evolution -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # =========================
+  # Evolution Cache (Redis)
+  # =========================
+  evolution-redis:
+    image: redis:7-alpine
+    # Não publicar porta no host
+    volumes:
+      - evolution_redisdata:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # =========================
+  # Evolution API
+  # =========================
+  evolution:
+    image: evoapicloud/evolution-api:v2.3.7
+    env_file:
+      - ./infra/evolution/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      evolution-postgres:
+        condition: service_healthy
+      evolution-redis:
+        condition: service_healthy
+    volumes:
+      - evolution_instances:/app/instances
+    restart: unless-stopped
+
+  # =========================
+  # Nextia App (Next.js)
+  # =========================
   nextia:
     image: node:20
     working_dir: /app
     volumes:
       - ./:/app
     command: bash -lc "npm install && npm run build && npm run start"
+    env_file:
+      - .env.docker
     environment:
+      EVOLUTION_TENANT_CLIENT_ID: "nextia"
       NEXTIA_DB_URL: postgres://nextia:nextia@postgres:5432/nextia
-      EVOLUTION_BASE_URL: ${EVOLUTION_BASE_URL}
-      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
-      EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-NextIA}
+      # EVOLUTION_BASE_URL e EVOLUTION_API_KEY vêm do .env.docker (env_file)
+      EVOLUTION_INSTANCE: NextIA
       OUTBOX_SEND_IMMEDIATE: "false"
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      evolution:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "node -e \"fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""
+      interval: 10s
+      timeout: 3s
+      retries: 12
 
 volumes:
   nextia_pg:
+  evolution_pgdata:
+  evolution_redisdata:
+  evolution_instances:

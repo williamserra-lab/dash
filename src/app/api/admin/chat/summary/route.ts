@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/adminAuth";
 import { listStoredMessages } from "@/lib/nextiaMessageStore";
 import { getAdminSummary, hashText, makeSummaryId, upsertAdminSummary, type SummaryPurpose } from "@/lib/adminSummaries";
 import { runLLMWithUsage, type LLMProvider } from "@/lib/llm";
@@ -122,6 +123,9 @@ function getActorMeta(req: NextRequest): Record<string, unknown> {
 
 export async function GET(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     if (!featureEnabled()) {
       return NextResponse.json({ ok: false, error: "feature_disabled" }, { status: 404 });
     }
@@ -177,6 +181,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const denied = await requireAdmin(req);
+    if (denied) return denied;
+
     if (!featureEnabled()) {
       return NextResponse.json({ ok: false, error: "feature_disabled" }, { status: 404 });
     }

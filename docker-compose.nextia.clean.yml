@@ -1,0 +1,95 @@
+services:
+  nextia-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: nextia
+      POSTGRES_PASSWORD: nextia
+      POSTGRES_DB: nextia
+    ports:
+      - "5432:5432"
+    volumes:
+      - nextia_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextia -d nextia -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  evolution-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: evolution
+    volumes:
+      - evolution_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution -d evolution -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  evolution-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - evolution_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  evolution:
+    image: evoapicloud/evolution-api:v2.3.7
+    env_file:
+      - ./infra/evolution/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      evolution-postgres:
+        condition: service_healthy
+      evolution-redis:
+        condition: service_healthy
+    volumes:
+      - evolution_instances:/app/instances
+    restart: unless-stopped
+
+  nextia:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./:/app
+    env_file:
+      - ./.env.docker
+    environment:
+      EVOLUTION_TENANT_CLIENT_ID: "nextia"
+      NEXTIA_DB_URL: postgres://nextia:nextia@nextia-postgres:5432/nextia
+      EVOLUTION_INSTANCE: NextIA
+      OUTBOX_SEND_IMMEDIATE: "false"
+      PORT: "3000"
+    command: bash -lc "npm install && npm run build && npm run start"
+    ports:
+      - "3000:3000"
+    depends_on:
+      nextia-postgres:
+        condition: service_healthy
+      evolution:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  nextia_pg:
+  evolution_pg:
+  evolution_redis:
+  evolution_instances:

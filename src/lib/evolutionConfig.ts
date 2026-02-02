@@ -8,7 +8,8 @@ export type EvolutionConfig = {
 export function getEvolutionConfig(): EvolutionConfig | null {
   const baseUrl = (process.env.EVOLUTION_BASE_URL || "").trim();
   const instance = (process.env.EVOLUTION_INSTANCE || "").trim();
-  const apiKey = (process.env.EVOLUTION_APIKEY || "").trim();
+  // Compat: já existiu EVOLUTION_APIKEY e EVOLUTION_API_KEY em exemplos.
+  const apiKey = (process.env.EVOLUTION_API_KEY || process.env.EVOLUTION_APIKEY || "").trim();
 
   if (!baseUrl || !instance || !apiKey) return null;
   return { baseUrl, instance, apiKey };

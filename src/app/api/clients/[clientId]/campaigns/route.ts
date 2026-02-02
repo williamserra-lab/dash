@@ -3,6 +3,8 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { createCampaign, getCampaignsByClient } from "@/lib/campaigns";
+import { getBillingSummaryForClient } from "@/lib/billingCore";
+import { getEntitlementNumber } from "@/lib/entitlements";
 
 type RouteContext = {
   params: Promise<{
@@ -47,11 +49,26 @@ export async function POST(
       );
     }
 
+    const billingSummary = await getBillingSummaryForClient(clientId);
+    const billingStatus = String(billingSummary?.billing?.status || "active");
+    if (billingStatus === "suspended") {
+      return NextResponse.json({ error: "billing_suspended", message: "Conta suspensa por inadimplência. Regularize a mensalidade para criar campanhas." }, { status: 403 });
+    }
+
+    const ent = billingSummary?.plan?.entitlements || {};
+    const maxCampaigns = getEntitlementNumber(ent, "maxCampaigns", 10);
+    const existing = await getCampaignsByClient(clientId);
+    if (existing.length >= maxCampaigns) {
+      return NextResponse.json({ error: "plan_limit_reached", message: `Limite do plano atingido: máximo de ${maxCampaigns} campanhas.` }, { status: 403 });
+    }
+
     const body = await req.json().catch(() => ({} as Record<string, unknown>));
     const name = String((body as any).name || "").trim();
     // Backward-compat: algumas versões antigas do UI mandavam "messageTemplate".
     const message = String((body as any).message || (body as any).messageTemplate || "").trim();
     const vipOnly = Boolean((body as any).target?.vipOnly);
+
+    const targetFromBody = (body as any).target || {};
 
     if (!name) {
       return NextResponse.json(
@@ -72,9 +89,12 @@ export async function POST(
       name,
       message,
       target: {
+        contactIds: Array.isArray(targetFromBody.contactIds) ? targetFromBody.contactIds : undefined,
+        tagsAny: Array.isArray(targetFromBody.tagsAny) ? targetFromBody.tagsAny : undefined,
+        listIds: Array.isArray(targetFromBody.listIds) ? targetFromBody.listIds : undefined,
         vipOnly,
-        excludeOptOut: true,
-        excludeBlocked: true,
+        excludeOptOut: targetFromBody.excludeOptOut === false ? false : true,
+        excludeBlocked: targetFromBody.excludeBlocked === false ? false : true,
       },
       media: [],
     });

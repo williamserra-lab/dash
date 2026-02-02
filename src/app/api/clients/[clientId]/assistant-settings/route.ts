@@ -2,9 +2,11 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin, requireSuperAdmin } from "@/lib/adminAuth";
 import { assertClientActive, ClientAccessError } from "@/lib/tenantAccess";
 import {
   getAssistantSettings,
+  toPublicAssistantSettings,
   upsertAssistantSettings,
   type Personality,
   type Verbosity,
@@ -47,10 +49,24 @@ function asOptionalVerbosity(v: unknown): Verbosity | undefined {
   return (VERBOSITIES as readonly string[]).includes(v) ? (v as Verbosity) : undefined;
 }
 
-const PROVIDERS = ["ollama", "openai", "gemini", "groq"] as const;
+const PROVIDERS = ["ollama", "openai", "gemini", "groq", "xai"] as const;
 function asOptionalProvider(v: unknown): LLMProvider | undefined {
   if (typeof v !== "string") return undefined;
   return (PROVIDERS as readonly string[]).includes(v) ? (v as LLMProvider) : undefined;
+}
+
+function asOptionalUrl(v: unknown): string | undefined {
+  if (typeof v !== "string") return undefined;
+  const s = v.trim();
+  if (!s) return undefined;
+  try {
+    // accept http(s) only
+    const u = new URL(s);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return undefined;
+    return u.toString();
+  } catch {
+    return undefined;
+  }
 }
 
 function getErrorMessage(error: unknown): string {
@@ -67,11 +83,14 @@ function getErrorMessage(error: unknown): string {
 export async function GET(_req: NextRequest, context: RouteContext): Promise<NextResponse> {
   void _req;
   try {
+    const denied = await requireAdmin(_req);
+    if (denied) return denied;
+
     const { clientId } = await context.params;
 
     await assertClientActive(clientId);
 
-    const settings = await getAssistantSettings(clientId);
+    const settings = toPublicAssistantSettings(await getAssistantSettings(clientId));
     return NextResponse.json({ settings }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof ClientAccessError) {
@@ -90,6 +109,9 @@ export async function GET(_req: NextRequest, context: RouteContext): Promise<Nex
 // POST /api/clients/:clientId/assistant-settings
 export async function POST(req: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
+    const denied = await requireSuperAdmin(req);
+    if (denied) return denied;
+
     const { clientId } = await context.params;
 
     await assertClientActive(clientId);
@@ -104,20 +126,28 @@ export async function POST(req: NextRequest, context: RouteContext): Promise<Nex
       temperature: asOptionalNumber(b.temperature),
       provider: asOptionalProvider(b.provider),
       model: asOptionalString(b.model),
+      baseUrl: asOptionalUrl(b.baseUrl),
       apiKeyPlain: asOptionalString(b.apiKeyPlain),
     });
 
-    return NextResponse.json({ settings }, { status: 200 });
+    return NextResponse.json({ settings: toPublicAssistantSettings(settings) }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof ClientAccessError) {
       const e = error as ClientAccessError;
       return NextResponse.json({ error: e.message, code: e.code }, { status: e.status });
     }
 
+    const msg = getErrorMessage(error) || "Erro interno ao salvar configurações.";
+
+    // Caso clássico: NEXTIA_MASTER_KEY ausente ao tentar salvar apiKey.
+    if (typeof msg === "string" && msg.includes("NEXTIA_MASTER_KEY")) {
+      return NextResponse.json(
+        { error: "master_key_required", message: msg },
+        { status: 400 }
+      );
+    }
+
     console.error("Erro ao salvar assistant-settings:", error);
-    return NextResponse.json(
-      { error: getErrorMessage(error) || "Erro interno ao salvar configurações." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

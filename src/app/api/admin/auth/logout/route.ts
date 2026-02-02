@@ -1,17 +1,18 @@
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { ADMIN_COOKIE_NAME, getAdminSessionCookieOptions } from "@/lib/adminAuth";
 
-const COOKIE_NAME = "nextia_admin_session";
-
-export async function POST() {
+// Admin logout: clears the session cookie.
+// IMPORTANT: must return a Response in all cases (Next.js App Router requirement).
+export async function POST(req: NextRequest) {
   const res = NextResponse.json({ ok: true }, { status: 200 });
-  res.cookies.set(COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+
+  const opts = getAdminSessionCookieOptions(req);
+  res.cookies.set(ADMIN_COOKIE_NAME, "", {
+    ...opts,
     maxAge: 0,
-    path: "/",
   });
+
   return res;
 }

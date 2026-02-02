@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "updatedAt": "2026-01-16T20:41:58.382Z",
+  "data": [
+    {
+      "id": "3e820f06-01fb-4d13-a81c-118800704d2d",
+      "role": "user",
+      "content": "Oi",
+      "createdAt": "2026-01-16T09:11:04.069Z"
+    },
+    {
+      "id": "b118578b-d6ac-4ae5-9937-85b25b367185",
+      "role": "assistant",
+      "content": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: Oi",
+      "createdAt": "2026-01-16T09:11:04.075Z",
+      "usage": {
+        "promptTokens": 1,
+        "completionTokens": 18,
+        "totalTokens": 19,
+        "cached": false
+      }
+    },
+    {
+      "id": "dd8d269d-6fd2-4ab8-8b6f-b984f927d88b",
+      "role": "user",
+      "content": "Oi",
+      "createdAt": "2026-01-16T09:18:16.899Z"
+    },
+    {
+      "id": "46e1acfb-5c12-4020-b5a8-194a7416881d",
+      "role": "assistant",
+      "content": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: Oi",
+      "createdAt": "2026-01-16T09:18:16.904Z",
+      "usage": {
+        "promptTokens": 24,
+        "completionTokens": 18,
+        "totalTokens": 42,
+        "cached": false
+      }
+    },
+    {
+      "id": "bf1bc21c-ffca-4873-896c-a756a8735fdb",
+      "role": "user",
+      "content": "PING_CACHE_001",
+      "createdAt": "2026-01-16T20:41:54.615Z"
+    },
+    {
+      "id": "d006be56-02de-49d0-b590-748bb15fea71",
+      "role": "assistant",
+      "content": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: PING_CACHE_001",
+      "createdAt": "2026-01-16T20:41:54.626Z",
+      "usage": {
+        "promptTokens": 50,
+        "completionTokens": 21,
+        "totalTokens": 71,
+        "cached": false
+      }
+    },
+    {
+      "id": "1bbf4ac2-02e9-4af3-a27a-7f827dab9fee",
+      "role": "user",
+      "content": "PING_CACHE_001",
+      "createdAt": "2026-01-16T20:41:58.376Z"
+    },
+    {
+      "id": "a9d17ecd-fcef-4b6f-bf62-d48b8a7c2b2c",
+      "role": "assistant",
+      "content": "Entendi. Vou registrar isso para o cliente \"loja_teste\".\n\nMensagem: PING_CACHE_001",
+      "createdAt": "2026-01-16T20:41:58.382Z",
+      "usage": {
+        "promptTokens": 80,
+        "completionTokens": 21,
+        "totalTokens": 101,
+        "cached": false
+      }
+    }
+  ]
+}

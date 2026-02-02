@@ -1,6 +1,7 @@
 [
   {
     "id": "ord_teste_001",
+    "publicId": null,
     "clientId": "catia_foods",
     "contactId": "ct_teste_1",
     "identifier": "",
@@ -20,13 +21,13 @@
     "payment": null,
     "lastMessage": "",
     "status": "abandonado",
-    "conversationStep": null,
+    "conversationStep": "null",
     "createdAt": "2025-12-07T22:30:00.000Z",
-    "updatedAt": "2025-12-08T07:48:57.261Z",
-    "abandonedAt": "2025-12-09T00:15:30.446Z"
+    "updatedAt": "2025-12-08T07:48:57.261Z"
   },
   {
     "id": "ord_teste_002",
+    "publicId": null,
     "clientId": "catia_foods",
     "contactId": "ct_teste_2",
     "identifier": "",
@@ -46,9 +47,231 @@
     "payment": null,
     "lastMessage": "",
     "status": "abandonado",
-    "conversationStep": null,
+    "conversationStep": "null",
     "createdAt": "2025-12-07T22:31:00.000Z",
-    "updatedAt": "2025-12-07T22:31:00.000Z",
-    "abandonedAt": "2025-12-09T00:15:30.446Z"
+    "updatedAt": "2025-12-07T22:31:00.000Z"
+  },
+  {
+    "id": "order_v1kbo2xe_3kx2fk",
+    "publicId": "PD-000001",
+    "clientId": "loja_teste",
+    "contactId": "ct_vjicpdpi_41bl87",
+    "identifier": "+55 11 99999-0000",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "seed_item_1",
+        "name": "Produto Seed",
+        "quantity": 1,
+        "unitPriceCents": 4990,
+        "unitPrice": 49.9
+      }
+    ],
+    "totalAmountCents": 4990,
+    "totalAmount": 49.9,
+    "delivery": {
+      "method": "retirada",
+      "fee": 0,
+      "feeCents": 0,
+      "estimatedTimeMinutes": 10
+    },
+    "paymentTiming": "na_entrega",
+    "payment": {
+      "method": "pix",
+      "status": "pendente",
+      "amount": 49.9,
+      "amountCents": 4990
+    },
+    "lastMessage": "Pedido seed para teste de PD-######",
+    "status": "em_preparo",
+    "conversationStep": "null",
+    "createdAt": "2026-01-25T23:04:44.881Z",
+    "updatedAt": "2026-01-25T23:22:32.156Z",
+    "notifyCustomer": true
+  },
+  {
+    "id": "order_5j1bcg26_p9qsqm",
+    "publicId": null,
+    "clientId": "loja_teste",
+    "contactId": "ct_vjicpdpi_41bl87",
+    "identifier": "+55 11 99999-0000",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "seed_item_1",
+        "name": "Produto Seed",
+        "quantity": 1,
+        "unitPrice": 49.9,
+        "unitPriceCents": 4990
+      }
+    ],
+    "totalAmount": 49.9,
+    "totalAmountCents": 4990,
+    "delivery": {
+      "method": "retirada",
+      "fee": 0,
+      "feeCents": 0,
+      "estimatedTimeMinutes": 10
+    },
+    "paymentTiming": "na_entrega",
+    "payment": {
+      "method": "pix",
+      "status": "pendente",
+      "amount": 49.9,
+      "amountCents": 4990
+    },
+    "lastMessage": "Pedido seed para teste de PD-######",
+    "status": "aguardando_preparo",
+    "conversationStep": null,
+    "createdAt": "2026-01-26T22:47:26.051Z",
+    "updatedAt": "2026-01-26T22:47:26.051Z"
+  },
+  {
+    "id": "order_fig0lyar_xohdm0",
+    "publicId": null,
+    "clientId": "loja_teste",
+    "contactId": "ct_vjicpdpi_41bl87",
+    "identifier": "+55 11 99999-0000",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "seed_item_1",
+        "name": "Produto Seed",
+        "quantity": 1,
+        "unitPrice": 49.9,
+        "unitPriceCents": 4990
+      }
+    ],
+    "totalAmount": 49.9,
+    "totalAmountCents": 4990,
+    "delivery": {
+      "method": "retirada",
+      "fee": 0,
+      "feeCents": 0,
+      "estimatedTimeMinutes": 10
+    },
+    "paymentTiming": "na_entrega",
+    "payment": {
+      "method": "pix",
+      "status": "pendente",
+      "amount": 49.9,
+      "amountCents": 4990
+    },
+    "lastMessage": "Pedido seed para teste de PD-######",
+    "status": "aguardando_preparo",
+    "conversationStep": null,
+    "createdAt": "2026-01-27T11:45:03.464Z",
+    "updatedAt": "2026-01-27T11:45:03.464Z"
+  },
+  {
+    "id": "order_avk9yarl_mwzbr8",
+    "publicId": null,
+    "clientId": "loja_teste",
+    "contactId": "ct_vjicpdpi_41bl87",
+    "identifier": "+55 11 99999-0000",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "seed_item_1",
+        "name": "Produto Seed",
+        "quantity": 1,
+        "unitPrice": 49.9,
+        "unitPriceCents": 4990
+      }
+    ],
+    "totalAmount": 49.9,
+    "totalAmountCents": 4990,
+    "delivery": {
+      "method": "retirada",
+      "fee": 0,
+      "feeCents": 0,
+      "estimatedTimeMinutes": 10
+    },
+    "paymentTiming": "na_entrega",
+    "payment": {
+      "method": "pix",
+      "status": "pendente",
+      "amount": 49.9,
+      "amountCents": 4990
+    },
+    "lastMessage": "Pedido seed para teste de PD-######",
+    "status": "aguardando_preparo",
+    "conversationStep": null,
+    "createdAt": "2026-01-27T11:45:30.812Z",
+    "updatedAt": "2026-01-27T11:45:30.812Z"
+  },
+  {
+    "id": "order_u7mqt26y_mxmni5",
+    "publicId": null,
+    "clientId": "loja_teste",
+    "contactId": "ct_vjicpdpi_41bl87",
+    "identifier": "+55 11 99999-0000",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "seed_item_1",
+        "name": "Produto Seed",
+        "quantity": 1,
+        "unitPrice": 49.9,
+        "unitPriceCents": 4990
+      }
+    ],
+    "totalAmount": 49.9,
+    "totalAmountCents": 4990,
+    "delivery": {
+      "method": "retirada",
+      "fee": 0,
+      "feeCents": 0,
+      "estimatedTimeMinutes": 10
+    },
+    "paymentTiming": "na_entrega",
+    "payment": {
+      "method": "pix",
+      "status": "pendente",
+      "amount": 49.9,
+      "amountCents": 4990
+    },
+    "lastMessage": "Pedido seed para teste de PD-######",
+    "status": "aguardando_preparo",
+    "conversationStep": null,
+    "createdAt": "2026-01-27T12:10:16.784Z",
+    "updatedAt": "2026-01-27T12:10:16.784Z"
+  },
+  {
+    "id": "order_ntca1cyj_o5lht2",
+    "publicId": null,
+    "clientId": "loja_teste",
+    "contactId": "ct_vjicpdpi_41bl87",
+    "identifier": "+55 11 99999-0000",
+    "channel": "whatsapp",
+    "items": [
+      {
+        "id": "seed_item_1",
+        "name": "Produto Seed",
+        "quantity": 1,
+        "unitPrice": 49.9,
+        "unitPriceCents": 4990
+      }
+    ],
+    "totalAmount": 49.9,
+    "totalAmountCents": 4990,
+    "delivery": {
+      "method": "retirada",
+      "fee": 0,
+      "feeCents": 0,
+      "estimatedTimeMinutes": 10
+    },
+    "paymentTiming": "na_entrega",
+    "payment": {
+      "method": "pix",
+      "status": "pendente",
+      "amount": 49.9,
+      "amountCents": 4990
+    },
+    "lastMessage": "Pedido seed para teste de PD-######",
+    "status": "aguardando_preparo",
+    "conversationStep": null,
+    "createdAt": "2026-01-27T22:20:55.188Z",
+    "updatedAt": "2026-01-27T22:20:55.188Z"
   }
 ]

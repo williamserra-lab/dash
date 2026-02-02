@@ -5,6 +5,9 @@ import { resolveLlmDecision } from "@/lib/llmPolicy";
 
 export const runtime = "nodejs";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PainelPage() {
   const clientSummaries = await getAllClientsSummary();
   const global = await getGlobalSummary();

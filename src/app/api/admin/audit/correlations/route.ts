@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminAuth";
 import { listRecentCorrelations } from "@/lib/analytics";
 
 // Note: In Next.js route handlers, DO NOT export helpers. Only export HTTP methods.
@@ -7,6 +8,9 @@ import { listRecentCorrelations } from "@/lib/analytics";
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   const url = new URL(req.url);
   const clientId = url.searchParams.get("clientId") || undefined;
   const limitRaw = url.searchParams.get("limit");

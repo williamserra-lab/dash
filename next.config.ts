@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["db/migrations/**/*.sql"],
   },
-
 };
 
 export default nextConfig;

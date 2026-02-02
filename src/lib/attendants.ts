@@ -9,6 +9,7 @@ export type Attendant = {
   id: string;
   clientId: string;
   name: string;
+  specialty?: string | null;
   role: AttendantRole;
   active: boolean;
   createdAt: string;
@@ -25,6 +26,8 @@ function normalize(a: Partial<Attendant>): Attendant | null {
   const id = typeof a.id === "string" && a.id ? a.id : "";
   const clientId = typeof a.clientId === "string" && a.clientId ? a.clientId : "";
   const name = typeof a.name === "string" ? a.name.trim() : "";
+  const specialtyRaw = typeof (a as any).specialty === "string" ? String((a as any).specialty).trim() : "";
+  const specialty = specialtyRaw ? specialtyRaw : null;
   const role: AttendantRole = a.role === "agent" ? "agent" : "admin";
   const active = typeof a.active === "boolean" ? a.active : true;
 
@@ -48,7 +51,7 @@ async function dbEnabled(): Promise<boolean> {
 export async function listAttendantsByClient(clientId: string): Promise<Attendant[]> {
   if (await dbEnabled()) {
     const r = await dbQuery<Attendant>(
-      `SELECT id, client_id as "clientId", name, role, active, created_at as "createdAt", updated_at as "updatedAt"
+      `SELECT id, client_id as "clientId", name, specialty, role, active, created_at as "createdAt", updated_at as "updatedAt"
        FROM nextia_attendants WHERE client_id=$1 ORDER BY created_at ASC`,
       [clientId]
     );
@@ -66,7 +69,7 @@ export async function listAttendantsByClient(clientId: string): Promise<Attendan
 export async function getAttendantById(clientId: string, attendantId: string): Promise<Attendant | null> {
   if (await dbEnabled()) {
     const r = await dbQuery<Attendant>(
-      `SELECT id, client_id as "clientId", name, role, active, created_at as "createdAt", updated_at as "updatedAt"
+      `SELECT id, client_id as "clientId", name, specialty, role, active, created_at as "createdAt", updated_at as "updatedAt"
        FROM nextia_attendants WHERE client_id=$1 AND id=$2 LIMIT 1`,
       [clientId, attendantId]
     );
@@ -82,6 +85,7 @@ export async function getAttendantById(clientId: string, attendantId: string): P
 export async function createAttendant(params: {
   clientId: string;
   name: string;
+  specialty?: string | null;
   role?: AttendantRole;
   active?: boolean;
 }): Promise<Attendant> {
@@ -90,6 +94,7 @@ export async function createAttendant(params: {
     id: createId("at"),
     clientId: params.clientId,
     name: params.name.trim(),
+    specialty: params.specialty ?? null,
     role: params.role === "agent" ? "agent" : "admin",
     active: typeof params.active === "boolean" ? params.active : true,
     createdAt,
@@ -98,9 +103,9 @@ export async function createAttendant(params: {
 
   if (await dbEnabled()) {
     await dbQuery(
-      `INSERT INTO nextia_attendants (id, client_id, name, role, active, created_at, updated_at)
+      `INSERT INTO nextia_attendants (id, client_id, name, specialty, role, active, created_at, updated_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [rec.id, rec.clientId, rec.name, rec.role, rec.active, rec.createdAt, rec.updatedAt]
+      [rec.id, rec.clientId, rec.name, rec.specialty, rec.role, rec.active, rec.createdAt, rec.updatedAt]
     );
     return rec;
   }
@@ -111,7 +116,7 @@ export async function createAttendant(params: {
   return rec;
 }
 
-export async function updateAttendant(clientId: string, attendantId: string, patch: Partial<Pick<Attendant, "name"|"role"|"active">>): Promise<Attendant | null> {
+export async function updateAttendant(clientId: string, attendantId: string, patch: Partial<Pick<Attendant, "name"|"specialty"|"role"|"active">>): Promise<Attendant | null> {
   const existing = await getAttendantById(clientId, attendantId);
   if (!existing) return null;
 

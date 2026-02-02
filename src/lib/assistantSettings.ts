@@ -21,6 +21,8 @@ export type AssistantSettings = {
   temperature?: number; // 0..1
   provider?: LLMProvider;
   model?: string;
+  // Alguns providers exigem baseUrl (ex.: gateways, proxies, self-host)
+  baseUrl?: string;
 
   // Salvo criptografado
   apiKeyEnc?: string; // base64(iv).base64(tag).base64(ciphertext)
@@ -46,6 +48,14 @@ export type AssistantSettings = {
   // Segurança operacional: sem catálogo completo, pré-pedido é bloqueado.
   requireCatalogForPreorder?: boolean;
   updatedAt: string;
+};
+
+// DTO seguro para devolver ao painel (nunca vazar apiKeyEnc).
+export type AssistantSettingsPublic = Omit<AssistantSettings, "apiKeyEnc" | "apiKeyLast4"> & {
+  secrets: {
+    hasApiKey: boolean;
+    apiKeyLast4?: string;
+  };
 };
 
 type StoreShape = Record<string, AssistantSettings>;
@@ -132,6 +142,18 @@ export async function getAssistantSettings(clientId: string): Promise<AssistantS
   return store[clientId] ?? null;
 }
 
+export function toPublicAssistantSettings(s: AssistantSettings | null): AssistantSettingsPublic | null {
+  if (!s) return null;
+  const { apiKeyEnc, apiKeyLast4, ...rest } = s;
+  return {
+    ...rest,
+    secrets: {
+      hasApiKey: Boolean(apiKeyEnc),
+      apiKeyLast4: apiKeyLast4 || undefined,
+    },
+  };
+}
+
 export async function upsertAssistantSettings(
   clientId: string,
   input: Partial<AssistantSettings> & { apiKeyPlain?: string | null }
@@ -167,6 +189,7 @@ export async function upsertAssistantSettings(
         : prev?.temperature ?? 0.2,
     provider: input.provider ?? prev?.provider ?? "ollama",
     model: input.model ?? prev?.model,
+    baseUrl: input.baseUrl ?? prev?.baseUrl,
 
     // UX / conversa
     greetingText: input.greetingText ?? prev?.greetingText,
